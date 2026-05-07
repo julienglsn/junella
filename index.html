@@ -167,6 +167,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
 .mc.full{grid-column:span 2}
 
+/* SS GROUP in logger */
+.ss-group{margin-bottom:16px}
+.ss-group-label{display:flex;align-items:center;gap:8px;padding:0 0 8px;font-size:12px;font-weight:600;color:var(--text2)}
+.ss-group .elb{margin-bottom:6px}
+.ss-group .elb:last-child{margin-bottom:0}
+
 /* SETS CTRL */
 .sets-ctrl{display:flex;align-items:center;gap:8px}
 .sets-ctrl span{font-size:12px;color:var(--text2);font-weight:600;min-width:52px;text-align:center}
@@ -260,24 +266,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool</button>
     </div>
     <div id="sa">
-      <div class="chips"><span class="chip">🫁 Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Poitrine / Épaules · 4 séries</span></div><div class="sse"><div class="ssen">Développé couché haltères</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Élévations latérales</div><div class="ssev">4 × 12–15</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Poitrine incliné / Câble · 3 séries</span></div><div class="sse"><div class="ssen">Développé incliné haltères</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Oiseau poulie haute</div><div class="ssev">3 × 12</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Triceps / Épaule · 3 séries</span></div><div class="sse"><div class="ssen">Dips assistés</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Élévations frontales</div><div class="ssev">3 × 12</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">FIN</span><span class="sss">Finisher · 2 séries</span></div><div class="sse"><div class="ssen">Pushdown poulie</div><div class="ssev">2 × 15</div></div><div class="sse"><div class="ssen">Face pull</div><div class="ssev">2 × 15</div></div></div>
+      <div class="chips"><span class="chip">🔴 Jambes / Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Goblet squat</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Static lunges</div><div class="ssev">4 × 8/jambe</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">4 × 12–15</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Triceps / Gainage · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable triceps pushdown</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">3 × 30–45 sec</div></div></div>
     </div>
     <div id="sb" style="display:none">
       <div class="chips"><span class="chip">🔵 Pull</span><span class="chip">⏱ 45–60 min</span><span class="chip">🩺 Sangles pouce</span></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Dos / Biceps · 4 séries</span></div><div class="sse"><div class="ssen">Tirage horizontal poulie</div><div class="ssev">4 × 10</div></div><div class="sse"><div class="ssen">Curl incliné haltères</div><div class="ssev">4 × 10</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Tirage vertical / Marteau · 3 séries</span></div><div class="sse"><div class="ssen">Tirage vertical prise neutre</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Curl marteau</div><div class="ssev">3 × 12</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Row / Arrière épaule · 3 séries</span></div><div class="sse"><div class="ssen">Row haltère 1 bras</div><div class="ssev">3 × 10/côté</div></div><div class="sse"><div class="ssen">Rear delt fly</div><div class="ssev">3 × 15</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">FIN</span><span class="sss">Finisher · 2 séries</span></div><div class="sse"><div class="ssen">Shrug haltères</div><div class="ssev">2 × 15</div></div><div class="sse"><div class="ssen">Gainage planche</div><div class="ssev">2 × 45 sec</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Postérieur / Gainage · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Romanian deadlift</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">4 × 30–45 sec</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Dos · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Lat pulldown</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Single-arm dumbbell row</div><div class="ssev">4 × 10/côté</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Biceps / Épaule · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable curl</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Face pull</div><div class="ssev">3 × 12–15</div></div></div>
     </div>
     <div id="sc" style="display:none">
       <div class="chips"><span class="chip">🟢 Full body</span><span class="chip">⏱ 45–60 min</span><span class="chip">⚡ Éloigné du basket</span></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries</span></div><div class="sse"><div class="ssen">Leg press</div><div class="ssev">4 × 10</div></div><div class="sse"><div class="ssen">Standing calf raises</div><div class="ssev">4 × 12–15</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push / Pull · 4 séries</span></div><div class="sse"><div class="ssen">Incline bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Dumbbell row</div><div class="ssev">4 × 10</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Bras / Épaules · 3 séries</span></div><div class="sse"><div class="ssen">Hammer curl</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">3 × 12–15</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Leg press</div><div class="ssev">4 × 10</div></div><div class="sse"><div class="ssen">Standing calf raises</div><div class="ssev">4 × 12–15</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push / Pull · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Incline bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Dumbbell row</div><div class="ssev">4 × 10</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Bras / Épaules · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Hammer curl</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">3 × 12–15</div></div></div>
     </div>
     <div id="swarm" style="display:none">
       <div class="chips"><span class="chip">🔥 Avant chaque séance</span><span class="chip">⏱ ~10 min</span></div>
@@ -392,24 +396,54 @@ async function dbSave(data){
 
 // ════ DATA ════
 const SESSIONS = {
-  a:{ label:'Séance A — Push', exercises:[
-    {name:'Développé couché haltères',sets:4},{name:'Élévations latérales',sets:4},
-    {name:'Développé incliné haltères',sets:3},{name:'Oiseau poulie haute',sets:3},
-    {name:'Dips assistés',sets:3},{name:'Élévations frontales',sets:3},
-    {name:'Pushdown poulie',sets:2},{name:'Face pull',sets:2}
+  a:{ label:'Séance A — Jambes / Push', supersets:[
+    { label:'Jambes', exercises:[
+      {name:'Goblet squat',      sets:4, reps:'8–10'},
+      {name:'Static lunges',     sets:4, reps:'8/jambe'}
+    ]},
+    { label:'Push', exercises:[
+      {name:'Bench press',       sets:4, reps:'8–10'},
+      {name:'Lateral raises',    sets:4, reps:'12–15'}
+    ]},
+    { label:'Triceps / Gainage', exercises:[
+      {name:'Cable triceps pushdown', sets:3, reps:'10–12'},
+      {name:'Plank',             sets:3, reps:'30–45 sec'}
+    ]}
   ]},
-  b:{ label:'Séance B — Pull', exercises:[
-    {name:'Tirage horizontal poulie',sets:4},{name:'Curl incliné haltères',sets:4},
-    {name:'Tirage vertical prise neutre',sets:3},{name:'Curl marteau',sets:3},
-    {name:'Row haltère 1 bras',sets:3},{name:'Rear delt fly',sets:3},
-    {name:'Shrug haltères',sets:2}
+  b:{ label:'Séance B — Pull', supersets:[
+    { label:'Postérieur / Gainage', exercises:[
+      {name:'Romanian deadlift', sets:4, reps:'8–10'},
+      {name:'Plank',             sets:4, reps:'30–45 sec'}
+    ]},
+    { label:'Dos', exercises:[
+      {name:'Lat pulldown',      sets:4, reps:'8–10'},
+      {name:'Single-arm dumbbell row', sets:4, reps:'10/côté'}
+    ]},
+    { label:'Biceps / Épaule', exercises:[
+      {name:'Cable curl',        sets:3, reps:'10–12'},
+      {name:'Face pull',         sets:3, reps:'12–15'}
+    ]}
   ]},
-  c:{ label:'Séance C — Full body', exercises:[
-    {name:'Leg press',sets:4},{name:'Standing calf raises',sets:4},
-    {name:'Incline bench press',sets:4},{name:'Dumbbell row',sets:4},
-    {name:'Hammer curl',sets:3},{name:'Lateral raises',sets:3}
+  c:{ label:'Séance C — Full body', supersets:[
+    { label:'Jambes', exercises:[
+      {name:'Leg press',         sets:4, reps:'10'},
+      {name:'Standing calf raises', sets:4, reps:'12–15'}
+    ]},
+    { label:'Push / Pull', exercises:[
+      {name:'Incline bench press', sets:4, reps:'8–10'},
+      {name:'Dumbbell row',      sets:4, reps:'10'}
+    ]},
+    { label:'Bras / Épaules', exercises:[
+      {name:'Hammer curl',       sets:3, reps:'10'},
+      {name:'Lateral raises',    sets:3, reps:'12–15'}
+    ]}
   ]}
 };
+
+// Flatten exercises for logger (keeps ei indexing simple)
+function flatExos(sessKey){
+  return SESSIONS[sessKey].supersets.flatMap(ss=>ss.exercises);
+}
 
 // ════ STATE ════
 let curLog     = 'a';
@@ -497,7 +531,7 @@ function selLog(s){
 }
 
 function getSets(ei){
-  return customSets[ei] !== undefined ? customSets[ei] : SESSIONS[curLog].exercises[ei].sets;
+  return customSets[ei] !== undefined ? customSets[ei] : flatExos(curLog)[ei].sets;
 }
 
 function addSet(ei){
@@ -513,7 +547,7 @@ function removeSet(ei){
 }
 
 function rebuildExo(ei){
-  const exo = SESSIONS[curLog].exercises[ei];
+  const exo = flatExos(curLog)[ei];
   const n = getSets(ei);
   let h = '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
   for(let s=1;s<=n;s++){
@@ -541,22 +575,29 @@ function renderLog(){
   h += '<button class="fbtn" onclick="setF(\'🔥\',this)"><div>🔥</div><div class="flbl">En feu</div></button>';
   h += '</div>';
 
-  sess.exercises.forEach((exo,ei)=>{
-    const n = getSets(ei);
-    h += '<div class="elb"><div class="elh">'+exo.name;
-    h += '<div class="sets-ctrl">';
-    h += '<button class="sc-btn" onclick="removeSet('+ei+')">−</button>';
-    h += '<span id="sets-count-'+ei+'">'+n+' série'+(n>1?'s':'')+'</span>';
-    h += '<button class="sc-btn" onclick="addSet('+ei+')">+</button>';
-    h += '</div></div>';
-    h += '<div id="exo-rows-'+ei+'">';
-    h += '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
-    for(let s=1;s<=n;s++){
-      h += '<tr><td><span class="sn">'+s+'</span></td>';
-      h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
-      h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
-    }
-    h += '</table></div></div>';
+  let eiOffset = 0;
+  SESSIONS[curLog].supersets.forEach((ss, ssi)=>{
+    h += '<div class="ss-group">';
+    h += '<div class="ss-group-label"><span class="sst">SS'+(ssi+1)+'</span><span>'+ss.label+'</span></div>';
+    ss.exercises.forEach((exo)=>{
+      const ei = eiOffset++;
+      const n = getSets(ei);
+      h += '<div class="elb"><div class="elh">'+exo.name;
+      h += '<div class="sets-ctrl">';
+      h += '<button class="sc-btn" onclick="removeSet('+ei+')">−</button>';
+      h += '<span id="sets-count-'+ei+'">'+n+' série'+(n>1?'s':'')+'</span>';
+      h += '<button class="sc-btn" onclick="addSet('+ei+')">+</button>';
+      h += '</div></div>';
+      h += '<div id="exo-rows-'+ei+'">';
+      h += '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
+      for(let s=1;s<=n;s++){
+        h += '<tr><td><span class="sn">'+s+'</span></td>';
+        h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
+        h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
+      }
+      h += '</table></div></div>';
+    });
+    h += '</div>';
   });
 
   h += '<div class="slabel" style="margin:14px 0 8px">Note</div>';
@@ -580,7 +621,7 @@ async function saveSess(){
     date: new Date(logDate+'T12:00:00').toISOString(),
     feeling: feeling||'😐',
     note: document.getElementById('lnote').value,
-    exercises: sess.exercises.map((exo,ei)=>({
+    exercises: flatExos(curLog).map((exo,ei)=>({
       name: exo.name,
       sets: Array.from({length:getSets(ei)},(_,si)=>({
         weight: document.getElementById('w_'+ei+'_'+(si+1))?.value||'',
