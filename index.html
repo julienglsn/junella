@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-title" content="Coaching Ju">
 <meta name="theme-color" content="#060a12">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060a12'/%3E%3Ctext x='90' y='56' font-size='18' font-weight='700' fill='%234d9eff' text-anchor='middle' font-family='system-ui' letter-spacing='1'%3ECOACHING%3C/text%3E%3Ctext x='90' y='110' font-size='48' font-weight='900' fill='white' text-anchor='middle' font-family='system-ui'%3EJU%3C/text%3E%3C/svg%3E">
-<script src="https://cdn.jsdelivr.net/npm/fit-file-parser@1.9.4/dist/fit-file-parser.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -574,47 +573,160 @@ function triggerImport(mode, sport){
   document.getElementById(id)?.click();
 }
 
-async function handleFit(event, sport){
-  const file = event.target.files[0];
-  if(!file) return;
-  event.target.value='';
+// ════ ROBUST FIT PARSER ════
+// Reads FIT binary directly — tolerant to Coros/Wahoo field quirks
+function parseFitRobust(buffer){
+  const view = new DataView(buffer);
+  const result = { records:[], session:null, activity:null };
 
-  showImportLoading(sport, '📂 Lecture du fichier .fit...');
+  // FIT global message numbers we care about
+  const MSG_FILE_ID=0, MSG_DEVICE_INFO=23, MSG_EVENT=21,
+        MSG_RECORD=20, MSG_LAP=19, MSG_SESSION=18, MSG_ACTIVITY=34;
 
-  try {
-    const buffer = await file.arrayBuffer();
-    // Use FitParser if available
-    let parsed;
-    if(typeof FitParser !== 'undefined'){
-      const fitParser = new FitParser({ force: true, speedUnit: 'km/h', lengthUnit: 'km', elapsedRecordField: true });
-      parsed = await new Promise((res, rej) => {
-        fitParser.parse(buffer, (err, data) => { if(err) rej(err); else res(data); });
-      });
-    } else {
-      throw new Error('FitParser not loaded');
-    }
+  const localMsgDefs = {};
+  const baseTypes = {
+    0:{size:1,read:(v,o)=>v.getUint8(o)},
+    1:{size:1,read:(v,o)=>v.getInt8(o)},
+    2:{size:1,read:(v,o)=>v.getUint8(o)},
+    3:{size:2,read:(v,o)=>v.getUint16(o,true)},
+    4:{size:2,read:(v,o)=>v.getInt16(o,true)},
+    5:{size:4,read:(v,o)=>v.getUint32(o,true)},
+    6:{size:4,read:(v,o)=>v.getInt32(o,true)},
+    7:{size:1,read:(v,o)=>v.getUint8(o)}, // string
+    8:{size:4,read:(v,o)=>v.getFloat32(o,true)},
+    9:{size:8,read:(v,o)=>v.getFloat64(o,true)},
+    10:{size:1,read:(v,o)=>v.getUint8(o)},
+    11:{size:2,read:(v,o)=>v.getUint16(o,true)},
+    12:{size:4,read:(v,o)=>v.getUint32(o,true)},
+    13:{size:1,read:(v,o)=>v.getUint8(o)},
+    132:{size:2,read:(v,o)=>v.getUint16(o,true)},
+    133:{size:4,read:(v,o)=>v.getUint32(o,true)},
+    134:{size:4,read:(v,o)=>v.getFloat32(o,true)},
+    136:{size:4,read:(v,o)=>v.getUint32(o,true)},
+    137:{size:2,read:(v,o)=>v.getUint16(o,true)},
+    139:{size:4,read:(v,o)=>v.getInt32(o,true)},
+    140:{size:8,read:(v,o)=>{ try{return view.getBigUint64(o,true);}catch(e){return 0;}}},
+  };
 
-    const activity = extractFitData(parsed, sport);
-    hideImportLoading(sport);
-    showPreviewModal(activity, sport, null);
-  } catch(e){
-    hideImportLoading(sport);
-    console.error('FIT parse error', e);
-    alert("Erreur lors de la lecture du fichier .fit. Essaie avec un screenshot.");
+  // Field number -> name for messages we care about
+  const fieldNames = {
+    [MSG_RECORD]:   {253:'timestamp',0:'position_lat',1:'position_long',2:'altitude',3:'heart_rate',4:'cadence',5:'distance',6:'speed',7:'power',13:'temperature',39:'vertical_oscillation',53:'fractional_cadence'},
+    [MSG_SESSION]:  {253:'timestamp',2:'start_time',7:'total_elapsed_time',8:'total_timer_time',9:'total_distance',10:'total_cycles',11:'total_calories',14:'avg_speed',15:'max_speed',16:'avg_power',17:'max_power',18:'total_ascent',19:'total_descent',20:'total_training_effect',21:'first_lap_index',22:'num_laps',23:'event',24:'event_type',25:'sport',26:'sub_sport',27:'avg_heart_rate',28:'max_heart_rate',29:'avg_cadence',30:'max_cadence'},
+    [MSG_ACTIVITY]: {253:'timestamp',0:'total_timer_time',1:'local_timestamp',2:'num_sessions',3:'type',4:'event',5:'event_type'},
+  };
+
+  const FIT_EPOCH = Date.UTC(1989,11,31,0,0,0);
+
+  function fitTimestamp(val){ return new Date(FIT_EPOCH + val*1000); }
+
+  let offset = 0;
+  // Skip FIT file header
+  const headerSize = view.getUint8(0);
+  offset = headerSize;
+
+  while(offset < buffer.byteLength - 2){
+    try {
+      const recHdr = view.getUint8(offset); offset++;
+      const isDefn  = (recHdr & 0x40) !== 0;
+      const localNum = recHdr & 0x0F;
+
+      if(isDefn){
+        offset++; // reserved
+        const arch = view.getUint8(offset++);
+        const le   = arch === 0;
+        const globalNum = le ? view.getUint16(offset, true) : view.getUint16(offset, false);
+        offset += 2;
+        const numFields = view.getUint8(offset++);
+        const fields = [];
+        for(let i=0;i<numFields;i++){
+          const fNum  = view.getUint8(offset++);
+          const fSize = view.getUint8(offset++);
+          const fBase = view.getUint8(offset++);
+          fields.push({num:fNum, size:fSize, base:fBase & 0x9F});
+        }
+        // Check for dev fields
+        if(recHdr & 0x20){
+          const numDev = view.getUint8(offset++);
+          for(let i=0;i<numDev;i++){ offset+=3; }
+        }
+        localMsgDefs[localNum] = {globalNum, fields};
+      } else {
+        const def = localMsgDefs[localNum];
+        if(!def){ break; }
+        const msgOffset = offset;
+        const msgSize = def.fields.reduce((s,f)=>s+f.size,0);
+
+        const obj = {};
+        let fieldOffset = offset;
+        for(const f of def.fields){
+          const bt = baseTypes[f.base];
+          if(bt && f.size === bt.size){
+            try {
+              const val = bt.read(view, fieldOffset);
+              const names = fieldNames[def.globalNum];
+              if(names && names[f.num]){
+                obj[names[f.num]] = val;
+              }
+            } catch(e){}
+          }
+          fieldOffset += f.size;
+        }
+        offset += msgSize;
+
+        if(def.globalNum === MSG_RECORD){
+          const rec = {};
+          if(obj.timestamp) rec.timestamp = fitTimestamp(obj.timestamp);
+          if(obj.heart_rate && obj.heart_rate < 255) rec.heart_rate = obj.heart_rate;
+          if(obj.cadence && obj.cadence < 255) rec.cadence = obj.cadence;
+          if(obj.speed) rec.speed = obj.speed / 1000 * 3.6; // m/s → km/h
+          if(obj.power && obj.power < 65535) rec.power = obj.power;
+          if(obj.altitude) rec.altitude = (obj.altitude / 5) - 500;
+          if(obj.distance) rec.distance = obj.distance / 100; // cm → m
+          result.records.push(rec);
+        } else if(def.globalNum === MSG_SESSION){
+          const s = {};
+          if(obj.start_time) s.start_time = fitTimestamp(obj.start_time);
+          if(obj.total_elapsed_time) s.total_elapsed_time = obj.total_elapsed_time / 1000;
+          if(obj.total_timer_time) s.total_timer_time = obj.total_timer_time / 1000;
+          if(obj.total_distance) s.total_distance = obj.total_distance / 100000; // cm → km
+          if(obj.total_calories) s.total_calories = obj.total_calories;
+          if(obj.avg_speed) s.avg_speed = obj.avg_speed / 1000 * 3.6;
+          if(obj.max_speed) s.max_speed = obj.max_speed / 1000 * 3.6;
+          if(obj.avg_heart_rate && obj.avg_heart_rate < 255) s.avg_heart_rate = obj.avg_heart_rate;
+          if(obj.max_heart_rate && obj.max_heart_rate < 255) s.max_heart_rate = obj.max_heart_rate;
+          if(obj.avg_power && obj.avg_power < 65535) s.avg_power = obj.avg_power;
+          if(obj.total_ascent) s.total_ascent = obj.total_ascent;
+          if(obj.avg_cadence && obj.avg_cadence < 255) s.avg_cadence = obj.avg_cadence;
+          if(obj.timestamp) s.timestamp = fitTimestamp(obj.timestamp);
+          result.session = s;
+        } else if(def.globalNum === MSG_ACTIVITY){
+          if(obj.total_timer_time) result.activity = {
+            total_timer_time: obj.total_timer_time / 1000,
+            local_timestamp: obj.local_timestamp ? fitTimestamp(obj.local_timestamp) : null,
+            timestamp: obj.timestamp ? fitTimestamp(obj.timestamp) : null,
+          };
+        }
+      }
+    } catch(e){ break; }
   }
+  return result;
 }
 
-function extractFitData(data, sport){
-  const sessions = data.sessions || [];
-  const s = sessions[0] || {};
-  const records = data.records || [];
+function extractFitData(parsed, sport){
+  const s = parsed.session || {};
+  const act = parsed.activity || {};
+  const records = parsed.records || [];
 
-  const hrValues = records.map(r=>r.heart_rate).filter(v=>v && v>0);
-  const hrAvg = hrValues.length ? Math.round(hrValues.reduce((a,b)=>a+b,0)/hrValues.length) : (s.avg_heart_rate||null);
-  const hrMax = hrValues.length ? Math.max(...hrValues) : (s.max_heart_rate||null);
+  // HR from records (more accurate than session avg for Coros)
+  const hrVals = records.map(r=>r.heart_rate).filter(v=>v && v>0 && v<250);
+  const hrAvg = hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : (s.avg_heart_rate||null);
+  const hrMax = hrVals.length ? Math.max(...hrVals) : (s.max_heart_rate||null);
 
-  const startTime = s.start_time ? new Date(s.start_time) : new Date();
-  const durationSec = s.total_elapsed_time ? Math.round(s.total_elapsed_time) : null;
+  // Date: prefer session start_time, fallback to activity local_timestamp
+  const startDate = s.start_time || act.local_timestamp || new Date();
+  const durationSec = s.total_timer_time
+    ? Math.round(s.total_timer_time)
+    : (act.total_timer_time ? Math.round(act.total_timer_time) : null);
   const distanceM = s.total_distance ? Math.round(s.total_distance * 1000) : null;
   const calories = s.total_calories || null;
   const elevationM = s.total_ascent || null;
@@ -625,14 +737,24 @@ function extractFitData(data, sport){
     paceSecKm = Math.round(durationSec / (distanceM/1000));
   }
   if(sport === 'velo'){
-    speedKmh = s.avg_speed ? Math.round(s.avg_speed * 10)/10 : null;
+    // Try session avg_speed first, fallback to records
+    if(s.avg_speed){
+      speedKmh = Math.round(s.avg_speed * 10)/10;
+    } else {
+      const speeds = records.map(r=>r.speed).filter(v=>v && v>0);
+      speedKmh = speeds.length ? Math.round(speeds.reduce((a,b)=>a+b,0)/speeds.length*10)/10 : null;
+    }
     powerAvg = s.avg_power || null;
+    if(!powerAvg){
+      const powers = records.map(r=>r.power).filter(v=>v && v>0 && v<3000);
+      powerAvg = powers.length ? Math.round(powers.reduce((a,b)=>a+b,0)/powers.length) : null;
+    }
   }
 
   return {
     id: Date.now(),
     type: sport,
-    date: startTime.toISOString(),
+    date: startDate instanceof Date ? startDate.toISOString() : new Date().toISOString(),
     duration_sec: durationSec,
     distance_m: distanceM,
     hr_avg: hrAvg,
@@ -646,6 +768,22 @@ function extractFitData(data, sport){
     raw: null,
     source: 'fit'
   };
+}
+
+async function handleFit(event, sport){
+  const file = event.target.files[0]; if(!file) return; event.target.value='';
+  showImportLoading(sport, '📂 Lecture du fichier .fit...');
+  try {
+    const buffer = await file.arrayBuffer();
+    const parsed = parseFitRobust(buffer);
+    const activity = extractFitData(parsed, sport);
+    hideImportLoading(sport);
+    showPreviewModal(activity, sport, null);
+  } catch(e){
+    hideImportLoading(sport);
+    console.error('FIT parse error', e);
+    alert("Erreur lecture .fit");
+  }
 }
 
 async function handleScreenshot(event, sport){
@@ -899,13 +1037,13 @@ async function handleFitStandalone(event){
   listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>📂 Lecture du fichier .fit...</p></div>';
   try {
     const buffer = await file.arrayBuffer();
-    const fitParser = new FitParser({ force:true, speedUnit:'km/h', lengthUnit:'km', elapsedRecordField:true });
-    const parsed = await new Promise((res,rej)=>fitParser.parse(buffer,(err,data)=>err?rej(err):res(data)));
+    const parsed = parseFitRobust(buffer);
     const activity = extractFitData(parsed, 'muscu');
     listEl.innerHTML = oldHtml;
     showSessionPickerModal(activity);
   } catch(e){
     listEl.innerHTML = oldHtml;
+    console.error('FIT standalone error', e);
     alert("Erreur lecture .fit");
   }
 }
@@ -1038,11 +1176,10 @@ async function handleFitMuscu(event, sessionId){
   const file = event.target.files[0]; if(!file) return; event.target.value='';
   try {
     const buffer = await file.arrayBuffer();
-    const fitParser = new FitParser({ force:true, speedUnit:'km/h', lengthUnit:'km' });
-    const parsed = await new Promise((res,rej)=>fitParser.parse(buffer,(err,data)=>err?rej(err):res(data)));
+    const parsed = parseFitRobust(buffer);
     const activity = extractFitData(parsed, 'muscu');
     showPreviewModal(activity, 'muscu', sessionId);
-  } catch(e){ alert("Erreur .fit"); }
+  } catch(e){ console.error('FIT muscu error',e); alert("Erreur .fit"); }
 }
 
 async function handleScreenshotMuscu(event, sessionId){
