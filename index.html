@@ -577,6 +577,25 @@ function _cacheUpdate(id, patch){
 const dbLoadActivities = (type) => dbLoad(type);
 const dbSaveActivity   = (data) => dbSave(data);
 
+// ════ SPORT CONFIG ════
+const SPORT_CONFIG = {
+  muscu: {
+    prompt: 'Screenshot Strava activité musculation/gym. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"calories":null,"hr_avg":null,"hr_max":null,"distance_m":null,"elevation_m":null,"pace_sec_km":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}. Champs à lire: Elapsed Time (en secondes), Calories, Avg Heart Rate, Max Heart Rate.',
+    manualFields: []
+  },
+  course: {
+    prompt: 'Screenshot Strava activité course à pied. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"distance_m":null,"calories":null,"pace_sec_km":null,"elevation_m":null,"hr_avg":null,"hr_max":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}. Champs à lire: Distance (en mètres), Moving Time (en secondes), Calories, Avg Pace (en sec/km), Elevation Gain (en mètres), Avg Heart Rate. Laisse hr_max à null.',
+    manualFields: [{key:'hr_max', label:'Max Heart Rate (bpm)', type:'number'}]
+  },
+  velo: {
+    prompt: 'Screenshot Strava activité vélo. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"distance_m":null,"speed_kmh":null,"elevation_m":null,"power_avg":null,"calories":null,"hr_avg":null,"hr_max":null,"pace_sec_km":null,"cadence_avg":null}. Champs à lire: Distance (en mètres), Moving Time (en secondes), Avg Speed (km/h), Elevation Gain (en mètres), Avg Power (watts), Calories. Laisse hr_avg et hr_max à null.',
+    manualFields: [
+      {key:'hr_avg', label:'Avg Heart Rate (bpm)', type:'number'},
+      {key:'hr_max', label:'Max Heart Rate (bpm)', type:'number'}
+    ]
+  }
+};
+
 async function callClaude(base64, mediaType, prompt){
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
