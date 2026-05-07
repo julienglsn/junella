@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon programme muscu</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2f2f7; color: #1c1c1e; min-height: 100vh; padding-bottom: 80px; }
+  .topbar { padding: 20px 16px 10px; background: #fff; border-bottom: 1px solid #e5e5ea; }
+  .topbar h1 { font-size: 22px; font-weight: 600; }
+  .topbar p { font-size: 14px; color: #6e6e73; margin-top: 2px; }
+  .nav { display: flex; overflow-x: auto; gap: 8px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #e5e5ea; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn { flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1.5px solid #d1d1d6; background: #f2f2f7; color: #6e6e73; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; transition: all .15s; }
+  .nav-btn.active { background: #1c1c1e; color: #fff; border-color: #1c1c1e; }
+  .page { display: none; padding: 0 16px; }
+  .page.active { display: block; }
+  .section-title { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6e6e73; margin: 20px 0 8px; }
+  .card { background: #fff; border-radius: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .card-label { padding: 10px 14px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #aeaeb2; border-bottom: 1px solid #f2f2f7; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; border-bottom: 1px solid #f2f2f7; }
+  .row:last-child { border-bottom: none; }
+  .row-left { font-size: 16px; color: #1c1c1e; }
+  .row-right { font-size: 13px; color: #6e6e73; background: #f2f2f7; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin-left: 10px; flex-shrink: 0; }
+  .routine-row { display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px; border-bottom: 1px solid #f2f2f7; }
+  .routine-row:last-child { border-bottom: none; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .dot-amber { background: #ff9500; }
+  .dot-purple { background: #af52de; }
+  .rname { font-size: 16px; color: #1c1c1e; }
+  .rnote { font-size: 13px; color: #6e6e73; margin-top: 2px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 0 4px; }
+  .chip { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 1px solid #d1d1d6; color: #6e6e73; background: #fff; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Mon programme</h1>
+  <p>Full body · 3 séances / semaine</p>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="go('warm',this)">🔥 Échauffement</button>
+  <button class="nav-btn" onclick="go('a',this)">🔴 Séance A</button>
+  <button class="nav-btn" onclick="go('b',this)">🔵 Séance B</button>
+  <button class="nav-btn" onclick="go('c',this)">🟢 Séance C</button>
+  <button class="nav-btn" onclick="go('cool',this)">🧘 Cool down</button>
+</div>
+
+<!-- ÉCHAUFFEMENT -->
+<div class="page active" id="p-warm">
+  <div class="chips">
+    <span class="chip">⏱ ~5 min</span>
+    <span class="chip">Avant chaque séance</span>
+  </div>
+  <div class="section-title">Mobilité globale</div>
+  <div class="card">
+    <div class="routine-row">
+      <div class="dot dot-amber"></div>
+      <div><div class="rname">World's Greatest Stretch</div><div class="rnote">Hanches, thoracique, ischio · 5 reps / côté</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-amber"></div>
+      <div><div class="rname">Leg swings</div><div class="rnote">Avant/arrière + latéral · 10 reps / jambe</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-amber"></div>
+      <div><div class="rname">Hip openers</div><div class="rnote">Rotation externe de hanche · 8 reps / côté</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-amber"></div>
+      <div><div class="rname">Arm circles</div><div class="rnote">Petits puis grands cercles · 10 reps / sens</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SÉANCE A -->
+<div class="page" id="p-a">
+  <div class="chips">
+    <span class="chip">⏱ 45–60 min</span>
+    <span class="chip">Repos 45–90 sec</span>
+    <span class="chip">🎯 1–3 RIR</span>
+  </div>
+  <div class="section-title">Superset 1 — Jambes</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Goblet squat</span><span class="row-right">4 × 8-10</span></div>
+    <div class="row"><span class="row-left">Static lunges</span><span class="row-right">4 × 8 / jambe</span></div>
+  </div>
+  <div class="section-title">Superset 2 — Push</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Bench press</span><span class="row-right">4 × 8-10</span></div>
+    <div class="row"><span class="row-left">Lateral raises</span><span class="row-right">4 × 12-15</span></div>
+  </div>
+  <div class="section-title">Superset 3 — Triceps / Gainage</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Cable triceps pushdown</span><span class="row-right">3 × 10-12</span></div>
+    <div class="row"><span class="row-left">Plank</span><span class="row-right">3 × 30-45 sec</span></div>
+  </div>
+</div>
+
+<!-- SÉANCE B -->
+<div class="page" id="p-b">
+  <div class="chips">
+    <span class="chip">⏱ 45–60 min</span>
+    <span class="chip">Repos 45–90 sec</span>
+    <span class="chip">🎯 1–3 RIR</span>
+  </div>
+  <div class="section-title">Superset 1 — Postérieure / Gainage</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Romanian deadlift</span><span class="row-right">4 × 8-10</span></div>
+    <div class="row"><span class="row-left">Plank</span><span class="row-right">4 × 30-45 sec</span></div>
+  </div>
+  <div class="section-title">Superset 2 — Dos</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Lat pulldown</span><span class="row-right">4 × 8-10</span></div>
+    <div class="row"><span class="row-left">Single-arm dumbbell row</span><span class="row-right">4 × 10 / côté</span></div>
+  </div>
+  <div class="section-title">Superset 3 — Biceps / Épaules arrière</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Cable curl</span><span class="row-right">3 × 10-12</span></div>
+    <div class="row"><span class="row-left">Face pull</span><span class="row-right">3 × 12-15</span></div>
+  </div>
+</div>
+
+<!-- SÉANCE C -->
+<div class="page" id="p-c">
+  <div class="chips">
+    <span class="chip">⏱ 45–60 min</span>
+    <span class="chip">Repos 45–90 sec</span>
+    <span class="chip">🎯 1–3 RIR</span>
+  </div>
+  <div class="section-title">Superset 1 — Jambes</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Leg press</span><span class="row-right">4 × 10</span></div>
+    <div class="row"><span class="row-left">Standing calf raises</span><span class="row-right">4 × 12-15</span></div>
+  </div>
+  <div class="section-title">Superset 2 — Push / Pull</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Incline bench press</span><span class="row-right">4 × 8-10</span></div>
+    <div class="row"><span class="row-left">Dumbbell row</span><span class="row-right">4 × 10</span></div>
+  </div>
+  <div class="section-title">Superset 3 — Bras / Épaules</div>
+  <div class="card">
+    <div class="row"><span class="row-left">Hammer curl</span><span class="row-right">3 × 10</span></div>
+    <div class="row"><span class="row-left">Lateral raises</span><span class="row-right">3 × 12-15</span></div>
+  </div>
+</div>
+
+<!-- COOL DOWN -->
+<div class="page" id="p-cool">
+  <div class="chips">
+    <span class="chip">⏱ ~5 min</span>
+    <span class="chip">Après chaque séance</span>
+  </div>
+  <div class="section-title">Jambes</div>
+  <div class="card">
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Standing quad stretch</div><div class="rnote">Quadriceps · 30 sec / jambe</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Seated figure-4 stretch</div><div class="rnote">Fessiers / piriforme · 30 sec / côté</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Standing hamstring stretch</div><div class="rnote">Ischio-jambiers · 30 sec / jambe</div></div>
+    </div>
+  </div>
+  <div class="section-title">Haut du corps</div>
+  <div class="card">
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Chest stretch</div><div class="rnote">Pectoraux / épaules avant · 30 sec</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Cross-body shoulder stretch</div><div class="rnote">Deltoïde postérieur · 30 sec / côté</div></div>
+    </div>
+    <div class="routine-row">
+      <div class="dot dot-purple"></div>
+      <div><div class="rname">Overhead triceps stretch</div><div class="rnote">Triceps / grand dorsal · 30 sec / côté</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
