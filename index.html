@@ -192,7 +192,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mu{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500}
 .ml{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
 
-
 /* PROGRAMME SELECTOR */
 .prog-selector{display:flex;gap:10px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
 .prog-selector::-webkit-scrollbar{display:none}
@@ -313,7 +312,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
 </div>
-
 
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
@@ -440,7 +438,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 </div>
 
-
 <!-- ════ COURSE ════ -->
 <div class="page" id="page-course">
   <div class="ph">
@@ -468,7 +465,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="charts-coming"></div>
   </div>
 </div>
-
 
 <!-- ════ VÉLO ════ -->
 <div class="page" id="page-velo">
@@ -498,7 +494,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 </div>
 
-
 <!-- ════ NAV ════ -->
 <nav class="nav-bar">
   <button class="nav-item active" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
@@ -506,7 +501,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <button class="nav-item" onclick="showPage('course',this)"><span class="nav-icon">🏃</span>Course</button>
   <button class="nav-item" onclick="showPage('velo',this)"><span class="nav-icon">🚴</span>Vélo</button>
 </nav>
-
 
 <script>
 // ════ SUPABASE ════
@@ -582,273 +576,6 @@ function _cacheUpdate(id, patch){
 // Aliases kept for compatibility
 const dbLoadActivities = (type) => dbLoad(type);
 const dbSaveActivity   = (data) => dbSave(data);
-
-// ════ IMPORT ════
-function triggerImport(mode, sport){
-  const id = (mode==='fit' ? 'fit-input-' : 'img-input-') + sport;
-  document.getElementById(id)?.click();
-}
-
-// ════ ROBUST FIT PARSER ════
-// Reads FIT binary directly — tolerant to Coros/Wahoo field quirks
-function parseFitRobust(buffer){
-  const view = new DataView(buffer);
-  const result = { records:[], session:null, activity:null };
-
-  // FIT global message numbers we care about
-  const MSG_FILE_ID=0, MSG_DEVICE_INFO=23, MSG_EVENT=21,
-        MSG_RECORD=20, MSG_LAP=19, MSG_SESSION=18, MSG_ACTIVITY=34;
-
-  const localMsgDefs = {};
-  const baseTypes = {
-    0:{size:1,read:(v,o)=>v.getUint8(o)},
-    1:{size:1,read:(v,o)=>v.getInt8(o)},
-    2:{size:1,read:(v,o)=>v.getUint8(o)},
-    3:{size:2,read:(v,o)=>v.getUint16(o,true)},
-    4:{size:2,read:(v,o)=>v.getInt16(o,true)},
-    5:{size:4,read:(v,o)=>v.getUint32(o,true)},
-    6:{size:4,read:(v,o)=>v.getInt32(o,true)},
-    7:{size:1,read:(v,o)=>v.getUint8(o)}, // string
-    8:{size:4,read:(v,o)=>v.getFloat32(o,true)},
-    9:{size:8,read:(v,o)=>v.getFloat64(o,true)},
-    10:{size:1,read:(v,o)=>v.getUint8(o)},
-    11:{size:2,read:(v,o)=>v.getUint16(o,true)},
-    12:{size:4,read:(v,o)=>v.getUint32(o,true)},
-    13:{size:1,read:(v,o)=>v.getUint8(o)},
-    132:{size:2,read:(v,o)=>v.getUint16(o,true)},
-    133:{size:4,read:(v,o)=>v.getUint32(o,true)},
-    134:{size:4,read:(v,o)=>v.getFloat32(o,true)},
-    136:{size:4,read:(v,o)=>v.getUint32(o,true)},
-    137:{size:2,read:(v,o)=>v.getUint16(o,true)},
-    139:{size:4,read:(v,o)=>v.getInt32(o,true)},
-    140:{size:8,read:(v,o)=>{ try{return view.getBigUint64(o,true);}catch(e){return 0;}}},
-  };
-
-  // Field number -> name for messages we care about
-  const fieldNames = {
-    [MSG_RECORD]:   {253:'timestamp',0:'position_lat',1:'position_long',2:'altitude',3:'heart_rate',4:'cadence',5:'distance',6:'speed',7:'power',13:'temperature',39:'vertical_oscillation',53:'fractional_cadence'},
-    [MSG_SESSION]:  {253:'timestamp',2:'start_time',7:'total_elapsed_time',8:'total_timer_time',9:'total_distance',10:'total_cycles',11:'total_calories',14:'avg_speed',15:'max_speed',16:'avg_power',17:'max_power',18:'total_ascent',19:'total_descent',20:'total_training_effect',21:'first_lap_index',22:'num_laps',23:'event',24:'event_type',25:'sport',26:'sub_sport',27:'avg_heart_rate',28:'max_heart_rate',29:'avg_cadence',30:'max_cadence'},
-    [MSG_ACTIVITY]: {253:'timestamp',0:'total_timer_time',1:'local_timestamp',2:'num_sessions',3:'type',4:'event',5:'event_type'},
-  };
-
-  const FIT_EPOCH = Date.UTC(1989,11,31,0,0,0);
-
-  function fitTimestamp(val){ return new Date(FIT_EPOCH + val*1000); }
-
-  let offset = 0;
-  // Skip FIT file header
-  const headerSize = view.getUint8(0);
-  offset = headerSize;
-
-  while(offset < buffer.byteLength - 2){
-    try {
-      const recHdr = view.getUint8(offset); offset++;
-      const isDefn  = (recHdr & 0x40) !== 0;
-      const localNum = recHdr & 0x0F;
-
-      if(isDefn){
-        offset++; // reserved
-        const arch = view.getUint8(offset++);
-        const le   = arch === 0;
-        const globalNum = le ? view.getUint16(offset, true) : view.getUint16(offset, false);
-        offset += 2;
-        const numFields = view.getUint8(offset++);
-        const fields = [];
-        for(let i=0;i<numFields;i++){
-          const fNum  = view.getUint8(offset++);
-          const fSize = view.getUint8(offset++);
-          const fBase = view.getUint8(offset++);
-          fields.push({num:fNum, size:fSize, base:fBase & 0x9F});
-        }
-        // Check for dev fields
-        if(recHdr & 0x20){
-          const numDev = view.getUint8(offset++);
-          for(let i=0;i<numDev;i++){ offset+=3; }
-        }
-        localMsgDefs[localNum] = {globalNum, fields};
-      } else {
-        const def = localMsgDefs[localNum];
-        if(!def){ break; }
-        const msgOffset = offset;
-        const msgSize = def.fields.reduce((s,f)=>s+f.size,0);
-
-        const obj = {};
-        let fieldOffset = offset;
-        for(const f of def.fields){
-          const bt = baseTypes[f.base];
-          if(bt && f.size === bt.size){
-            try {
-              const val = bt.read(view, fieldOffset);
-              const names = fieldNames[def.globalNum];
-              if(names && names[f.num]){
-                obj[names[f.num]] = val;
-              }
-            } catch(e){}
-          }
-          fieldOffset += f.size;
-        }
-        offset += msgSize;
-
-        if(def.globalNum === MSG_RECORD){
-          const rec = {};
-          if(obj.timestamp) rec.timestamp = fitTimestamp(obj.timestamp);
-          if(obj.heart_rate && obj.heart_rate < 255) rec.heart_rate = obj.heart_rate;
-          if(obj.cadence && obj.cadence < 255) rec.cadence = obj.cadence;
-          if(obj.speed) rec.speed = obj.speed / 1000 * 3.6; // m/s → km/h
-          if(obj.power && obj.power < 65535) rec.power = obj.power;
-          if(obj.altitude) rec.altitude = (obj.altitude / 5) - 500;
-          if(obj.distance) rec.distance = obj.distance / 100; // cm → m
-          result.records.push(rec);
-        } else if(def.globalNum === MSG_SESSION){
-          const s = {};
-          if(obj.start_time) s.start_time = fitTimestamp(obj.start_time);
-          if(obj.total_elapsed_time) s.total_elapsed_time = obj.total_elapsed_time / 1000;
-          if(obj.total_timer_time) s.total_timer_time = obj.total_timer_time / 1000;
-          if(obj.total_distance) s.total_distance = obj.total_distance / 100000; // cm → km
-          if(obj.total_calories) s.total_calories = obj.total_calories;
-          if(obj.avg_speed) s.avg_speed = obj.avg_speed / 1000 * 3.6;
-          if(obj.max_speed) s.max_speed = obj.max_speed / 1000 * 3.6;
-          if(obj.avg_heart_rate && obj.avg_heart_rate < 255) s.avg_heart_rate = obj.avg_heart_rate;
-          if(obj.max_heart_rate && obj.max_heart_rate < 255) s.max_heart_rate = obj.max_heart_rate;
-          if(obj.avg_power && obj.avg_power < 65535) s.avg_power = obj.avg_power;
-          if(obj.total_ascent) s.total_ascent = obj.total_ascent;
-          if(obj.avg_cadence && obj.avg_cadence < 255) s.avg_cadence = obj.avg_cadence;
-          if(obj.timestamp) s.timestamp = fitTimestamp(obj.timestamp);
-          result.session = s;
-        } else if(def.globalNum === MSG_ACTIVITY){
-          if(obj.total_timer_time) result.activity = {
-            total_timer_time: obj.total_timer_time / 1000,
-            local_timestamp: obj.local_timestamp ? fitTimestamp(obj.local_timestamp) : null,
-            timestamp: obj.timestamp ? fitTimestamp(obj.timestamp) : null,
-          };
-        }
-      }
-    } catch(e){ break; }
-  }
-  return result;
-}
-
-function extractFitData(parsed, sport){
-  const s   = parsed.session  || {};  // Wahoo has this, Coros usually doesn't
-  const act = parsed.activity || {};  // Both have this
-  const records = parsed.records || [];
-
-  // ── HR — always from records (most reliable for both Coros & Wahoo) ──
-  const hrVals = records.map(r=>r.heart_rate).filter(v=>v && v>0 && v<250);
-  const hrAvg = hrVals.length
-    ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length)
-    : (s.avg_heart_rate || null);
-  const hrMax = hrVals.length ? Math.max(...hrVals) : (s.max_heart_rate || null);
-
-  // ── Date — local_timestamp from activity (already in local time) ──
-  const startDate = s.start_time || act.local_timestamp || new Date();
-
-  // ── Duration — session first (Wahoo), fallback activity (Coros) ──
-  const durationSec = s.total_timer_time
-    ? Math.round(s.total_timer_time)
-    : (act.total_timer_time ? Math.round(act.total_timer_time) : null);
-
-  // ── Distance ──
-  // Wahoo: session.total_distance in meters
-  // Coros: no session, distance per record is segmented — derive from speed × time
-  let distanceM = null;
-  if(s.total_distance && s.total_distance > 10){
-    // Wahoo stores in meters directly
-    distanceM = Math.round(s.total_distance);
-  } else {
-    // Coros: max cumulative distance from records (in meters)
-    const dists = records.map(r=>r.distance).filter(v=>v && v>0);
-    const maxDist = dists.length ? Math.max(...dists) : 0;
-    if(maxDist > 100){
-      // Looks like real cumulative meters
-      distanceM = Math.round(maxDist);
-    } else if(durationSec){
-      // Fallback: derive from avg speed × duration
-      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
-      if(speedVals.length){
-        const avgSpeedMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
-        distanceM = Math.round(avgSpeedMs * durationSec);
-      }
-    }
-  }
-
-  // ── Calories ──
-  const calories = s.total_calories || null;
-
-  // ── Elevation ──
-  const elevationM = s.total_ascent || null;
-
-  // ── Cadence ──
-  const cadenceAvg = s.avg_cadence || null;
-
-  // ── Sport-specific ──
-  let paceSecKm = null, speedKmh = null, powerAvg = null;
-
-  if(sport === 'course'){
-    if(distanceM && durationSec){
-      paceSecKm = Math.round(durationSec / (distanceM / 1000));
-    } else {
-      // Derive pace from avg speed records
-      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
-      if(speedVals.length){
-        const avgMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
-        paceSecKm = avgMs > 0 ? Math.round(1000/avgMs) : null;
-      }
-    }
-  }
-
-  if(sport === 'velo'){
-    // Wahoo: enhanced_avg_speed in m/s
-    if(s.avg_speed && s.avg_speed > 0){
-      speedKmh = Math.round(s.avg_speed * 3.6 * 10) / 10;
-    } else {
-      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
-      if(speedVals.length){
-        const avgMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
-        speedKmh = Math.round(avgMs * 3.6 * 10) / 10;
-      }
-    }
-    powerAvg = s.avg_power || null;
-    if(!powerAvg){
-      const powers = records.map(r=>r.power).filter(v=>v && v>0 && v<3000);
-      powerAvg = powers.length ? Math.round(powers.reduce((a,b)=>a+b,0)/powers.length) : null;
-    }
-  }
-
-  return {
-    id: Date.now(),
-    type: sport,
-    date: startDate instanceof Date ? startDate.toISOString() : new Date().toISOString(),
-    duration_sec: durationSec,
-    distance_m: distanceM,
-    hr_avg: hrAvg,
-    hr_max: hrMax,
-    calories,
-    elevation_m: elevationM,
-    pace_sec_km: paceSecKm,
-    speed_kmh: speedKmh,
-    power_avg: powerAvg,
-    cadence_avg: cadenceAvg,
-    raw: null,
-    source: 'fit'
-  };
-}
-
-async function handleFit(event, sport){
-  const file = event.target.files[0]; if(!file) return; event.target.value='';
-  showImportLoading(sport, '📂 Lecture du fichier .fit...');
-  try {
-    const buffer = await file.arrayBuffer();
-    const parsed = parseFitRobust(buffer);
-    const activity = extractFitData(parsed, sport);
-    hideImportLoading(sport);
-    showPreviewModal(activity, sport, null);
-  } catch(e){
-    hideImportLoading(sport);
-    console.error('FIT parse error', e);
-    alert("Erreur lecture .fit");
-  }
-}
 
 async function handleScreenshot(event, sport){
   const file = event.target.files[0];
@@ -1115,23 +842,6 @@ function togAct(headEl){
 }
 
 // ════ MUSCU STANDALONE IMPORT ════
-async function handleFitStandalone(event){
-  const file = event.target.files[0]; if(!file) return; event.target.value='';
-  const listEl = document.getElementById('hlist');
-  const oldHtml = listEl.innerHTML;
-  listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>📂 Lecture du fichier .fit...</p></div>';
-  try {
-    const buffer = await file.arrayBuffer();
-    const parsed = parseFitRobust(buffer);
-    const activity = extractFitData(parsed, 'muscu');
-    listEl.innerHTML = oldHtml;
-    showSessionPickerModal(activity);
-  } catch(e){
-    listEl.innerHTML = oldHtml;
-    console.error('FIT standalone error', e);
-    alert("Erreur lecture .fit");
-  }
-}
 
 async function handleScreenshotStandalone(event){
   const file = event.target.files[0]; if(!file) return; event.target.value='';
@@ -1247,25 +957,13 @@ function showMusCuCardioImport(sessionId){
   bar.innerHTML=
     '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;width:100%">Données cardio Coros</div>'+
     '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit</button>'+
-    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;screenshot&quot;,'+sessionId+')">📸 Screenshot</button>'+
-    '<input type="file" id="fit-input-muscu-'+sessionId+'" accept=".fit" style="display:none" onchange="handleFitMuscu(event,'+sessionId+')">'+
+    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport('+sessionId+')">📸 Screenshot</button>'+
     '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">';
   return bar.outerHTML;
 }
 
-function triggerMusCuImport(mode, sessionId){
-  const id = (mode==='fit'?'fit-input-muscu-':'img-input-muscu-')+sessionId;
-  document.getElementById(id)?.click();
-}
-
-async function handleFitMuscu(event, sessionId){
-  const file = event.target.files[0]; if(!file) return; event.target.value='';
-  try {
-    const buffer = await file.arrayBuffer();
-    const parsed = parseFitRobust(buffer);
-    const activity = extractFitData(parsed, 'muscu');
-    showPreviewModal(activity, 'muscu', sessionId);
-  } catch(e){ console.error('FIT muscu error',e); alert("Erreur .fit"); }
+function triggerMusCuImport(sessionId){
+  document.getElementById('img-input-muscu-'+sessionId)?.click();
 }
 
 async function handleScreenshotMuscu(event, sessionId){
@@ -1665,9 +1363,8 @@ function renderCardioBloc(activity, sessionId){
       '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Données cardio Coros</div>'+
       '<div style="display:flex;gap:8px">'+
       '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit Coros</button>'+
-      '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;screenshot&quot;,'+sessionId+')">📸 Screenshot</button>'+
+      '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport('+sessionId+')">📸 Screenshot</button>'+
       '</div>'+
-      '<input type="file" id="fit-input-muscu-'+sessionId+'" accept=".fit" style="display:none" onchange="handleFitMuscu(event,'+sessionId+')">'+
       '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">'+
       '</div></div>';
   }
