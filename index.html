@@ -577,12 +577,42 @@ function _cacheUpdate(id, patch){
 const dbLoadActivities = (type) => dbLoad(type);
 const dbSaveActivity   = (data) => dbSave(data);
 
+async function callClaude(base64, mediaType, prompt){
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 }},
+          { type: 'text', text: prompt }
+        ]
+      }]
+    })
+  });
+  if(!response.ok){
+    const err = await response.text();
+    throw new Error('API error '+response.status+': '+err);
+  }
+  const result = await response.json();
+  const text = result.content.map(c=>c.text||'').join('').trim();
+  // Strip markdown fences if present
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
 async function handleScreenshot(event, sport){
   const file = event.target.files[0];
   if(!file) return;
   event.target.value='';
 
-  showImportLoading(sport, '📸 Analyse du screenshot...');
+  showImportLoading(sport, '📸 Analyse du screenshot Strava...');
 
   try {
     const base64 = await new Promise((res,rej)=>{
@@ -592,70 +622,33 @@ async function handleScreenshot(event, sport){
       reader.readAsDataURL(file);
     });
 
-    const mediaType = file.type || 'image/jpeg';
-
-    const prompt = `Tu regardes un screenshot d'une application sportive (Coros, Wahoo, Strava, ou similaire). 
-Extrais les données de l'activité et retourne UNIQUEMENT un JSON valide (sans markdown, sans backticks) avec exactement ces champs:
-{
-  "date": "YYYY-MM-DDTHH:MM:SS" ou null,
-  "duration_sec": nombre de secondes ou null,
-  "distance_m": distance en mètres ou null,
-  "hr_avg": FC moyenne entière ou null,
-  "hr_max": FC max entière ou null,
-  "calories": calories entières ou null,
-  "elevation_m": dénivelé positif en mètres ou null,
-  "pace_sec_km": allure en secondes/km ou null (course seulement),
-  "speed_kmh": vitesse moyenne km/h ou null (vélo seulement),
-  "power_avg": puissance moyenne watts ou null (vélo seulement),
-  "cadence_avg": cadence moyenne ou null
-}
-Sport détecté: ${sport === 'course' ? 'course à pied' : sport === 'velo' ? 'vélo' : 'musculation'}.
-Si une valeur n'est pas visible, mets null.`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 }},
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    });
-
-    const result = await response.json();
-    const text = result.content.map(c=>c.text||'').join('').trim();
-    const extracted = JSON.parse(text);
+    const cfg = SPORT_CONFIG[sport] || SPORT_CONFIG.muscu;
+    const extracted = await callClaude(base64, file.type||'image/jpeg', cfg.prompt);
 
     const activity = {
       id: Date.now(),
       type: sport,
-      date: extracted.date || new Date().toISOString(),
-      duration_sec:  extracted.duration_sec  || null,
-      distance_m:    extracted.distance_m    || null,
-      hr_avg:        extracted.hr_avg        || null,
-      hr_max:        extracted.hr_max        || null,
-      calories:      extracted.calories      || null,
-      elevation_m:   extracted.elevation_m   || null,
-      pace_sec_km:   extracted.pace_sec_km   || null,
-      speed_kmh:     extracted.speed_kmh     || null,
-      power_avg:     extracted.power_avg     || null,
-      cadence_avg:   extracted.cadence_avg   || null,
-      raw: null,
-      source: 'screenshot'
+      source: 'screenshot',
+      date:         extracted.date         || new Date().toISOString(),
+      duration_sec: extracted.duration_sec || null,
+      distance_m:   extracted.distance_m   || null,
+      hr_avg:       extracted.hr_avg       || null,
+      hr_max:       extracted.hr_max       || null,
+      calories:     extracted.calories     || null,
+      elevation_m:  extracted.elevation_m  || null,
+      pace_sec_km:  extracted.pace_sec_km  || null,
+      speed_kmh:    extracted.speed_kmh    || null,
+      power_avg:    extracted.power_avg    || null,
+      cadence_avg:  extracted.cadence_avg  || null,
+      raw: null
     };
 
     hideImportLoading(sport);
     showPreviewModal(activity, sport, null);
   } catch(e){
     hideImportLoading(sport);
-    console.error('Screenshot parse error', e);
-    alert("Erreur analyse screenshot.");
+    console.error('Screenshot error:', e);
+    alert('Erreur : '+e.message);
   }
 }
 
@@ -851,10 +844,8 @@ async function handleScreenshotStandalone(event){
   try {
     const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
     const prompt = SPORT_CONFIG.muscu.prompt;
-    const response = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:prompt}]}]})});
-    const result = await response.json();
-    const extracted = JSON.parse(result.content.map(c=>c.text||'').join('').trim());
-    const activity = {id:Date.now(),type:'muscu',date:extracted.date||new Date().toISOString(),...extracted,source:'screenshot',raw:null};
+    const extracted = await callClaude(base64, file.type||'image/jpeg', prompt);
+    const activity = {id:Date.now(),type:'muscu',source:'screenshot',raw:null,date:extracted.date||new Date().toISOString(),...extracted};
     listEl.innerHTML = oldHtml;
     showSessionPickerModal(activity);
   } catch(e){
@@ -970,15 +961,10 @@ async function handleScreenshotMuscu(event, sessionId){
   const file = event.target.files[0]; if(!file) return; event.target.value='';
   try {
     const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
-    const prompt = `Screenshot d'une activité muscu/gym sur Coros. Extrait UNIQUEMENT ce JSON (sans markdown):
-{"date":null,"duration_sec":null,"hr_avg":null,"hr_max":null,"calories":null,"distance_m":null,"elevation_m":null,"pace_sec_km":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}`;
-    const response = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:prompt}]}]})});
-    const result = await response.json();
-    const text = result.content.map(c=>c.text||'').join('').trim();
-    const extracted = JSON.parse(text);
-    const activity = {id:Date.now(),type:'muscu',date:extracted.date||new Date().toISOString(),...extracted,source:'screenshot',raw:null};
+    const extracted = await callClaude(base64, file.type||'image/jpeg', SPORT_CONFIG.muscu.prompt);
+    const activity = {id:Date.now(),type:'muscu',source:'screenshot',raw:null,date:extracted.date||new Date().toISOString(),...extracted};
     showPreviewModal(activity, 'muscu', sessionId);
-  } catch(e){ alert("Erreur screenshot"); }
+  } catch(e){ alert('Erreur : '+e.message); }
 }
 
 // ════ DATA ════
