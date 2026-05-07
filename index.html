@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Coaching Ju">
 <meta name="theme-color" content="#060a12">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060a12'/%3E%3Ctext x='90' y='56' font-size='18' font-weight='700' fill='%234d9eff' text-anchor='middle' font-family='system-ui' letter-spacing='1'%3ECOACHING%3C/text%3E%3Ctext x='90' y='110' font-size='48' font-weight='900' fill='white' text-anchor='middle' font-family='system-ui'%3EJU%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/fit-file-parser@1.9.4/dist/fit-file-parser.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -192,6 +193,49 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .ml{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
 
 
+/* IMPORT BAR */
+.import-bar{display:flex;gap:10px;padding:14px 20px 0}
+.imp-btn{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:var(--fb);font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
+.imp-btn:active{background:var(--accent2);border-color:var(--accent)}
+
+/* ACTIVITY CARD */
+.act-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.act-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer}
+.act-title{font-size:14px;font-weight:600}
+.act-date{font-size:12px;color:var(--text2);margin-top:2px}
+.act-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border)}
+.act-metric{background:var(--bg2);padding:12px 14px;text-align:center}
+.act-metric-val{font-family:var(--fd);font-size:22px;letter-spacing:.04em;color:var(--text);line-height:1}
+.act-metric-lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.act-source{font-size:10px;color:var(--text3);padding:8px 16px;border-top:1px solid var(--border)}
+
+/* PREVIEW MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + var(--safe-bottom));width:100%;max-height:85dvh;overflow-y:auto}
+.modal-title{font-family:var(--fd);font-size:28px;letter-spacing:.04em;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.modal-input{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--fb);font-size:15px;font-weight:600;outline:none;-webkit-appearance:none}
+.modal-input:focus{border-color:var(--accent)}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.modal-grid .modal-field{margin-bottom:0}
+.modal-btns{display:flex;gap:10px;margin-top:4px}
+.modal-cancel{flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer}
+.modal-save{flex:2;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#060a12;font-family:var(--fd);font-size:20px;letter-spacing:.06em;cursor:pointer}
+
+/* CARDIO BLOC in muscu history */
+.cardio-bloc{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.cardio-bloc-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.cardio-metrics{display:flex;gap:8px;flex-wrap:wrap}
+.cardio-metric{background:var(--bg3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:70px}
+.cardio-metric-val{font-family:var(--fd);font-size:20px;color:var(--accent);line-height:1}
+.cardio-metric-lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-top:2px}
+
+/* LOADING SPINNER */
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* SPORT LAST CARD */
 .sport-last-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .18s}
 .sport-last-card:active{border-color:var(--accent)}
@@ -344,6 +388,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
   <!-- Historique -->
   <div class="sc" id="muscu-hist">
+    <div class="import-bar" style="padding:0 0 14px 0">
+      <button class="imp-btn" onclick="triggerImport('fit','muscu')">📂 Importer .fit Coros</button>
+      <button class="imp-btn" onclick="triggerImport('screenshot','muscu')">📸 Screenshot Coros</button>
+      <input type="file" id="fit-input-muscu" accept=".fit" style="display:none" onchange="handleFitStandalone(event)">
+      <input type="file" id="img-input-muscu" accept="image/*" style="display:none" onchange="handleScreenshotStandalone(event)">
+    </div>
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="hcount">—</div>
     <div id="hlist"></div>
   </div>
@@ -355,13 +405,18 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="ph">
     <div class="ey">Coaching Ju</div>
     <h1>COURSE <span>À PIED</span></h1>
-    <p>Suivi · Progression · Zone 2</p>
+    <p>Coros Pace 4 · Zone 2 · Progression</p>
   </div>
-  <div class="phpg">
-    <div class="phico">🏃</div>
-    <div class="phtl">EN CONSTRUCTION</div>
-    <div class="phsb">Le suivi course à pied arrive bientôt.<br>Sorties, allure, zones FC, progression.</div>
-    <div class="phbg">Coming soon</div>
+  <div class="import-bar">
+    <button class="imp-btn" onclick="triggerImport('fit','course')">📂 Importer .fit</button>
+    <button class="imp-btn" onclick="triggerImport('screenshot','course')">📸 Screenshot</button>
+    <input type="file" id="fit-input-course" accept=".fit" style="display:none" onchange="handleFit(event,'course')">
+    <input type="file" id="img-input-course" accept="image/*" style="display:none" onchange="handleScreenshot(event,'course')">
+  </div>
+  <div class="sec" style="padding-top:12px">
+    <div id="act-list-course">
+      <div class="empty"><div class="ico">🏃</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>
+    </div>
   </div>
 </div>
 
@@ -371,13 +426,18 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="ph">
     <div class="ey">Coaching Ju</div>
     <h1>VÉLO <span>DE ROUTE</span></h1>
-    <p>Suivi · Puissance · Endurance</p>
+    <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
   </div>
-  <div class="phpg">
-    <div class="phico">🚴</div>
-    <div class="phtl">EN CONSTRUCTION</div>
-    <div class="phsb">Le suivi vélo arrive bientôt.<br>Sorties, watts, dénivelé, zones d'effort.</div>
-    <div class="phbg">Coming soon</div>
+  <div class="import-bar">
+    <button class="imp-btn" onclick="triggerImport('fit','velo')">📂 Importer .fit</button>
+    <button class="imp-btn" onclick="triggerImport('screenshot','velo')">📸 Screenshot</button>
+    <input type="file" id="fit-input-velo" accept=".fit" style="display:none" onchange="handleFit(event,'velo')">
+    <input type="file" id="img-input-velo" accept="image/*" style="display:none" onchange="handleScreenshot(event,'velo')">
+  </div>
+  <div class="sec" style="padding-top:12px">
+    <div id="act-list-velo">
+      <div class="empty"><div class="ico">🚴</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>
+    </div>
   </div>
 </div>
 
@@ -394,12 +454,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <script>
 // ════ SUPABASE ════
 const SB_URL  = 'https://xpyurfunaxycbcvbrzxy.supabase.co';
-const SB_KEY  = 'sb_publishable_5maD93mcmj8ZvujOcEqV7Q_JtCe6H2e';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhweXVyZnVuYXh5Y2JjdmJyenh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNjU4OTIsImV4cCI6MjA5Mzc0MTg5Mn0.vgOW25xJPSX7UxatbtEc_at8Ekc4JCTBe6V6BfIkqck';
 const SB_HDR  = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+const SB_GET  = { 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
 
 async function dbLoad(){
   try {
-    const r = await fetch(SB_URL+'/rest/v1/sessions?order=date.desc', { headers: SB_HDR });
+    const r = await fetch(SB_URL+'/rest/v1/sessions?order=date.desc', { headers: SB_GET });
     if(!r.ok) throw new Error('load failed');
     return await r.json();
   } catch(e) {
@@ -448,6 +509,555 @@ async function dbUpdate(id, patch){
     const idx = local.findIndex(e=>e.id===id);
     if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('cju_hist',JSON.stringify(local)); }
   }
+}
+
+// ════ ACTIVITIES DB ════
+async function dbLoadActivities(type){
+  try {
+    const url = type
+      ? SB_URL+'/rest/v1/activities?type=eq.'+type+'&order=date.desc'
+      : SB_URL+'/rest/v1/activities?order=date.desc';
+    const r = await fetch(url, { headers: SB_GET });
+    if(!r.ok) throw new Error('load failed');
+    return await r.json();
+  } catch(e){ console.warn('activities load error',e); return []; }
+}
+
+async function dbSaveActivity(data){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/activities', {
+      method:'POST',
+      headers:{...SB_HDR,'Prefer':'return=representation'},
+      body: JSON.stringify(data)
+    });
+    if(!r.ok) throw new Error('save failed');
+    return (await r.json())[0];
+  } catch(e){ console.warn('activity save error',e); return null; }
+}
+
+async function dbLinkActivity(sessionId, activityId){
+  try {
+    await fetch(SB_URL+'/rest/v1/session_activities', {
+      method:'POST',
+      headers:{...SB_HDR,'Prefer':'return=minimal'},
+      body: JSON.stringify({session_id:sessionId, activity_id:activityId})
+    });
+  } catch(e){ console.warn('link error',e); }
+}
+
+async function dbLoadLinkedActivity(sessionId){
+  try {
+    // Step 1: get activity_id from junction table
+    const r1 = await fetch(
+      SB_URL+'/rest/v1/session_activities?session_id=eq.'+sessionId,
+      { headers: SB_GET }
+    );
+    if(!r1.ok) return null;
+    const links = await r1.json();
+    if(!links.length) return null;
+
+    // Step 2: fetch the activity itself
+    const actId = links[0].activity_id;
+    const r2 = await fetch(
+      SB_URL+'/rest/v1/activities?id=eq.'+actId,
+      { headers: SB_GET }
+    );
+    if(!r2.ok) return null;
+    const acts = await r2.json();
+    return acts.length ? acts[0] : null;
+  } catch(e){ console.warn('linked activity load error', e); return null; }
+}
+
+// ════ IMPORT ════
+function triggerImport(mode, sport){
+  const id = (mode==='fit' ? 'fit-input-' : 'img-input-') + sport;
+  document.getElementById(id)?.click();
+}
+
+async function handleFit(event, sport){
+  const file = event.target.files[0];
+  if(!file) return;
+  event.target.value='';
+
+  showImportLoading(sport, '📂 Lecture du fichier .fit...');
+
+  try {
+    const buffer = await file.arrayBuffer();
+    // Use FitParser if available
+    let parsed;
+    if(typeof FitParser !== 'undefined'){
+      const fitParser = new FitParser({ force: true, speedUnit: 'km/h', lengthUnit: 'km', elapsedRecordField: true });
+      parsed = await new Promise((res, rej) => {
+        fitParser.parse(buffer, (err, data) => { if(err) rej(err); else res(data); });
+      });
+    } else {
+      throw new Error('FitParser not loaded');
+    }
+
+    const activity = extractFitData(parsed, sport);
+    hideImportLoading(sport);
+    showPreviewModal(activity, sport, null);
+  } catch(e){
+    hideImportLoading(sport);
+    console.error('FIT parse error', e);
+    alert("Erreur lors de la lecture du fichier .fit. Essaie avec un screenshot.");
+  }
+}
+
+function extractFitData(data, sport){
+  const sessions = data.sessions || [];
+  const s = sessions[0] || {};
+  const records = data.records || [];
+
+  const hrValues = records.map(r=>r.heart_rate).filter(v=>v && v>0);
+  const hrAvg = hrValues.length ? Math.round(hrValues.reduce((a,b)=>a+b,0)/hrValues.length) : (s.avg_heart_rate||null);
+  const hrMax = hrValues.length ? Math.max(...hrValues) : (s.max_heart_rate||null);
+
+  const startTime = s.start_time ? new Date(s.start_time) : new Date();
+  const durationSec = s.total_elapsed_time ? Math.round(s.total_elapsed_time) : null;
+  const distanceM = s.total_distance ? Math.round(s.total_distance * 1000) : null;
+  const calories = s.total_calories || null;
+  const elevationM = s.total_ascent || null;
+  const cadenceAvg = s.avg_cadence || null;
+
+  let paceSecKm = null, speedKmh = null, powerAvg = null;
+  if(sport === 'course' && distanceM && durationSec){
+    paceSecKm = Math.round(durationSec / (distanceM/1000));
+  }
+  if(sport === 'velo'){
+    speedKmh = s.avg_speed ? Math.round(s.avg_speed * 10)/10 : null;
+    powerAvg = s.avg_power || null;
+  }
+
+  return {
+    id: Date.now(),
+    type: sport,
+    date: startTime.toISOString(),
+    duration_sec: durationSec,
+    distance_m: distanceM,
+    hr_avg: hrAvg,
+    hr_max: hrMax,
+    calories,
+    elevation_m: elevationM,
+    pace_sec_km: paceSecKm,
+    speed_kmh: speedKmh,
+    power_avg: powerAvg,
+    cadence_avg: cadenceAvg,
+    raw: null,
+    source: 'fit'
+  };
+}
+
+async function handleScreenshot(event, sport){
+  const file = event.target.files[0];
+  if(!file) return;
+  event.target.value='';
+
+  showImportLoading(sport, '📸 Analyse du screenshot...');
+
+  try {
+    const base64 = await new Promise((res,rej)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> res(reader.result.split(',')[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+
+    const mediaType = file.type || 'image/jpeg';
+
+    const prompt = `Tu regardes un screenshot d'une application sportive (Coros, Wahoo, Strava, ou similaire). 
+Extrais les données de l'activité et retourne UNIQUEMENT un JSON valide (sans markdown, sans backticks) avec exactement ces champs:
+{
+  "date": "YYYY-MM-DDTHH:MM:SS" ou null,
+  "duration_sec": nombre de secondes ou null,
+  "distance_m": distance en mètres ou null,
+  "hr_avg": FC moyenne entière ou null,
+  "hr_max": FC max entière ou null,
+  "calories": calories entières ou null,
+  "elevation_m": dénivelé positif en mètres ou null,
+  "pace_sec_km": allure en secondes/km ou null (course seulement),
+  "speed_kmh": vitesse moyenne km/h ou null (vélo seulement),
+  "power_avg": puissance moyenne watts ou null (vélo seulement),
+  "cadence_avg": cadence moyenne ou null
+}
+Sport détecté: ${sport === 'course' ? 'course à pied' : sport === 'velo' ? 'vélo' : 'musculation'}.
+Si une valeur n'est pas visible, mets null.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 }},
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const result = await response.json();
+    const text = result.content.map(c=>c.text||'').join('').trim();
+    const extracted = JSON.parse(text);
+
+    const activity = {
+      id: Date.now(),
+      type: sport,
+      date: extracted.date || new Date().toISOString(),
+      duration_sec:  extracted.duration_sec  || null,
+      distance_m:    extracted.distance_m    || null,
+      hr_avg:        extracted.hr_avg        || null,
+      hr_max:        extracted.hr_max        || null,
+      calories:      extracted.calories      || null,
+      elevation_m:   extracted.elevation_m   || null,
+      pace_sec_km:   extracted.pace_sec_km   || null,
+      speed_kmh:     extracted.speed_kmh     || null,
+      power_avg:     extracted.power_avg     || null,
+      cadence_avg:   extracted.cadence_avg   || null,
+      raw: null,
+      source: 'screenshot'
+    };
+
+    hideImportLoading(sport);
+    showPreviewModal(activity, sport, null);
+  } catch(e){
+    hideImportLoading(sport);
+    console.error('Screenshot parse error', e);
+    alert("Erreur analyse screenshot.");
+  }
+}
+
+function showImportLoading(sport, msg){
+  const el = document.getElementById('act-list-'+sport);
+  if(el) el.innerHTML='<div class="empty"><div class="ico"><div class="spin"></div></div><p>'+msg+'</p></div>';
+}
+function hideImportLoading(sport){
+  // will be replaced by renderActivities or modal
+}
+
+// ════ PREVIEW MODAL ════
+function fmtDuration(sec){
+  if(!sec) return '—';
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  if(h>0) return h+'h'+String(m).padStart(2,'0');
+  return m+'min'+String(s).padStart(2,'0');
+}
+function fmtPace(secKm){
+  if(!secKm) return '—';
+  const m=Math.floor(secKm/60), s=secKm%60;
+  return m+"'"+String(s).padStart(2,'0')+'"';
+}
+function fmtDist(m){
+  if(!m) return '—';
+  return m>=1000 ? (m/1000).toFixed(2)+' km' : m+' m';
+}
+
+function showPreviewModal(activity, sport, linkedSessionId){
+  const dateVal = activity.date ? new Date(activity.date).toISOString().slice(0,16) : new Date().toISOString().slice(0,16);
+  const isMuscu = sport === 'muscu';
+  const isCourse = sport === 'course';
+  const isVelo = sport === 'velo';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'import-modal';
+
+  let metricsHtml = '<div class="modal-grid">';
+  metricsHtml += '<div class="modal-field"><label>Durée</label><input class="modal-input" id="m-duration" value="'+fmtDuration(activity.duration_sec)+'" placeholder="—"></div>';
+  if(!isMuscu) metricsHtml += '<div class="modal-field"><label>Distance</label><input class="modal-input" id="m-distance" value="'+fmtDist(activity.distance_m)+'" placeholder="—"></div>';
+  metricsHtml += '<div class="modal-field"><label>FC moy</label><input class="modal-input" id="m-hravg" type="number" value="'+(activity.hr_avg||'')+'" placeholder="—"></div>';
+  metricsHtml += '<div class="modal-field"><label>FC max</label><input class="modal-input" id="m-hrmax" type="number" value="'+(activity.hr_max||'')+'" placeholder="—"></div>';
+  metricsHtml += '<div class="modal-field"><label>Calories</label><input class="modal-input" id="m-cal" type="number" value="'+(activity.calories||'')+'" placeholder="—"></div>';
+  if(isCourse) metricsHtml += '<div class="modal-field"><label>Allure</label><input class="modal-input" id="m-pace" value="'+fmtPace(activity.pace_sec_km)+'" placeholder="ex: 5min30"></div>';
+  if(isCourse || isVelo) metricsHtml += '<div class="modal-field"><label>Dénivelé (m)</label><input class="modal-input" id="m-elev" type="number" value="'+(activity.elevation_m||'')+'" placeholder="—"></div>';
+  if(isVelo) metricsHtml += '<div class="modal-field"><label>Vitesse moy (km/h)</label><input class="modal-input" id="m-speed" type="number" value="'+(activity.speed_kmh||'')+'" placeholder="—"></div>';
+  if(isVelo) metricsHtml += '<div class="modal-field"><label>Puissance moy (W)</label><input class="modal-input" id="m-power" type="number" value="'+(activity.power_avg||'')+'" placeholder="—"></div>';
+  metricsHtml += '</div>';
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-title">CONFIRMER</div>
+      <div class="modal-sub">${activity.source==='fit'?'Importé depuis .fit':'Extrait du screenshot'} · Vérifie et corrige si besoin</div>
+      <div class="modal-field"><label>📅 Date & heure</label>
+        <input class="modal-input" id="m-date" type="datetime-local" value="${dateVal}" max="${new Date().toISOString().slice(0,16)}">
+      </div>
+      ${metricsHtml}
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeModal()">Annuler</button>
+        <button class="modal-save" id="modal-save-btn">SAUVEGARDER</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  // Store activity data on window to avoid inline JSON issues
+  window._pendingActivity = activity;
+  window._pendingSport = sport;
+  window._pendingSessionId = linkedSessionId || null;
+  document.getElementById('modal-save-btn').onclick = () => confirmSave();
+}
+
+function closeModal(){
+  const m = document.getElementById('import-modal');
+  if(m) m.remove();
+  // refresh current page list
+  const pages = ['course','velo'];
+  pages.forEach(p=>{
+    if(document.getElementById('page-'+p)?.classList.contains('active')) renderActivities(p);
+  });
+}
+
+async function confirmSave(){
+  const activity = window._pendingActivity;
+  const sport = window._pendingSport;
+  const linkedSessionId = window._pendingSessionId;
+
+  const btn = document.getElementById('modal-save-btn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+
+  // Read edited values from modal inputs
+  const dateStr = document.getElementById('m-date')?.value;
+  if(dateStr) activity.date = new Date(dateStr).toISOString();
+  activity.hr_avg     = parseInt(document.getElementById('m-hravg')?.value)||null;
+  activity.hr_max     = parseInt(document.getElementById('m-hrmax')?.value)||null;
+  activity.calories   = parseInt(document.getElementById('m-cal')?.value)||null;
+  const elevEl  = document.getElementById('m-elev');
+  const speedEl = document.getElementById('m-speed');
+  const powerEl = document.getElementById('m-power');
+  if(elevEl)  activity.elevation_m = parseFloat(elevEl.value)||null;
+  if(speedEl) activity.speed_kmh   = parseFloat(speedEl.value)||null;
+  if(powerEl) activity.power_avg   = parseInt(powerEl.value)||null;
+
+  const saved = await dbSaveActivity(activity);
+  if(saved && linkedSessionId) await dbLinkActivity(linkedSessionId, saved.id);
+
+  window._pendingActivity = null;
+  window._pendingSport = null;
+  window._pendingSessionId = null;
+
+  closeModal();
+  if(sport !== 'muscu') renderActivities(sport);
+  if(sport === 'muscu' || linkedSessionId){ cachedHist=null; renderHist(); }
+  renderHome();
+}
+
+// ════ RENDER ACTIVITIES ════
+async function renderActivities(sport){
+  const listEl = document.getElementById('act-list-'+sport);
+  if(!listEl) return;
+  listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
+
+  const acts = await dbLoadActivities(sport);
+  if(!acts.length){
+    const ico = sport==='course'?'🏃':'🚴';
+    listEl.innerHTML = '<div class="empty"><div class="ico">'+ico+'</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>';
+    return;
+  }
+
+  listEl.innerHTML = acts.map((a,i)=>{
+    const d = new Date(a.date);
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+    const isCourse = sport==='course';
+
+    const m1 = isCourse
+      ? {val: fmtPace(a.pace_sec_km), lbl: 'Allure /km'}
+      : {val: a.speed_kmh ? a.speed_kmh+' km/h' : '—', lbl: 'Vitesse moy'};
+    const m2 = {val: fmtDist(a.distance_m), lbl: 'Distance'};
+    const m3 = {val: fmtDuration(a.duration_sec), lbl: 'Durée'};
+    const m4 = {val: a.hr_avg ? a.hr_avg+' bpm' : '—', lbl: 'FC moy'};
+    const m5 = {val: a.hr_max ? a.hr_max+' bpm' : '—', lbl: 'FC max'};
+    const m6 = isCourse
+      ? {val: a.elevation_m ? '+'+a.elevation_m+'m' : '—', lbl: 'Dénivelé'}
+      : {val: a.power_avg ? a.power_avg+' W' : '—', lbl: 'Puissance'};
+
+    return '<div class="act-card">'+
+      '<div class="act-head" onclick="togAct(this)">'+
+      '<div><div class="act-title">'+(sport==='course'?'🏃':'🚴')+' Sortie — '+ds+'</div>'+
+      '<div class="act-date">'+fmtDuration(a.duration_sec)+' · '+fmtDist(a.distance_m)+'</div></div>'+
+      '<span class="hbg" style="background:var(--accent2);color:var(--accent)">'+a.source.toUpperCase()+'</span>'+
+      '</div>'+
+      '<div class="act-metrics" style="display:none">'+
+      [m1,m2,m3,m4,m5,m6].map(m=>'<div class="act-metric"><div class="act-metric-val">'+m.val+'</div><div class="act-metric-lbl">'+m.lbl+'</div></div>').join('')+
+      '</div>'+
+      '<div class="act-source">Source : '+a.source+(a.calories?' · '+a.calories+' kcal':'')+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+function togAct(headEl){
+  const metrics = headEl.nextElementSibling;
+  metrics.style.display = metrics.style.display==='none' ? 'grid' : 'none';
+}
+
+// ════ MUSCU STANDALONE IMPORT ════
+async function handleFitStandalone(event){
+  const file = event.target.files[0]; if(!file) return; event.target.value='';
+  const listEl = document.getElementById('hlist');
+  const oldHtml = listEl.innerHTML;
+  listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>📂 Lecture du fichier .fit...</p></div>';
+  try {
+    const buffer = await file.arrayBuffer();
+    const fitParser = new FitParser({ force:true, speedUnit:'km/h', lengthUnit:'km', elapsedRecordField:true });
+    const parsed = await new Promise((res,rej)=>fitParser.parse(buffer,(err,data)=>err?rej(err):res(data)));
+    const activity = extractFitData(parsed, 'muscu');
+    listEl.innerHTML = oldHtml;
+    showSessionPickerModal(activity);
+  } catch(e){
+    listEl.innerHTML = oldHtml;
+    alert("Erreur lecture .fit");
+  }
+}
+
+async function handleScreenshotStandalone(event){
+  const file = event.target.files[0]; if(!file) return; event.target.value='';
+  const listEl = document.getElementById('hlist');
+  const oldHtml = listEl.innerHTML;
+  listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>📸 Analyse du screenshot...</p></div>';
+  try {
+    const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
+    const prompt = 'Screenshot activité gym/muscu Coros. Retourne UNIQUEMENT ce JSON sans markdown: {"date":null,"duration_sec":null,"hr_avg":null,"hr_max":null,"calories":null,"distance_m":null,"elevation_m":null,"pace_sec_km":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}';
+    const response = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:prompt}]}]})});
+    const result = await response.json();
+    const extracted = JSON.parse(result.content.map(c=>c.text||'').join('').trim());
+    const activity = {id:Date.now(),type:'muscu',date:extracted.date||new Date().toISOString(),...extracted,source:'screenshot',raw:null};
+    listEl.innerHTML = oldHtml;
+    showSessionPickerModal(activity);
+  } catch(e){
+    listEl.innerHTML = oldHtml;
+    alert("Erreur analyse screenshot");
+  }
+}
+
+async function showSessionPickerModal(activity){
+  // Load sessions for picker
+  const sessions = cachedHist !== null ? cachedHist : await dbLoad();
+  cachedHist = sessions;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'import-modal';
+
+  const actDate = new Date(activity.date);
+  const dateVal = actDate.toISOString().slice(0,16);
+
+  // Build session options — show last 20
+  const opts = sessions.slice(0,20).map(s => {
+    const d = new Date(s.date);
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+    return '<option value="'+s.id+'">'+s.feeling+' '+s.label+' — '+ds+'</option>';
+  }).join('');
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-title">DONNÉES CARDIO</div>
+      <div class="modal-sub">Associe ces données à une séance muscu</div>
+
+      <div class="modal-field"><label>📅 Date & heure activité</label>
+        <input class="modal-input" id="m-date" type="datetime-local" value="${dateVal}" max="${new Date().toISOString().slice(0,16)}">
+      </div>
+
+      <div class="modal-grid">
+        <div class="modal-field"><label>FC moy (bpm)</label>
+          <input class="modal-input" id="m-hravg" type="number" value="${activity.hr_avg||''}" placeholder="—">
+        </div>
+        <div class="modal-field"><label>FC max (bpm)</label>
+          <input class="modal-input" id="m-hrmax" type="number" value="${activity.hr_max||''}" placeholder="—">
+        </div>
+        <div class="modal-field"><label>Durée</label>
+          <input class="modal-input" id="m-duration" value="${fmtDuration(activity.duration_sec)}" placeholder="—">
+        </div>
+        <div class="modal-field"><label>Calories</label>
+          <input class="modal-input" id="m-cal" type="number" value="${activity.calories||''}" placeholder="—">
+        </div>
+      </div>
+
+      <div class="modal-field"><label>🏋️ Lier à une séance</label>
+        <select class="modal-input" id="m-session-pick" style="cursor:pointer">
+          <option value="">— Ne pas lier —</option>
+          ${opts}
+        </select>
+      </div>
+
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeModal()">Annuler</button>
+        <button class="modal-save" id="modal-save-btn">SAUVEGARDER</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  window._pendingActivity = activity;
+  window._pendingSport = 'muscu';
+  window._pendingSessionId = null;
+  document.getElementById('modal-save-btn').onclick = confirmSaveMuscu;
+}
+
+async function confirmSaveMuscu(){
+  const activity = window._pendingActivity;
+  const btn = document.getElementById('modal-save-btn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+
+  const dateStr = document.getElementById('m-date')?.value;
+  if(dateStr) activity.date = new Date(dateStr).toISOString();
+  activity.hr_avg   = parseInt(document.getElementById('m-hravg')?.value)||null;
+  activity.hr_max   = parseInt(document.getElementById('m-hrmax')?.value)||null;
+  activity.calories = parseInt(document.getElementById('m-cal')?.value)||null;
+
+  const pickedSession = document.getElementById('m-session-pick')?.value;
+  const sessionId = pickedSession ? parseInt(pickedSession) : null;
+
+  const saved = await dbSaveActivity(activity);
+  if(saved && sessionId) await dbLinkActivity(sessionId, saved.id);
+
+  window._pendingActivity = null;
+  closeModal();
+  cachedHist = null;
+  await renderHist();
+}
+
+// ════ MUSCU CARDIO IMPORT ════
+function showMusCuCardioImport(sessionId){
+  const bar = document.createElement('div');
+  bar.style.cssText='display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)';
+  bar.innerHTML=
+    '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;width:100%">Données cardio Coros</div>'+
+    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit</button>'+
+    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;screenshot&quot;,'+sessionId+')">📸 Screenshot</button>'+
+    '<input type="file" id="fit-input-muscu-'+sessionId+'" accept=".fit" style="display:none" onchange="handleFitMuscu(event,'+sessionId+')">'+
+    '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">';
+  return bar.outerHTML;
+}
+
+function triggerMusCuImport(mode, sessionId){
+  const id = (mode==='fit'?'fit-input-muscu-':'img-input-muscu-')+sessionId;
+  document.getElementById(id)?.click();
+}
+
+async function handleFitMuscu(event, sessionId){
+  const file = event.target.files[0]; if(!file) return; event.target.value='';
+  try {
+    const buffer = await file.arrayBuffer();
+    const fitParser = new FitParser({ force:true, speedUnit:'km/h', lengthUnit:'km' });
+    const parsed = await new Promise((res,rej)=>fitParser.parse(buffer,(err,data)=>err?rej(err):res(data)));
+    const activity = extractFitData(parsed, 'muscu');
+    showPreviewModal(activity, 'muscu', sessionId);
+  } catch(e){ alert("Erreur .fit"); }
+}
+
+async function handleScreenshotMuscu(event, sessionId){
+  const file = event.target.files[0]; if(!file) return; event.target.value='';
+  try {
+    const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
+    const prompt = `Screenshot d'une activité muscu/gym sur Coros. Extrait UNIQUEMENT ce JSON (sans markdown):
+{"date":null,"duration_sec":null,"hr_avg":null,"hr_max":null,"calories":null,"distance_m":null,"elevation_m":null,"pace_sec_km":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}`;
+    const response = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:prompt}]}]})});
+    const result = await response.json();
+    const text = result.content.map(c=>c.text||'').join('').trim();
+    const extracted = JSON.parse(text);
+    const activity = {id:Date.now(),type:'muscu',date:extracted.date||new Date().toISOString(),...extracted,source:'screenshot',raw:null};
+    showPreviewModal(activity, 'muscu', sessionId);
+  } catch(e){ alert("Erreur screenshot"); }
 }
 
 // ════ DATA ════
@@ -518,6 +1128,8 @@ function showPage(id, btn){
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(id==='home') renderHome();
+  if(id==='course') renderActivities('course');
+  if(id==='velo') renderActivities('velo');
 }
 
 function showMuscu(tab, btn){
@@ -725,6 +1337,7 @@ async function renderHist(){
       '<div id="hd-view-'+i+'">'+
       (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
       (e.note?'<div class="hno">💬 '+e.note+'</div>':'')+
+      '<div id="cardio-bloc-'+e.id+'">'+renderCardioBloc(null, e.id)+'</div>'+
       '</div>'+
       '<div id="hd-edit-'+i+'" style="display:none"></div>'+
       '</div></div>';
@@ -732,7 +1345,49 @@ async function renderHist(){
 }
 
 function togHist(i){
-  document.getElementById('hd-'+i).classList.toggle('open');
+  const el = document.getElementById('hd-'+i);
+  el.classList.toggle('open');
+  // lazy-load cardio data when opening
+  if(el.classList.contains('open')){
+    const entry = cachedHist[i];
+    loadCardioForEntry(entry);
+  }
+}
+
+function renderCardioBloc(activity, sessionId){
+  if(!activity){
+    return '<div id="cardio-inner-'+sessionId+'">'+
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">'+
+      '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Données cardio Coros</div>'+
+      '<div style="display:flex;gap:8px">'+
+      '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit Coros</button>'+
+      '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;screenshot&quot;,'+sessionId+')">📸 Screenshot</button>'+
+      '</div>'+
+      '<input type="file" id="fit-input-muscu-'+sessionId+'" accept=".fit" style="display:none" onchange="handleFitMuscu(event,'+sessionId+')">'+
+      '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">'+
+      '</div></div>';
+  }
+  const metrics = [
+    {val: activity.hr_avg ? activity.hr_avg+' bpm' : '—', lbl:'FC moy'},
+    {val: activity.hr_max ? activity.hr_max+' bpm' : '—', lbl:'FC max'},
+    {val: fmtDuration(activity.duration_sec), lbl:'Durée'},
+    {val: activity.calories ? activity.calories+' kcal' : '—', lbl:'Calories'},
+  ].filter(m=>m.val!=='—');
+  return '<div class="cardio-bloc">'+
+    '<div class="cardio-bloc-title">❤️ Cardio Coros · '+new Date(activity.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+'</div>'+
+    '<div class="cardio-metrics">'+
+    metrics.map(m=>'<div class="cardio-metric"><div class="cardio-metric-val">'+m.val+'</div><div class="cardio-metric-lbl">'+m.lbl+'</div></div>').join('')+
+    '</div></div>';
+}
+
+async function loadCardioForEntry(entry){
+  const bloc = document.getElementById('cardio-bloc-'+entry.id);
+  if(!bloc) return;
+  // already loaded (not showing the import buttons anymore)
+  if(bloc.dataset.loaded) return;
+  bloc.dataset.loaded = '1';
+  const activity = await dbLoadLinkedActivity(entry.id);
+  bloc.innerHTML = renderCardioBloc(activity, entry.id);
 }
 
 function startEdit(i, ev){
