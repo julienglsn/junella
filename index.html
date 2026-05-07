@@ -90,6 +90,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .selbt{flex:1;padding:12px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:var(--fb);font-size:15px;font-weight:700;cursor:pointer;transition:all .18s}
 .selbt.active{background:var(--accent);color:#060a12;border-color:var(--accent)}
 .lform{padding:14px 20px}
+.log-step-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:14px 20px 8px}
 .dpr{display:flex;align-items:center;gap:10px;padding-bottom:14px}
 .dpr label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
 .di{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text);font-family:var(--fb);font-size:14px;font-weight:500;outline:none;-webkit-appearance:none;color-scheme:dark}
@@ -191,6 +192,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mu{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500}
 .ml{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
 
+
+/* PROGRAMME SELECTOR */
+.prog-selector{display:flex;gap:10px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.prog-selector::-webkit-scrollbar{display:none}
+.prog-card{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;transition:all .18s;min-width:140px}
+.prog-card.active{border-color:var(--accent);background:var(--accent2)}
+.prog-card-name{font-size:13px;font-weight:700;color:var(--text)}
+.prog-card.active .prog-card-name{color:var(--accent)}
+.prog-card-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.prog-card.prog-add{border-style:dashed;min-width:100px}
+.prog-card.prog-add .prog-card-name{color:var(--text3)}
+
+/* CHARTS COMING SOON */
+.charts-coming{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:12px;padding:40px 20px;text-align:center}
+.charts-coming::before{content:'📊';font-size:48px}
+.charts-coming::after{content:'Graphiques en construction — bientôt disponible.';font-size:14px;color:var(--text3);max-width:240px;line-height:1.6}
 
 /* IMPORT BAR */
 .import-bar{display:flex;gap:10px;padding:14px 20px 0}
@@ -310,17 +327,32 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <button class="stab active" onclick="showMuscu('prog',this)">📋 Programme</button>
     <button class="stab" onclick="showMuscu('log',this)">✏️ Logger</button>
     <button class="stab" onclick="showMuscu('hist',this)">📈 Historique</button>
+    <button class="stab" onclick="showMuscu('charts',this)">📊 Graphiques</button>
   </div>
 
   <!-- Programme -->
   <div class="sc active" id="muscu-prog">
-    <div class="stabs" style="padding:0 0 14px 0" id="sess-nav">
-      <button class="stab" style="font-size:12px" onclick="showSession('swarm',this)">🔥 Warm-up</button>
-      <button class="stab active" style="font-size:12px" onclick="showSession('sa',this)">🏋️ A — Jambes/Push</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('sb',this)">🏋️ B — Pull</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('sc',this)">🏋️ C — Full body</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool down</button>
+    <!-- Programme selector -->
+    <div class="prog-selector">
+      <div class="prog-card active" id="prog-sfb" onclick="selectProg('sfb',this)">
+        <div class="prog-card-name">Supersets Full Body</div>
+        <div class="prog-card-sub">A · B · C · 3×/semaine</div>
+      </div>
+      <div class="prog-card prog-add" onclick="alert('Bientôt disponible — crée un nouveau programme')">
+        <div class="prog-card-name">+ Nouveau</div>
+        <div class="prog-card-sub">programme</div>
+      </div>
     </div>
+
+    <!-- Programme : Supersets Full Body -->
+    <div id="prog-content-sfb">
+      <div class="stabs" style="padding:0 0 14px 0" id="sess-nav">
+        <button class="stab" style="font-size:12px" onclick="showSession('swarm',this)">🔥 Warm-up</button>
+        <button class="stab active" style="font-size:12px" onclick="showSession('sa',this)">🏋️ A — Jambes/Push</button>
+        <button class="stab" style="font-size:12px" onclick="showSession('sb',this)">🏋️ B — Pull</button>
+        <button class="stab" style="font-size:12px" onclick="showSession('sc',this)">🏋️ C — Full body</button>
+        <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool down</button>
+      </div>
     <div id="sa">
       <div class="chips"><span class="chip">🏋️ Jambes / Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Goblet squat</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Static lunges</div><div class="ssev">4 × 8/jambe</div></div></div>
@@ -373,16 +405,28 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <div class="ssb"><div class="ssh"><span class="sst">JAMBES</span><span class="sss">Étirements bas du corps</span></div><div class="sse"><div class="ssen">Standing quad stretch</div><div class="ssev">30 s/jambe</div></div><div class="sse"><div class="ssen">Figure-4 stretch</div><div class="ssev">30 s/côté</div></div><div class="sse"><div class="ssen">Hamstring stretch</div><div class="ssev">30 s/jambe</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">HAUT</span><span class="sss">Étirements haut du corps</span></div><div class="sse"><div class="ssen">Chest stretch</div><div class="ssev">30 sec</div></div><div class="sse"><div class="ssen">Cross-body shoulder</div><div class="ssev">30 s/côté</div></div><div class="sse"><div class="ssen">Overhead triceps stretch</div><div class="ssev">30 s/côté</div></div></div>
     </div>
+    </div><!-- end prog-content-sfb -->
   </div>
 
   <!-- Logger -->
   <div class="sc" id="muscu-log">
-    <div class="selbts">
-      <button class="selbt active" id="lb-a" onclick="selLog('a')">A</button>
-      <button class="selbt" id="lb-b" onclick="selLog('b')">B</button>
-      <button class="selbt" id="lb-c" onclick="selLog('c')">C</button>
+    <!-- Step 1 : choose programme -->
+    <div id="log-step-prog">
+      <div class="log-step-label">Choisir le programme</div>
+      <div class="selbts" id="log-prog-btns"></div>
     </div>
+    <!-- Step 2 : choose session -->
+    <div id="log-step-sess" style="display:none">
+      <div class="log-step-label" id="log-step-sess-label">Choisir la séance</div>
+      <div class="selbts" id="log-sess-btns"></div>
+    </div>
+    <!-- Step 3 : log form -->
     <div class="lform" id="lform"></div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="sc" id="muscu-charts">
+    <div class="charts-coming"></div>
   </div>
 
   <!-- Historique -->
@@ -406,16 +450,26 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <h1>COURSE <span>À PIED</span></h1>
     <p>Coros Pace 4 · Zone 2 · Progression</p>
   </div>
-  <div class="import-bar">
+  <div class="stabs" id="course-nav">
+    <button class="stab active" onclick="showSportTab('course','main',this)">📈 Historique</button>
+    <button class="stab" onclick="showSportTab('course','charts',this)">📊 Graphiques</button>
+  </div>
+  <div class="sc active" id="course-main">
+  <div class="import-bar" style="padding:14px 20px 0">
     <button class="imp-btn" onclick="triggerImport('fit','course')">📂 Importer .fit</button>
     <button class="imp-btn" onclick="triggerImport('screenshot','course')">📸 Screenshot</button>
     <input type="file" id="fit-input-course" accept=".fit" style="display:none" onchange="handleFit(event,'course')">
     <input type="file" id="img-input-course" accept="image/*" style="display:none" onchange="handleScreenshot(event,'course')">
   </div>
   <div class="sec" style="padding-top:12px">
+    <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="course-count">—</div>
     <div id="act-list-course">
-      <div class="empty"><div class="ico">🏃</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>
+      <div class="empty"><div class="ico">🏃</div><p>Aucune sortie enregistrée.</p></div>
     </div>
+  </div>
+  </div><!-- end course-main -->
+  <div class="sc" id="course-charts">
+    <div class="charts-coming"></div>
   </div>
 </div>
 
@@ -427,16 +481,26 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <h1>VÉLO <span>DE ROUTE</span></h1>
     <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
   </div>
-  <div class="import-bar">
+  <div class="stabs" id="velo-nav">
+    <button class="stab active" onclick="showSportTab('velo','main',this)">📈 Historique</button>
+    <button class="stab" onclick="showSportTab('velo','charts',this)">📊 Graphiques</button>
+  </div>
+  <div class="sc active" id="velo-main">
+  <div class="import-bar" style="padding:14px 20px 0">
     <button class="imp-btn" onclick="triggerImport('fit','velo')">📂 Importer .fit</button>
     <button class="imp-btn" onclick="triggerImport('screenshot','velo')">📸 Screenshot</button>
     <input type="file" id="fit-input-velo" accept=".fit" style="display:none" onchange="handleFit(event,'velo')">
     <input type="file" id="img-input-velo" accept="image/*" style="display:none" onchange="handleScreenshot(event,'velo')">
   </div>
   <div class="sec" style="padding-top:12px">
+    <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="velo-count">—</div>
     <div id="act-list-velo">
-      <div class="empty"><div class="ico">🚴</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>
+      <div class="empty"><div class="ico">🚴</div><p>Aucune sortie enregistrée.</p></div>
     </div>
+  </div>
+  </div><!-- end velo-main -->
+  <div class="sc" id="velo-charts">
+    <div class="charts-coming"></div>
   </div>
 </div>
 
@@ -713,36 +777,84 @@ function parseFitRobust(buffer){
 }
 
 function extractFitData(parsed, sport){
-  const s = parsed.session || {};
-  const act = parsed.activity || {};
+  const s   = parsed.session  || {};  // Wahoo has this, Coros usually doesn't
+  const act = parsed.activity || {};  // Both have this
   const records = parsed.records || [];
 
-  // HR from records (more accurate than session avg for Coros)
+  // ── HR — always from records (most reliable for both Coros & Wahoo) ──
   const hrVals = records.map(r=>r.heart_rate).filter(v=>v && v>0 && v<250);
-  const hrAvg = hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : (s.avg_heart_rate||null);
-  const hrMax = hrVals.length ? Math.max(...hrVals) : (s.max_heart_rate||null);
+  const hrAvg = hrVals.length
+    ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length)
+    : (s.avg_heart_rate || null);
+  const hrMax = hrVals.length ? Math.max(...hrVals) : (s.max_heart_rate || null);
 
-  // Date: prefer session start_time, fallback to activity local_timestamp
+  // ── Date — local_timestamp from activity (already in local time) ──
   const startDate = s.start_time || act.local_timestamp || new Date();
+
+  // ── Duration — session first (Wahoo), fallback activity (Coros) ──
   const durationSec = s.total_timer_time
     ? Math.round(s.total_timer_time)
     : (act.total_timer_time ? Math.round(act.total_timer_time) : null);
-  const distanceM = s.total_distance ? Math.round(s.total_distance * 1000) : null;
+
+  // ── Distance ──
+  // Wahoo: session.total_distance in meters
+  // Coros: no session, distance per record is segmented — derive from speed × time
+  let distanceM = null;
+  if(s.total_distance && s.total_distance > 10){
+    // Wahoo stores in meters directly
+    distanceM = Math.round(s.total_distance);
+  } else {
+    // Coros: max cumulative distance from records (in meters)
+    const dists = records.map(r=>r.distance).filter(v=>v && v>0);
+    const maxDist = dists.length ? Math.max(...dists) : 0;
+    if(maxDist > 100){
+      // Looks like real cumulative meters
+      distanceM = Math.round(maxDist);
+    } else if(durationSec){
+      // Fallback: derive from avg speed × duration
+      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
+      if(speedVals.length){
+        const avgSpeedMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
+        distanceM = Math.round(avgSpeedMs * durationSec);
+      }
+    }
+  }
+
+  // ── Calories ──
   const calories = s.total_calories || null;
+
+  // ── Elevation ──
   const elevationM = s.total_ascent || null;
+
+  // ── Cadence ──
   const cadenceAvg = s.avg_cadence || null;
 
+  // ── Sport-specific ──
   let paceSecKm = null, speedKmh = null, powerAvg = null;
-  if(sport === 'course' && distanceM && durationSec){
-    paceSecKm = Math.round(durationSec / (distanceM/1000));
-  }
-  if(sport === 'velo'){
-    // Try session avg_speed first, fallback to records
-    if(s.avg_speed){
-      speedKmh = Math.round(s.avg_speed * 10)/10;
+
+  if(sport === 'course'){
+    if(distanceM && durationSec){
+      paceSecKm = Math.round(durationSec / (distanceM / 1000));
     } else {
-      const speeds = records.map(r=>r.speed).filter(v=>v && v>0);
-      speedKmh = speeds.length ? Math.round(speeds.reduce((a,b)=>a+b,0)/speeds.length*10)/10 : null;
+      // Derive pace from avg speed records
+      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
+      if(speedVals.length){
+        const avgMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
+        paceSecKm = avgMs > 0 ? Math.round(1000/avgMs) : null;
+      }
+    }
+  }
+
+  if(sport === 'velo'){
+    // Wahoo: enhanced_avg_speed in m/s
+    if(s.avg_speed && s.avg_speed > 0){
+      speedKmh = Math.round(s.avg_speed * 3.6 * 10) / 10;
+    } else {
+      const speedVals = records.map(r=>r.speed).filter(v=>v && v>0);
+      if(speedVals.length){
+        const avgMs = speedVals.reduce((a,b)=>a+b,0)/speedVals.length;
+        speedKmh = Math.round(avgMs * 3.6 * 10) / 10;
+      }
     }
     powerAvg = s.avg_power || null;
     if(!powerAvg){
@@ -869,8 +981,8 @@ Si une valeur n'est pas visible, mets null.`;
 }
 
 function showImportLoading(sport, msg){
-  const el = document.getElementById('act-list-'+sport);
-  if(el) el.innerHTML='<div class="empty"><div class="ico"><div class="spin"></div></div><p>'+msg+'</p></div>';
+  const listEl = document.getElementById('act-list-'+sport);
+  if(listEl) listEl.innerHTML='<div class="empty"><div class="ico"><div class="spin"></div></div><p>'+msg+'</p></div>';
 }
 function hideImportLoading(sport){
   // will be replaced by renderActivities or modal
@@ -940,11 +1052,6 @@ function showPreviewModal(activity, sport, linkedSessionId){
 function closeModal(){
   const m = document.getElementById('import-modal');
   if(m) m.remove();
-  // refresh current page list
-  const pages = ['course','velo'];
-  pages.forEach(p=>{
-    if(document.getElementById('page-'+p)?.classList.contains('active')) renderActivities(p);
-  });
 }
 
 async function confirmSave(){
@@ -976,7 +1083,9 @@ async function confirmSave(){
   window._pendingSessionId = null;
 
   closeModal();
-  if(sport !== 'muscu') renderActivities(sport);
+  if(sport !== 'muscu'){
+    renderActivities(sport);
+  }
   if(sport === 'muscu' || linkedSessionId){ cachedHist=null; renderHist(); }
   renderHome();
 }
@@ -988,6 +1097,8 @@ async function renderActivities(sport){
   listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
 
   const acts = await dbLoadActivities(sport);
+  const countEl = document.getElementById(sport+'-count');
+  if(countEl) countEl.textContent = acts.length + ' sortie'+(acts.length!==1?'s':'');
   if(!acts.length){
     const ico = sport==='course'?'🏃':'🚴';
     listEl.innerHTML = '<div class="empty"><div class="ico">'+ico+'</div><p>Aucune sortie enregistrée.<br>Importe un fichier .fit ou un screenshot.</p></div>';
@@ -1198,6 +1309,14 @@ async function handleScreenshotMuscu(event, sessionId){
 }
 
 // ════ DATA ════
+const PROGRAMS = {
+  sfb: {
+    label: 'Supersets Full Body',
+    sessions: ['a','b','c']
+  }
+  // Add future programs here
+};
+
 const SESSIONS = {
   a:{ label:'Séance A — Jambes / Push', supersets:[
     { label:'Jambes', exercises:[
@@ -1250,6 +1369,7 @@ function flatExos(sessKey){
 
 // ════ STATE ════
 let curLog     = 'a';
+let curLogProg = 'sfb';
 let logDate    = todayKey();
 let feeling    = null;
 let cachedHist = null;
@@ -1265,8 +1385,25 @@ function showPage(id, btn){
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(id==='home') renderHome();
-  if(id==='course') renderActivities('course');
-  if(id==='velo') renderActivities('velo');
+  if(id==='course'){ renderActivities('course'); }
+  if(id==='velo'){ renderActivities('velo'); }
+}
+
+function showSportTab(sport, tab, btn){
+  const page = document.getElementById('page-'+sport);
+  page.querySelectorAll('.sc').forEach(s=>s.classList.remove('active'));
+  page.querySelectorAll('.stabs .stab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(sport+'-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='hist') renderActivities(sport);
+}
+
+function selectProg(progId, card){
+  document.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  document.querySelectorAll('[id^="prog-content-"]').forEach(c=>c.style.display='none');
+  const el = document.getElementById('prog-content-'+progId);
+  if(el) el.style.display='block';
 }
 
 function showMuscu(tab, btn){
@@ -1275,7 +1412,8 @@ function showMuscu(tab, btn){
   document.getElementById('muscu-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='hist') renderHist();
-  if(tab==='log') renderLog();
+  if(tab==='log') renderLogNav();
+  // charts: nothing to do yet
 }
 
 function showSession(id, btn){
@@ -1317,11 +1455,49 @@ async function renderHome(){
 }
 
 // ════ LOGGER ════
+function selLogProg(progId){
+  curLogProg = progId;
+  customSets = {};
+  curLog = PROGRAMS[progId].sessions[0]; // default to first session
+  renderLogNav();
+}
+
 function selLog(s){
-  curLog=s;
-  customSets={};
-  document.querySelectorAll('.selbt').forEach(b=>b.classList.remove('active'));
-  document.getElementById('lb-'+s).classList.add('active');
+  curLog = s;
+  customSets = {};
+  renderLogNav();
+}
+
+function renderLogNav(){
+  // Step 1 — programme buttons
+  const progBtns = document.getElementById('log-prog-btns');
+  if(progBtns){
+    progBtns.innerHTML = Object.entries(PROGRAMS).map(([id,p])=>{
+      const act = id===curLogProg ? ' active' : '';
+      return '<button class="selbt'+act+'" onclick="selLogProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
+    }).join('');
+  }
+
+  // Step 2 — session buttons for current programme
+  const sessStep = document.getElementById('log-step-sess');
+  const sessBtns = document.getElementById('log-sess-btns');
+  const sessLabel = document.getElementById('log-step-sess-label');
+  const prog = PROGRAMS[curLogProg];
+  if(sessStep && sessBtns && prog){
+    sessStep.style.display = 'block';
+    if(sessLabel) sessLabel.textContent = prog.label + ' — Choisir la séance';
+    sessBtns.innerHTML = prog.sessions.map(s=>{
+      const sess = SESSIONS[s];
+      const short = s.toUpperCase();
+      const sub = sess.label.split('—')[1]?.trim() || '';
+      const act = s===curLog ? ' active' : '';
+      return '<button class="selbt'+act+'" onclick="selLog(&quot;'+s+'&quot;)" style="flex-direction:column;gap:2px;padding:10px 4px;font-size:13px">'+
+        '<span>'+short+'</span>'+
+        '<span style="font-size:9px;font-weight:500;color:inherit;opacity:.7">'+sub+'</span>'+
+        '</button>';
+    }).join('');
+  }
+
   renderLog();
 }
 
@@ -1630,7 +1806,7 @@ function showLoader(elId){
 // ════ INIT ════
 (async()=>{
   await renderHome();
-  renderLog();
+  renderLogNav();
 })();
 </script>
 </body>
