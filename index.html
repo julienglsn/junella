@@ -167,6 +167,15 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
 .mc.full{grid-column:span 2}
 
+/* EDIT MODE */
+.edit-bar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.edit-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s}
+.edit-btn:active{background:var(--accent2);color:var(--accent);border-color:var(--accent)}
+.edit-field{margin-bottom:12px}
+.edit-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.edit-exo{background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:8px}
+.edit-exo-name{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)}
+
 /* SS GROUP in logger */
 .ss-group{margin-bottom:16px}
 .ss-group-label{display:flex;align-items:center;gap:8px;padding:0 0 8px;font-size:12px;font-weight:600;color:var(--text2)}
@@ -181,6 +190,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mv{font-family:var(--fd);font-size:36px;letter-spacing:.04em;color:var(--accent);line-height:1}
 .mu{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500}
 .ml{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+
+/* SPORT LAST CARD */
+.sport-last-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .18s}
+.sport-last-card:active{border-color:var(--accent)}
+.slc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.slc-sport{display:flex;align-items:center;gap:8px}
+.slc-ico{font-size:20px;line-height:1}
+.slc-name{font-size:14px;font-weight:600}
+.slc-meta{font-size:12px;color:var(--text2)}
+.slc-detail{display:flex;flex-direction:column;gap:3px}
+.slc-row{display:flex;justify-content:space-between;font-size:13px;padding:2px 0;border-bottom:1px solid var(--border)}
+.slc-row:last-child{border-bottom:none}
+.slc-row-name{color:var(--text2)}
+.slc-row-val{font-weight:600;font-size:12px}
+.slc-empty{font-size:12px;color:var(--text3);font-style:italic}
 </style>
 </head>
 <body>
@@ -193,52 +218,40 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="hrs" id="home-date">Chargement...</div>
   </div>
 
+  <!-- Dernières séances par sport -->
   <div class="sec">
-    <div class="slabel">Résumé activité</div>
-    <div class="sgrid">
-      <div class="sc2" onclick="showPage('muscu',document.querySelectorAll('.nav-item')[1])">
-        <div class="sico">💪</div>
-        <div class="slb">Séances muscu</div>
-        <div class="svl" id="h-total">—</div>
-        <div class="ssb2">enregistrées</div>
+    <div class="slabel">Dernières séances</div>
+
+    <!-- Muscu -->
+    <div class="sport-last-card" onclick="showPage('muscu',document.querySelectorAll('.nav-item')[1])">
+      <div class="slc-head">
+        <div class="slc-sport"><span class="slc-ico">💪</span><span class="slc-name">Musculation</span></div>
+        <div class="slc-meta" id="slc-muscu-meta">—</div>
       </div>
-      <div class="sc2" onclick="showPage('muscu',document.querySelectorAll('.nav-item')[1])">
-        <div class="sico">📅</div>
-        <div class="slb">Dernière séance</div>
-        <div class="svl" id="h-lastday">—</div>
-        <div class="ssb2" id="h-lastlbl">—</div>
+      <div id="slc-muscu-detail" class="slc-detail">
+        <span class="slc-empty">Aucune séance enregistrée</span>
       </div>
-      <div class="sc2" onclick="showPage('course',document.querySelectorAll('.nav-item')[2])">
-        <div class="sico">🏃</div>
-        <div class="slb">Course</div>
-        <div class="svl">—</div>
-        <div class="ssb2">à venir</div>
+    </div>
+
+    <!-- Course -->
+    <div class="sport-last-card" onclick="showPage('course',document.querySelectorAll('.nav-item')[2])">
+      <div class="slc-head">
+        <div class="slc-sport"><span class="slc-ico">🏃</span><span class="slc-name">Course à pied</span></div>
+        <div class="slc-meta">—</div>
       </div>
-      <div class="sc2" onclick="showPage('velo',document.querySelectorAll('.nav-item')[3])">
-        <div class="sico">🚴</div>
-        <div class="slb">Vélo</div>
-        <div class="svl">—</div>
-        <div class="ssb2">à venir</div>
+      <div class="slc-detail"><span class="slc-empty">À venir</span></div>
+    </div>
+
+    <!-- Vélo -->
+    <div class="sport-last-card" onclick="showPage('velo',document.querySelectorAll('.nav-item')[3])">
+      <div class="slc-head">
+        <div class="slc-sport"><span class="slc-ico">🚴</span><span class="slc-name">Vélo de route</span></div>
+        <div class="slc-meta">—</div>
       </div>
+      <div class="slc-detail"><span class="slc-empty">À venir</span></div>
     </div>
   </div>
 
-  <div class="sec" style="padding-top:0">
-    <div class="slabel">Dernière séance muscu</div>
-    <div id="h-lastdetail">
-      <div class="empty"><div class="ico">📋</div><p>Aucune séance enregistrée</p></div>
-    </div>
-  </div>
-
-  <div class="sec" style="padding-top:0">
-    <div class="slabel">Objectifs nutrition</div>
-    <div class="card">
-      <div class="crow"><span class="cl">Calories</span><span class="cr">2 400 kcal</span></div>
-      <div class="crow"><span class="cl">Protéines</span><span class="cr">180 g</span></div>
-      <div class="crow"><span class="cl">Glucides</span><span class="cr">260 g</span></div>
-      <div class="crow"><span class="cl">Lipides</span><span class="cr">75 g</span></div>
-    </div>
-  </div>
 </div>
 
 
@@ -259,26 +272,26 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <!-- Programme -->
   <div class="sc active" id="muscu-prog">
     <div class="stabs" style="padding:0 0 14px 0" id="sess-nav">
-      <button class="stab active" style="font-size:12px" onclick="showSession('sa',this)">💪 A — Push</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('sb',this)">🔵 B — Pull</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('sc',this)">🟢 C — Full</button>
       <button class="stab" style="font-size:12px" onclick="showSession('swarm',this)">🔥 Warm-up</button>
-      <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool</button>
+      <button class="stab active" style="font-size:12px" onclick="showSession('sa',this)">🏋️ A — Jambes/Push</button>
+      <button class="stab" style="font-size:12px" onclick="showSession('sb',this)">🏋️ B — Pull</button>
+      <button class="stab" style="font-size:12px" onclick="showSession('sc',this)">🏋️ C — Full body</button>
+      <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool down</button>
     </div>
     <div id="sa">
-      <div class="chips"><span class="chip">🔴 Jambes / Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
+      <div class="chips"><span class="chip">🏋️ Jambes / Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Goblet squat</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Static lunges</div><div class="ssev">4 × 8/jambe</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">4 × 12–15</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Triceps / Gainage · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable triceps pushdown</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">3 × 30–45 sec</div></div></div>
     </div>
     <div id="sb" style="display:none">
-      <div class="chips"><span class="chip">🔵 Pull</span><span class="chip">⏱ 45–60 min</span><span class="chip">🩺 Sangles pouce</span></div>
+      <div class="chips"><span class="chip">🏋️ Pull</span><span class="chip">⏱ 45–60 min</span><span class="chip">🩺 Sangles pouce</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Postérieur / Gainage · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Romanian deadlift</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">4 × 30–45 sec</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Dos · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Lat pulldown</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Single-arm dumbbell row</div><div class="ssev">4 × 10/côté</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Biceps / Épaule · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable curl</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Face pull</div><div class="ssev">3 × 12–15</div></div></div>
     </div>
     <div id="sc" style="display:none">
-      <div class="chips"><span class="chip">🟢 Full body</span><span class="chip">⏱ 45–60 min</span><span class="chip">⚡ Éloigné du basket</span></div>
+      <div class="chips"><span class="chip">🏋️ Full body</span><span class="chip">⏱ 45–60 min</span><span class="chip">⚡ Éloigné du basket</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Leg press</div><div class="ssev">4 × 10</div></div><div class="sse"><div class="ssen">Standing calf raises</div><div class="ssev">4 × 12–15</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push / Pull · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Incline bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Dumbbell row</div><div class="ssev">4 × 10</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Bras / Épaules · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Hammer curl</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">3 × 12–15</div></div></div>
@@ -394,6 +407,26 @@ async function dbSave(data){
   }
 }
 
+async function dbUpdate(id, patch){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/sessions?id=eq.'+id, {
+      method: 'PATCH',
+      headers: { ...SB_HDR, 'Prefer':'return=minimal' },
+      body: JSON.stringify(patch)
+    });
+    if(!r.ok) throw new Error('update failed');
+    // update local cache too
+    const local = JSON.parse(localStorage.getItem('cju_hist')||'[]');
+    const idx = local.findIndex(e=>e.id===id);
+    if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('cju_hist',JSON.stringify(local)); }
+  } catch(e) {
+    console.warn('Supabase update error', e);
+    const local = JSON.parse(localStorage.getItem('cju_hist')||'[]');
+    const idx = local.findIndex(e=>e.id===id);
+    if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('cju_hist',JSON.stringify(local)); }
+  }
+}
+
 // ════ DATA ════
 const SESSIONS = {
   a:{ label:'Séance A — Jambes / Push', supersets:[
@@ -407,13 +440,13 @@ const SESSIONS = {
     ]},
     { label:'Triceps / Gainage', exercises:[
       {name:'Cable triceps pushdown', sets:3, reps:'10–12'},
-      {name:'Plank',             sets:3, reps:'30–45 sec'}
+      {name:'Plank',             sets:3, reps:'30–45 sec', timed:true}
     ]}
   ]},
   b:{ label:'Séance B — Pull', supersets:[
     { label:'Postérieur / Gainage', exercises:[
       {name:'Romanian deadlift', sets:4, reps:'8–10'},
-      {name:'Plank',             sets:4, reps:'30–45 sec'}
+      {name:'Plank',             sets:4, reps:'30–45 sec', timed:true}
     ]},
     { label:'Dos', exercises:[
       {name:'Lat pulldown',      sets:4, reps:'8–10'},
@@ -488,37 +521,27 @@ async function renderHome(){
   const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
 
-  showLoader('h-lastdetail');
   const h = cachedHist !== null ? cachedHist : await dbLoad();
   cachedHist = h;
-  document.getElementById('h-total').textContent = h.length;
 
-  if(!h.length){
-    document.getElementById('h-lastday').textContent='—';
-    document.getElementById('h-lastlbl').textContent='Aucune séance';
-    document.getElementById('h-lastdetail').innerHTML='<div class="empty"><div class="ico">📋</div><p>Aucune séance enregistrée</p></div>';
-    return;
+  // ── Muscu last session ──
+  if(h.length){
+    const last = h[0];
+    const ld = new Date(last.date);
+    const diff = Math.floor((now-ld)/86400000);
+    const dayStr = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
+    document.getElementById('slc-muscu-meta').textContent = dayStr+' · '+last.label;
+    const rows = last.exercises.slice(0,4).map(exo=>{
+      const weights = exo.sets.filter(s=>s.weight).map(s=>parseFloat(s.weight)||0);
+      const maxW = weights.length ? Math.max(...weights) : null;
+      const reps = exo.sets.find(s=>s.reps)?.reps;
+      const val = [maxW?maxW+' lbs':null, reps?reps+' reps':null].filter(Boolean).join(' · ');
+      return '<div class="slc-row"><span class="slc-row-name">'+exo.name+'</span><span class="slc-row-val">'+(val||'—')+'</span></div>';
+    }).join('');
+    const more = last.exercises.length>4 ? '<div class="slc-row"><span class="slc-row-name" style="color:var(--text3)">+ '+(last.exercises.length-4)+' exercices</span></div>' : '';
+    document.getElementById('slc-muscu-detail').innerHTML = rows + more;
   }
 
-  const last = h[0];
-  const ld = new Date(last.date);
-  const diff = Math.floor((now-ld)/86400000);
-  document.getElementById('h-lastday').textContent = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
-  document.getElementById('h-lastlbl').textContent = last.label;
-
-  const lines = last.exercises.slice(0,4).map(exo=>{
-    const weights = exo.sets.filter(s=>s.weight).map(s=>parseFloat(s.weight)||0);
-    const maxW = weights.length ? Math.max(...weights) : null;
-    const reps = exo.sets.find(s=>s.reps)?.reps;
-    const detail = [maxW?maxW+' lbs':null, reps?reps+' reps':null].filter(Boolean).join(' · ');
-    return '<div class="lsce"><strong>'+exo.name+'</strong>'+(detail?' — '+detail:'')+'</div>';
-  }).join('');
-
-  document.getElementById('h-lastdetail').innerHTML=
-    '<div class="lsc"><div class="lsch"><span class="lsct">'+last.feeling+' '+last.label+'</span>'+
-    '<span class="lscd">'+ld.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+'</span></div>'+
-    lines+(last.exercises.length>4?'<div class="lsce" style="color:var(--text3)">+ '+(last.exercises.length-4)+' exercices...</div>':'')+
-    '</div>';
 }
 
 // ════ LOGGER ════
@@ -589,10 +612,11 @@ function renderLog(){
       h += '<button class="sc-btn" onclick="addSet('+ei+')">+</button>';
       h += '</div></div>';
       h += '<div id="exo-rows-'+ei+'">';
-      h += '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
+      const isTimed = !!exo.timed;
+      h += '<table class="stbl"><tr><th>#</th><th>'+(isTimed?'—':'Poids (lbs)')+'</th><th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
       for(let s=1;s<=n;s++){
         h += '<tr><td><span class="sn">'+s+'</span></td>';
-        h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
+        h += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal">')+'</td>';
         h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
       }
       h += '</table></div></div>';
@@ -653,34 +677,133 @@ async function renderHist(){
   cachedHist = h;
   document.getElementById('hcount').textContent =
     h.length+' séance'+(h.length!==1?'s':'')+' enregistrée'+(h.length!==1?'s':'');
-
   const list = document.getElementById('hlist');
   if(!h.length){
     list.innerHTML='<div class="empty"><div class="ico">📋</div><p>Aucune séance enregistrée.<br>Commence par logger une séance !</p></div>';
     return;
   }
-
   list.innerHTML = h.map((e,i)=>{
     const d = new Date(e.date);
     const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
     const ts = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const rows = e.exercises.map(exo=>{
       const sv = exo.sets.filter(s=>s.weight||s.reps)
-        .map(s=>(s.weight||'?')+'lbs×'+(s.reps||'?')).join(' · ');
+        .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
       return sv?'<div class="her"><span class="hen">'+exo.name+'</span><span class="hev">'+sv+'</span></div>':'';
     }).filter(Boolean).join('');
     return '<div class="he">'+
       '<div class="heh" onclick="togHist('+i+')">'+
       '<div><div class="het">'+e.feeling+' '+e.label+'</div><div class="hed">'+ds+' à '+ts+'</div></div>'+
       '<span class="hbg b'+e.type+'">'+e.type.toUpperCase()+'</span></div>'+
-      '<div class="hdt" id="hd-'+i+'">'+(rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
+      '<div class="hdt" id="hd-'+i+'">'+
+      '<div class="edit-bar">'+
+      '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
+      '</div>'+
+      '<div id="hd-view-'+i+'">'+
+      (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
       (e.note?'<div class="hno">💬 '+e.note+'</div>':'')+
+      '</div>'+
+      '<div id="hd-edit-'+i+'" style="display:none"></div>'+
       '</div></div>';
   }).join('');
 }
 
 function togHist(i){
   document.getElementById('hd-'+i).classList.toggle('open');
+}
+
+function startEdit(i, ev){
+  ev.stopPropagation();
+  const entry = cachedHist[i];
+  const editDiv = document.getElementById('hd-edit-'+i);
+  const viewDiv = document.getElementById('hd-view-'+i);
+  const btn = ev.target;
+
+  if(editDiv.style.display !== 'none'){
+    // cancel
+    editDiv.style.display='none';
+    viewDiv.style.display='block';
+    btn.textContent='✏️ Modifier';
+    return;
+  }
+
+  viewDiv.style.display='none';
+  btn.textContent='✕ Annuler';
+
+  const d = new Date(entry.date);
+  const dateVal = d.toISOString().slice(0,10);
+
+  let h = '';
+  // Date
+  h += '<div class="edit-field"><label>📅 Date</label>';
+  h += '<input class="di" type="date" id="edit-date-'+i+'" value="'+dateVal+'" max="'+todayKey()+'"></div>';
+  // Feeling
+  h += '<div class="edit-field"><label>Ressenti</label><div class="frow" style="margin-bottom:0">';
+  ['😴','😐','💪','🔥'].forEach(em=>{
+    const active = entry.feeling===em?' active':'';
+    h += '<button class="fbtn'+active+'" onclick="pickEditFeel(this)">'+em+'</button>';
+  });
+  h += '</div></div>';
+  // Exercises
+  entry.exercises.forEach((exo,ei)=>{
+    const isTimedExo = exo.name.toLowerCase().includes('plank');
+    h += '<div class="edit-exo"><div class="edit-exo-name">'+exo.name+'</div>';
+    h += '<table class="stbl"><tr><th>#</th><th>'+(isTimedExo?'—':'lbs')+'</th><th>'+(isTimedExo?'Sec':'Reps')+'</th></tr>';
+    exo.sets.forEach((set,si)=>{
+      h += '<tr><td><span class="sn">'+(si+1)+'</span></td>';
+      h += '<td>'+(isTimedExo?'<span style="color:var(--text3)">—</span>':'<input class="li" type="number" id="ew_'+i+'_'+ei+'_'+si+'" value="'+(set.weight||'')+'" placeholder="—" step="1">')+'</td>';
+      h += '<td><input class="li" type="number" id="er_'+i+'_'+ei+'_'+si+'" value="'+(set.reps||'')+'" placeholder="—"></td>';
+      h += '</tr>';
+    });
+    h += '</table></div>';
+  });
+  // Note
+  h += '<div class="edit-field"><label>Note</label>';
+  h += '<textarea class="ni" id="edit-note-'+i+'" style="margin-bottom:0">'+( entry.note||'')+'</textarea></div>';
+  // Save
+  h += '<button class="savebtn" style="margin-top:10px" onclick="saveEdit('+i+')">SAUVEGARDER</button>';
+
+  editDiv.innerHTML = h;
+  editDiv.style.display = 'block';
+  document.getElementById('hd-'+i).classList.add('open');
+}
+
+function pickEditFeel(btn){
+  btn.closest('.frow').querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveEdit(i){
+  const entry = cachedHist[i];
+  const dateVal = document.getElementById('edit-date-'+i).value;
+  const feelBtn = document.querySelector('#hd-edit-'+i+' .fbtn.active');
+  const feeling = feelBtn ? feelBtn.textContent.trim() : entry.feeling;
+  const note = document.getElementById('edit-note-'+i).value;
+
+  const exercises = entry.exercises.map((exo,ei)=>({
+    name: exo.name,
+    sets: exo.sets.map((set,si)=>({
+      weight: document.getElementById('ew_'+i+'_'+ei+'_'+si)?.value || set.weight || '',
+      reps:   document.getElementById('er_'+i+'_'+ei+'_'+si)?.value || set.reps  || ''
+    }))
+  }));
+
+  const patch = {
+    date: new Date(dateVal+'T12:00:00').toISOString(),
+    feeling, note, exercises
+  };
+
+  const btn = document.querySelector('#hd-edit-'+i+' .savebtn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+
+  await dbUpdate(entry.id, patch);
+  cachedHist = null;
+  await renderHist();
+  // re-open the entry
+  setTimeout(()=>{
+    const el = document.getElementById('hd-'+i);
+    if(el) el.classList.add('open');
+  }, 100);
 }
 
 // ════ HELPERS ════
