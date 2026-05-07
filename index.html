@@ -1613,8 +1613,19 @@ async function renderHist(){
     const ts = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const exos = e.exercises || [];
     const rows = exos.map(exo=>{
-      const sv = (exo.sets||[]).filter(s=>s.weight||s.reps)
-        .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
+      const isTimed = exo.name.toLowerCase().includes('plank');
+      let sv;
+      if(isTimed){
+        // Show as "Nsec × M séries"
+        const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
+        if(setsWithReps.length){
+          const dur = setsWithReps[0].reps;
+          sv = setsWithReps.length+'×'+dur+'sec';
+        }
+      } else {
+        sv = (exo.sets||[]).filter(s=>s.weight||s.reps)
+          .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
+      }
       return sv?'<div class="her"><span class="hen">'+exo.name+'</span><span class="hev">'+sv+'</span></div>':'';
     }).filter(Boolean).join('');
     const label = e.session_label || e.label || '';
@@ -1715,7 +1726,7 @@ function startEdit(i, ev){
     h += '<table class="stbl"><tr><th>#</th><th>'+(isTimedExo?'—':'lbs')+'</th><th>'+(isTimedExo?'Sec':'Reps')+'</th></tr>';
     exo.sets.forEach((set,si)=>{
       h += '<tr><td><span class="sn">'+(si+1)+'</span></td>';
-      h += '<td>'+(isTimedExo?'<span style="color:var(--text3)">—</span>':'<input class="li" type="number" id="ew_'+i+'_'+ei+'_'+si+'" value="'+(set.weight||'')+'" placeholder="—" step="1">')+'</td>';
+      h += '<td>'+(isTimedExo?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="ew_'+i+'_'+ei+'_'+si+'" value="'+(set.weight||'')+'" placeholder="—" step="1">')+'</td>';
       h += '<td><input class="li" type="number" id="er_'+i+'_'+ei+'_'+si+'" value="'+(set.reps||'')+'" placeholder="—"></td>';
       h += '</tr>';
     });
