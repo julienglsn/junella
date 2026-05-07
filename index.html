@@ -1416,14 +1416,21 @@ async function renderHome(){
     const diff = Math.floor((now-ld)/86400000);
     const dayStr = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
     document.getElementById('slc-muscu-meta').textContent = dayStr+' · '+last.label;
-    const rows = last.exercises.slice(0,4).map(exo=>{
-      const weights = exo.sets.filter(s=>s.weight).map(s=>parseFloat(s.weight)||0);
-      const maxW = weights.length ? Math.max(...weights) : null;
-      const reps = exo.sets.find(s=>s.reps)?.reps;
-      const val = [maxW?maxW+' lbs':null, reps?reps+' reps':null].filter(Boolean).join(' · ');
+    const rows = (last.exercises||[]).slice(0,4).map(exo=>{
+      const isTimed = exo.name.toLowerCase().includes('plank');
+      let val;
+      if(isTimed){
+        const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
+        val = setsWithReps.length ? setsWithReps.length+'×'+setsWithReps[0].reps+'sec' : null;
+      } else {
+        const weights = (exo.sets||[]).filter(s=>s.weight).map(s=>parseFloat(s.weight)||0);
+        const maxW = weights.length ? Math.max(...weights) : null;
+        const reps = (exo.sets||[]).find(s=>s.reps)?.reps;
+        val = [maxW?maxW+' lbs':null, reps?reps+' reps':null].filter(Boolean).join(' · ');
+      }
       return '<div class="slc-row"><span class="slc-row-name">'+exo.name+'</span><span class="slc-row-val">'+(val||'—')+'</span></div>';
     }).join('');
-    const more = last.exercises.length>4 ? '<div class="slc-row"><span class="slc-row-name" style="color:var(--text3)">+ '+(last.exercises.length-4)+' exercices</span></div>' : '';
+    const more = (last.exercises||[]).length>4 ? '<div class="slc-row"><span class="slc-row-name" style="color:var(--text3)">+ '+((last.exercises||[]).length-4)+' exercices</span></div>' : '';
     document.getElementById('slc-muscu-detail').innerHTML = rows + more;
   }
 
