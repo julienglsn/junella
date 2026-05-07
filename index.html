@@ -37,6 +37,24 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(72px + var(--safe-bottom))}
 
+/* SLIM HEADER */
+.slim-header{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 14px) 16px 0;gap:10px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.slim-title{font-family:var(--fd);font-size:22px;letter-spacing:.04em;white-space:nowrap;color:var(--text)}
+.stabs-inline{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:0}
+.stabs-inline::-webkit-scrollbar{display:none}
+.stabs-inline .stab{font-size:11px;padding:5px 12px}
+
+/* HOME FEED */
+.feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:9px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.feed-card:active{border-color:var(--accent)}
+.feed-left{flex:1;min-width:0}
+.feed-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.feed-meta{font-size:12px;color:var(--text2)}
+.feed-metrics{display:flex;gap:12px;flex-wrap:wrap;margin-top:5px}
+.feed-metric{font-size:12px;color:var(--text2)}
+.feed-metric strong{color:var(--text);font-weight:600}
+.feed-day{font-size:11px;font-weight:700;color:var(--text3);text-align:right;white-space:nowrap}
+
 /* SUBNAV */
 .subnav{position:fixed;bottom:calc(60px + var(--safe-bottom));left:0;right:0;z-index:99;background:rgba(6,10,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 16px;gap:8px;overflow-x:auto;scrollbar-width:none}
 .subnav::-webkit-scrollbar{display:none}
@@ -283,37 +301,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="hrs" id="home-date">Chargement...</div>
   </div>
 
-  <!-- Dernières séances par sport -->
   <div class="sec">
-    <div class="slabel">Dernières séances</div>
-
-    <!-- Muscu -->
-    <div class="sport-last-card" onclick="showSection('sports'); showSport('muscu',document.getElementById('snav-muscu'))">
-      <div class="slc-head">
-        <div class="slc-sport"><span class="slc-ico">💪</span><span class="slc-name">Musculation</span></div>
-        <div class="slc-meta" id="slc-muscu-meta">—</div>
-      </div>
-      <div id="slc-muscu-detail" class="slc-detail">
-        <span class="slc-empty">Aucune séance enregistrée</span>
-      </div>
-    </div>
-
-    <!-- Course -->
-    <div class="sport-last-card" onclick="showSection('sports'); showSport('course',document.getElementById('snav-course'))">
-      <div class="slc-head">
-        <div class="slc-sport"><span class="slc-ico">🏃</span><span class="slc-name">Course à pied</span></div>
-        <div class="slc-meta">—</div>
-      </div>
-      <div class="slc-detail"><span class="slc-empty">À venir</span></div>
-    </div>
-
-    <!-- Vélo -->
-    <div class="sport-last-card" onclick="showSection('sports'); showSport('velo',document.getElementById('snav-velo'))">
-      <div class="slc-head">
-        <div class="slc-sport"><span class="slc-ico">🚴</span><span class="slc-name">Vélo de route</span></div>
-        <div class="slc-meta">—</div>
-      </div>
-      <div class="slc-detail"><span class="slc-empty">À venir</span></div>
+    <div class="slabel">5 dernières activités</div>
+    <div id="home-feed">
+      <div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>
     </div>
   </div>
 
@@ -355,17 +346,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
-  <div class="ph">
-    <div class="ey">Coaching Ju</div>
-    <h1>MUSCU<span>LATION</span></h1>
-    <p>Push · Pull · Full body — 3×/semaine</p>
-  </div>
-
-  <div class="stabs" id="muscu-nav">
-    <button class="stab active" onclick="showMuscu('prog',this)">📋 Programme</button>
-    <button class="stab" onclick="showMuscu('log',this)">✏️ Logger</button>
-    <button class="stab" onclick="showMuscu('hist',this)">📈 Historique</button>
-    <button class="stab" onclick="showMuscu('charts',this)">📊 Graphiques</button>
+  <div class="slim-header">
+    <span class="slim-title">💪 Musculation</span>
+    <div class="stabs-inline" id="muscu-nav">
+      <button class="stab active" onclick="showMuscu('prog',this)">Programme</button>
+      <button class="stab" onclick="showMuscu('log',this)">Logger</button>
+      <button class="stab" onclick="showMuscu('hist',this)">Historique</button>
+      <button class="stab" onclick="showMuscu('charts',this)">Graphiques</button>
+    </div>
   </div>
 
   <!-- Programme -->
@@ -694,8 +682,8 @@ function hideImportLoading(sport){
 function fmtDuration(sec){
   if(!sec) return '—';
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
-  if(h>0) return h+'h'+String(m).padStart(2,'0');
-  return m+'min'+String(s).padStart(2,'0');
+  if(h>0) return h+'h'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
 function fmtPace(secKm){
   if(!secKm) return '—';
@@ -765,13 +753,13 @@ const MANUAL_FIELDS = {
     title: 'Données cardio',
     icon: '💪',
     fields: [
-      {key:'date',       label:'Date & heure',   type:'datetime-local', required:true},
-      {key:'duration_sec', label:'Durée (min:sec)', type:'durée',        required:false},
-      {key:'hr_avg',     label:'FC moyenne (bpm)',type:'number',         required:false},
-      {key:'hr_max',     label:'FC max (bpm)',    type:'number',         required:false},
-      {key:'calories',   label:'Calories',        type:'number',         required:false},
-      {key:'feeling',    label:'Ressenti',        type:'feeling',        required:false},
-      {key:'note',       label:'Note',            type:'textarea',       required:false},
+      {key:'date',         label:'Date & heure',   type:'datetime-local', required:true},
+      {key:'duration_sec', label:'Durée',           type:'time-parts',    required:false},
+      {key:'hr_avg',       label:'FC moyenne (bpm)',type:'number',         required:false},
+      {key:'hr_max',       label:'FC max (bpm)',    type:'number',         required:false},
+      {key:'calories',     label:'Calories',        type:'number',         required:false},
+      {key:'feeling',      label:'Ressenti',        type:'feeling',        required:false},
+      {key:'note',         label:'Note',            type:'textarea',       required:false},
     ]
   },
   course: {
@@ -780,8 +768,7 @@ const MANUAL_FIELDS = {
     fields: [
       {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
       {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
-      {key:'duration_sec',label:'Moving Time (min:sec)', type:'durée',   required:false},
-      {key:'pace_sec_km', label:'Allure moy (min:sec/km)', type:'allure',required:false},
+      {key:'duration_sec',label:'Moving Time',     type:'time-parts',     required:false},
       {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
       {key:'hr_avg',      label:'FC moyenne (bpm)',type:'number',         required:false},
       {key:'hr_max',      label:'FC max (bpm)',    type:'number',         required:false},
@@ -796,8 +783,7 @@ const MANUAL_FIELDS = {
     fields: [
       {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
       {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
-      {key:'duration_sec',label:'Moving Time (min:sec)', type:'durée',   required:false},
-      {key:'speed_kmh',   label:'Vitesse moy (km/h)',type:'decimal',      required:false},
+      {key:'duration_sec',label:'Moving Time',     type:'time-parts',     required:false},
       {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
       {key:'power_avg',   label:'Puissance moy (W)',type:'number',        required:false},
       {key:'hr_avg',      label:'FC moyenne (bpm)',type:'number',         required:false},
@@ -860,10 +846,15 @@ async function showManualForm(sport, linkedSessionId){
       fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="number" inputmode="decimal" placeholder="—">';
     } else if(f.type==='decimal'){
       fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="number" inputmode="decimal" step="0.01" placeholder="—">';
-    } else if(f.type==='durée'){
-      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="text" inputmode="numeric" placeholder="ex: 47:09">';
-    } else if(f.type==='allure'){
-      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="text" inputmode="numeric" placeholder="ex: 6:26">';
+    } else if(f.type==='time-parts'){
+      // Separate h/m/s numeric inputs — no colon needed on iPhone
+      fieldsHtml += '<div style="display:flex;gap:6px;align-items:center">';
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'-h" type="number" inputmode="numeric" placeholder="hh" min="0" style="width:60px;text-align:center">';
+      fieldsHtml += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'-m" type="number" inputmode="numeric" placeholder="mm" min="0" max="59" style="width:60px;text-align:center">';
+      fieldsHtml += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'-s" type="number" inputmode="numeric" placeholder="ss" min="0" max="59" style="width:60px;text-align:center">';
+      fieldsHtml += '</div>';
     } else if(f.type==='textarea'){
       fieldsHtml += '<textarea class="ni" id="mf-'+f.key+'" placeholder="—" style="margin-bottom:0;height:60px"></textarea>';
     } else if(f.type==='feeling'){
@@ -938,6 +929,14 @@ async function saveManualForm(sport){
     }
   });
 
+  // Auto-calculate pace (course) and speed (velo)
+  if(sport==='course' && activity.distance_m && activity.duration_sec){
+    activity.pace_sec_km = Math.round(activity.duration_sec / (activity.distance_m/1000));
+  }
+  if(sport==='velo' && activity.distance_m && activity.duration_sec){
+    activity.speed_kmh = Math.round((activity.distance_m/1000) / (activity.duration_sec/3600) * 10) / 10;
+  }
+
   await dbSave(activity);
 
   // Link to muscu session if selected
@@ -1002,7 +1001,8 @@ async function renderRecettes(){
 
   let html='';
   CAT_ORDER.forEach(cat=>{
-    const catRecipes = recipes.filter(r=>r.cat===cat);
+    const catRecipes = recipes.filter(r=>r.cat===cat)
+      .sort((a,b)=>a.name.localeCompare(b.name,'fr'));
     if(!catRecipes.length) return;
     html += '<div class="slabel" style="margin:16px 0 10px">'+CAT_LABELS[cat]+'</div>';
     catRecipes.forEach(r=>{
@@ -1057,6 +1057,7 @@ async function saveRecipe(){
   if(!name){ alert('Nom requis'); return; }
 
   const recipes = cachedRecipes !== null ? cachedRecipes : await dbLoadRecipes();
+  // ID based on count — will be renumbered alphabetically in display
   const existing = recipes.filter(r=>r.cat===cat);
   const num = existing.length + 1;
   const id  = cat + num;
@@ -1318,34 +1319,58 @@ async function renderHome(){
   const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
 
-  const h = cachedHist !== null ? cachedHist : await dbLoad('muscu');
-  cachedHist = h;
+  const feed = document.getElementById('home-feed');
+  feed.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
 
-  // ── Muscu last session ──
-  if(h.length){
-    const last = h[0];
-    const ld = new Date(last.date);
-    const diff = Math.floor((now-ld)/86400000);
-    const dayStr = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
-    document.getElementById('slc-muscu-meta').textContent = dayStr+' · '+last.label;
-    const rows = (last.exercises||[]).slice(0,4).map(exo=>{
-      const isTimed = exo.name.toLowerCase().includes('plank');
-      let val;
-      if(isTimed){
-        const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
-        val = setsWithReps.length ? setsWithReps.length+'×'+setsWithReps[0].reps+'sec' : null;
-      } else {
-        const weights = (exo.sets||[]).filter(s=>s.weight).map(s=>parseFloat(s.weight)||0);
-        const maxW = weights.length ? Math.max(...weights) : null;
-        const reps = (exo.sets||[]).find(s=>s.reps)?.reps;
-        val = [maxW?maxW+' lbs':null, reps?reps+' reps':null].filter(Boolean).join(' · ');
-      }
-      return '<div class="slc-row"><span class="slc-row-name">'+exo.name+'</span><span class="slc-row-val">'+(val||'—')+'</span></div>';
-    }).join('');
-    const more = (last.exercises||[]).length>4 ? '<div class="slc-row"><span class="slc-row-name" style="color:var(--text3)">+ '+((last.exercises||[]).length-4)+' exercices</span></div>' : '';
-    document.getElementById('slc-muscu-detail').innerHTML = rows + more;
+  // Load all activities sorted by date
+  const all = await dbLoad(null);
+  cachedHist = all.filter(a=>a.type==='muscu');
+
+  if(!all.length){
+    feed.innerHTML = '<div class="empty"><div class="ico">🏅</div><p>Aucune activité enregistrée.</p></div>';
+    return;
   }
 
+  const SPORT_ICO = {muscu:'💪', course:'🏃', velo:'🚴'};
+  const SPORT_LBL = {muscu:'Muscu', course:'Course', velo:'Vélo'};
+
+  feed.innerHTML = all.slice(0,5).map(a=>{
+    const d = new Date(a.date);
+    const diff = Math.floor((now-d)/86400000);
+    const dayStr = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
+    const timeStr = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const ico = SPORT_ICO[a.type]||'🏅';
+    const sport = SPORT_LBL[a.type]||a.type;
+
+    // Build metric chips
+    const metrics = [];
+    if(a.duration_sec) metrics.push('<strong>'+fmtDuration(a.duration_sec)+'</strong>');
+    if(a.distance_m) metrics.push('<strong>'+fmtDist(a.distance_m)+'</strong>');
+    if(a.type==='course' && a.pace_sec_km) metrics.push(fmtPace(a.pace_sec_km)+'/km');
+    if(a.type==='velo' && a.speed_kmh) metrics.push(a.speed_kmh+' km/h');
+    if(a.hr_avg) metrics.push('♥ '+a.hr_avg+' bpm');
+    if(a.type==='muscu' && a.exercises){
+      const exoCount = (a.exercises||[]).length;
+      if(exoCount) metrics.push(exoCount+' exercices');
+    }
+    if(a.calories) metrics.push(a.calories+' kcal');
+
+    const label = a.session_label || a.label || sport;
+    const onclick = a.type==='muscu'
+      ? "showSection('sports'); showSport('muscu',document.getElementById('snav-muscu'))"
+      : "showSection('sports'); showSport('"+a.type+"',document.getElementById('snav-"+a.type+"'))";
+
+    return '<div class="feed-card" onclick="'+onclick+'">'+
+      '<div class="feed-left">'+
+      '<div class="feed-title">'+
+      '<span>'+ico+'</span>'+
+      '<span>'+(a.feeling?a.feeling+' ':'')+label+'</span>'+
+      '</div>'+
+      (metrics.length ? '<div class="feed-metrics">'+metrics.map(m=>'<span class="feed-metric">'+m+'</span>').join('')+'</div>' : '')+
+      '</div>'+
+      '<div class="feed-day">'+dayStr+'<br>'+timeStr+'</div>'+
+      '</div>';
+  }).join('');
 }
 
 // ════ LOGGER ════
