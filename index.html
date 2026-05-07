@@ -166,6 +166,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .mc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
 .mc.full{grid-column:span 2}
+
+/* SETS CTRL */
+.sets-ctrl{display:flex;align-items:center;gap:8px}
+.sets-ctrl span{font-size:12px;color:var(--text2);font-weight:600;min-width:52px;text-align:center}
+.sc-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .15s;flex-shrink:0}
+.sc-btn:active{background:var(--accent);color:#060a12;border-color:var(--accent)}
 .mv{font-family:var(--fd);font-size:36px;letter-spacing:.04em;color:var(--accent);line-height:1}
 .mu{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500}
 .ml{font-size:10px;color:var(--text3);margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
@@ -406,10 +412,11 @@ const SESSIONS = {
 };
 
 // ════ STATE ════
-let curLog   = 'a';
-let logDate  = todayKey();
-let feeling  = null;
+let curLog     = 'a';
+let logDate    = todayKey();
+let feeling    = null;
 let cachedHist = null;
+let customSets = {}; // ei -> number of sets
 
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
@@ -483,9 +490,40 @@ async function renderHome(){
 // ════ LOGGER ════
 function selLog(s){
   curLog=s;
+  customSets={};
   document.querySelectorAll('.selbt').forEach(b=>b.classList.remove('active'));
   document.getElementById('lb-'+s).classList.add('active');
   renderLog();
+}
+
+function getSets(ei){
+  return customSets[ei] !== undefined ? customSets[ei] : SESSIONS[curLog].exercises[ei].sets;
+}
+
+function addSet(ei){
+  customSets[ei] = getSets(ei) + 1;
+  rebuildExo(ei);
+}
+
+function removeSet(ei){
+  const cur = getSets(ei);
+  if(cur <= 1) return;
+  customSets[ei] = cur - 1;
+  rebuildExo(ei);
+}
+
+function rebuildExo(ei){
+  const exo = SESSIONS[curLog].exercises[ei];
+  const n = getSets(ei);
+  let h = '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
+  for(let s=1;s<=n;s++){
+    h += '<tr><td><span class="sn">'+s+'</span></td>';
+    h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
+    h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
+  }
+  h += '</table>';
+  document.getElementById('exo-rows-'+ei).innerHTML = h;
+  document.getElementById('sets-count-'+ei).textContent = n+' série'+(n>1?'s':'');
 }
 
 function renderLog(){
@@ -504,14 +542,21 @@ function renderLog(){
   h += '</div>';
 
   sess.exercises.forEach((exo,ei)=>{
-    h += '<div class="elb"><div class="elh">'+exo.name+' <span>'+exo.sets+' séries</span></div>';
+    const n = getSets(ei);
+    h += '<div class="elb"><div class="elh">'+exo.name;
+    h += '<div class="sets-ctrl">';
+    h += '<button class="sc-btn" onclick="removeSet('+ei+')">−</button>';
+    h += '<span id="sets-count-'+ei+'">'+n+' série'+(n>1?'s':'')+'</span>';
+    h += '<button class="sc-btn" onclick="addSet('+ei+')">+</button>';
+    h += '</div></div>';
+    h += '<div id="exo-rows-'+ei+'">';
     h += '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
-    for(let s=1;s<=exo.sets;s++){
+    for(let s=1;s<=n;s++){
       h += '<tr><td><span class="sn">'+s+'</span></td>';
       h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
       h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
     }
-    h += '</table></div>';
+    h += '</table></div></div>';
   });
 
   h += '<div class="slabel" style="margin:14px 0 8px">Note</div>';
@@ -537,7 +582,7 @@ async function saveSess(){
     note: document.getElementById('lnote').value,
     exercises: sess.exercises.map((exo,ei)=>({
       name: exo.name,
-      sets: Array.from({length:exo.sets},(_,si)=>({
+      sets: Array.from({length:getSets(ei)},(_,si)=>({
         weight: document.getElementById('w_'+ei+'_'+(si+1))?.value||'',
         reps:   document.getElementById('r_'+ei+'_'+(si+1))?.value||''
       }))
