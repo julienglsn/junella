@@ -37,6 +37,12 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(72px + var(--safe-bottom))}
 
+/* SUBNAV */
+.subnav{position:fixed;bottom:calc(60px + var(--safe-bottom));left:0;right:0;z-index:99;background:rgba(6,10,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 16px;gap:8px;overflow-x:auto;scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav-item{flex-shrink:0;padding:7px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .18s}
+.subnav-item.active{background:var(--accent);color:#060a12;border-color:var(--accent)}
+
 /* NAV */
 .nav-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(6,10,18,.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:1px solid var(--border);display:flex;padding:6px 0 calc(6px + var(--safe-bottom))}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;transition:color .2s}
@@ -282,7 +288,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="slabel">Dernières séances</div>
 
     <!-- Muscu -->
-    <div class="sport-last-card" onclick="showPage('muscu',document.querySelectorAll('.nav-item')[1])">
+    <div class="sport-last-card" onclick="showSection('sports'); showSport('muscu',document.getElementById('snav-muscu'))">
       <div class="slc-head">
         <div class="slc-sport"><span class="slc-ico">💪</span><span class="slc-name">Musculation</span></div>
         <div class="slc-meta" id="slc-muscu-meta">—</div>
@@ -293,7 +299,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
 
     <!-- Course -->
-    <div class="sport-last-card" onclick="showPage('course',document.querySelectorAll('.nav-item')[2])">
+    <div class="sport-last-card" onclick="showSection('sports'); showSport('course',document.getElementById('snav-course'))">
       <div class="slc-head">
         <div class="slc-sport"><span class="slc-ico">🏃</span><span class="slc-name">Course à pied</span></div>
         <div class="slc-meta">—</div>
@@ -302,7 +308,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
 
     <!-- Vélo -->
-    <div class="sport-last-card" onclick="showPage('velo',document.querySelectorAll('.nav-item')[3])">
+    <div class="sport-last-card" onclick="showSection('sports'); showSport('velo',document.getElementById('snav-velo'))">
       <div class="slc-head">
         <div class="slc-sport"><span class="slc-ico">🚴</span><span class="slc-name">Vélo de route</span></div>
         <div class="slc-meta">—</div>
@@ -311,6 +317,40 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
   </div>
 
+</div>
+
+<!-- ════ SPORTS HUB ════ -->
+<div class="page" id="page-sports-hub" style="display:none">
+  <div class="hero">
+    <div class="hrey">Coaching Ju</div>
+    <div class="hrt">SPORTS</div>
+    <div class="hrs">Sélectionne une activité</div>
+  </div>
+  <div class="sec">
+    <div class="sgrid">
+      <div class="sc2" onclick="showSport('muscu',document.getElementById('snav-muscu'))">
+        <div class="sico">💪</div><div class="slb">Musculation</div>
+        <div class="svl" id="hub-muscu-count">—</div><div class="ssb2">séances</div>
+      </div>
+      <div class="sc2" onclick="showSport('course',document.getElementById('snav-course'))">
+        <div class="sico">🏃</div><div class="slb">Course</div>
+        <div class="svl" id="hub-course-count">—</div><div class="ssb2">sorties</div>
+      </div>
+      <div class="sc2" style="grid-column:span 2" onclick="showSport('velo',document.getElementById('snav-velo'))">
+        <div class="sico">🚴</div><div class="slb">Vélo de route</div>
+        <div class="svl" id="hub-velo-count">—</div><div class="ssb2">sorties</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ NUTRITION HUB ════ -->
+<div class="page" id="page-nutrition-hub" style="display:none">
+  <div class="hero">
+    <div class="hrey">Coaching Ju</div>
+    <div class="hrt">NUTRI<span>TION</span></div>
+    <div class="hrs">Recettes · Macros · À venir</div>
+  </div>
 </div>
 
 <!-- ════ MUSCULATION ════ -->
@@ -430,8 +470,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <!-- Historique -->
   <div class="sc" id="muscu-hist">
     <div class="import-bar" style="padding:0 0 14px 0">
-      <button class="imp-btn" onclick="document.getElementById('img-input-muscu').click()">📸 Screenshot Strava</button>
-      <input type="file" id="img-input-muscu" accept="image/*" style="display:none" onchange="handleScreenshotStandalone(event)">
+      <button class="imp-btn" onclick="showManualForm('muscu',null)">+ Ajouter données cardio</button>
     </div>
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="hcount">—</div>
     <div id="hlist"></div>
@@ -451,8 +490,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
   <div class="sc active" id="course-main">
   <div class="import-bar" style="padding:14px 20px 0">
-    <button class="imp-btn" onclick="document.getElementById('img-input-course').click()">📸 Screenshot Strava</button>
-    <input type="file" id="img-input-course" accept="image/*" style="display:none" onchange="handleScreenshot(event,'course')">
+    <button class="imp-btn" onclick="showManualForm('course',null)">+ Ajouter une sortie</button>
   </div>
   <div class="sec" style="padding-top:12px">
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="course-count">—</div>
@@ -479,8 +517,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
   <div class="sc active" id="velo-main">
   <div class="import-bar" style="padding:14px 20px 0">
-    <button class="imp-btn" onclick="document.getElementById('img-input-velo').click()">📸 Screenshot Strava</button>
-    <input type="file" id="img-input-velo" accept="image/*" style="display:none" onchange="handleScreenshot(event,'velo')">
+    <button class="imp-btn" onclick="showManualForm('velo',null)">+ Ajouter une sortie</button>
   </div>
   <div class="sec" style="padding-top:12px">
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="velo-count">—</div>
@@ -494,13 +531,82 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 </div>
 
+<!-- ════ RECETTES ════ -->
+<div class="page" id="page-recettes" style="display:none">
+  <div class="ph">
+    <div class="ey">Nutrition</div>
+    <h1>MES <span>RECETTES</span></h1>
+    <p>RC · PD · D · RF</p>
+  </div>
+  <div class="stabs" id="recettes-nav">
+    <button class="stab active" onclick="showRecettesTab('list',this)">📋 Liste</button>
+    <button class="stab" onclick="showRecettesTab('add',this)">➕ Ajouter</button>
+  </div>
+  <!-- Liste -->
+  <div class="sc active" id="recettes-list">
+    <div id="recettes-content">
+      <div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>
+    </div>
+  </div>
+  <!-- Ajouter -->
+  <div class="sc" id="recettes-add">
+    <div class="lform">
+      <div class="modal-field"><label>Catégorie</label>
+        <select class="modal-input" id="r-cat">
+          <option value="RC">🥘 Repas chaud (RC)</option>
+          <option value="PD">🥣 Petit déjeuner (PD)</option>
+          <option value="D">🍫 Dessert (D)</option>
+          <option value="RF">🥗 Repas froid (RF)</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>Nom de la recette</label>
+        <input class="modal-input" id="r-name" type="text" placeholder="ex: One pot bœuf riz">
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>Portions</label>
+          <input class="modal-input" id="r-portions" type="text" placeholder="ex: 4 portions">
+        </div>
+        <div class="modal-field"><label>Objectif</label>
+          <select class="modal-input" id="r-goal">
+            <option value="perf">Performance</option>
+            <option value="cut">Perte de gras</option>
+            <option value="muscle">Muscle</option>
+            <option value="general">Général</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-field"><label>Ingrédients (1 par ligne)</label>
+        <textarea class="ni" id="r-ingredients" placeholder="250g bœuf haché&#10;1 tasse riz&#10;..." style="height:120px"></textarea>
+      </div>
+      <div class="modal-field"><label>Préparation (1 étape par ligne)</label>
+        <textarea class="ni" id="r-steps" placeholder="Faire revenir oignon + ail&#10;Ajouter bœuf..." style="height:120px"></textarea>
+      </div>
+      <div class="modal-field"><label>Notes / ajustements</label>
+        <textarea class="ni" id="r-notes" placeholder="Calibration portions, variantes..." style="height:70px"></textarea>
+      </div>
+      <button class="savebtn" onclick="saveRecipe()">AJOUTER LA RECETTE</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════ NAV ════ -->
 <nav class="nav-bar">
-  <button class="nav-item active" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
-  <button class="nav-item" onclick="showPage('muscu',this)"><span class="nav-icon">💪</span>Muscu</button>
-  <button class="nav-item" onclick="showPage('course',this)"><span class="nav-icon">🏃</span>Course</button>
-  <button class="nav-item" onclick="showPage('velo',this)"><span class="nav-icon">🚴</span>Vélo</button>
+  <button class="nav-item active" id="nav-home" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
+  <button class="nav-item" id="nav-sports" onclick="showSection('sports')"><span class="nav-icon">🏋️</span>Sports</button>
+  <button class="nav-item" id="nav-nutrition" onclick="showSection('nutrition')"><span class="nav-icon">🥗</span>Nutrition</button>
 </nav>
+
+<!-- ════ SPORTS SUB-NAV ════ -->
+<div id="subnav-sports" class="subnav" style="display:none">
+  <button class="subnav-item active" id="snav-muscu" onclick="showSport('muscu',this)">💪 Muscu</button>
+  <button class="subnav-item" id="snav-course" onclick="showSport('course',this)">🏃 Course</button>
+  <button class="subnav-item" id="snav-velo" onclick="showSport('velo',this)">🚴 Vélo</button>
+</div>
+
+<!-- ════ NUTRITION SUB-NAV ════ -->
+<div id="subnav-nutrition" class="subnav" style="display:none">
+  <button class="subnav-item active" id="snav-recettes" onclick="showNutrition('recettes',this)">🍽️ Recettes</button>
+</div>
 
 <script>
 // ════ SUPABASE ════
@@ -577,121 +683,12 @@ function _cacheUpdate(id, patch){
 const dbLoadActivities = (type) => dbLoad(type);
 const dbSaveActivity   = (data) => dbSave(data);
 
-// ════ SPORT CONFIG ════
-const SPORT_CONFIG = {
-  muscu: {
-    prompt: 'Screenshot Strava activité musculation/gym. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"calories":null,"hr_avg":null,"hr_max":null,"distance_m":null,"elevation_m":null,"pace_sec_km":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}. Champs à lire: Elapsed Time (en secondes), Calories, Avg Heart Rate, Max Heart Rate.',
-    manualFields: []
-  },
-  course: {
-    prompt: 'Screenshot Strava activité course à pied. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"distance_m":null,"calories":null,"pace_sec_km":null,"elevation_m":null,"hr_avg":null,"hr_max":null,"speed_kmh":null,"power_avg":null,"cadence_avg":null}. Champs à lire: Distance (en mètres), Moving Time (en secondes), Calories, Avg Pace (en sec/km), Elevation Gain (en mètres), Avg Heart Rate. Laisse hr_max à null.',
-    manualFields: [{key:'hr_max', label:'Max Heart Rate (bpm)', type:'number'}]
-  },
-  velo: {
-    prompt: 'Screenshot Strava activité vélo. Extrais UNIQUEMENT ce JSON sans markdown ni backticks: {"date":null,"duration_sec":null,"distance_m":null,"speed_kmh":null,"elevation_m":null,"power_avg":null,"calories":null,"hr_avg":null,"hr_max":null,"pace_sec_km":null,"cadence_avg":null}. Champs à lire: Distance (en mètres), Moving Time (en secondes), Avg Speed (km/h), Elevation Gain (en mètres), Avg Power (watts), Calories. Laisse hr_avg et hr_max à null.',
-    manualFields: [
-      {key:'hr_avg', label:'Avg Heart Rate (bpm)', type:'number'},
-      {key:'hr_max', label:'Max Heart Rate (bpm)', type:'number'}
-    ]
-  }
-};
-
-async function callClaude(base64, mediaType, prompt){
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 500,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 }},
-          { type: 'text', text: prompt }
-        ]
-      }]
-    })
-  });
-  if(!response.ok){
-    const err = await response.text();
-    throw new Error('API error '+response.status+': '+err);
-  }
-  const result = await response.json();
-  const text = result.content.map(c=>c.text||'').join('').trim();
-  // Strip markdown fences if present
-  const clean = text.replace(/```json|```/g,'').trim();
-  return JSON.parse(clean);
-}
-
-async function handleScreenshot(event, sport){
-  const file = event.target.files[0];
-  if(!file) return;
-  event.target.value='';
-
-  showImportLoading(sport, '📸 Analyse du screenshot Strava...');
-
-  try {
-    const base64 = await new Promise((res,rej)=>{
-      const reader = new FileReader();
-      reader.onload = ()=> res(reader.result.split(',')[1]);
-      reader.onerror = rej;
-      reader.readAsDataURL(file);
-    });
-
-    const cfg = SPORT_CONFIG[sport] || SPORT_CONFIG.muscu;
-    const extracted = await callClaude(base64, file.type||'image/jpeg', cfg.prompt);
-
-    const activity = {
-      id: Date.now(),
-      type: sport,
-      source: 'screenshot',
-      date:         extracted.date         || new Date().toISOString(),
-      duration_sec: extracted.duration_sec || null,
-      distance_m:   extracted.distance_m   || null,
-      hr_avg:       extracted.hr_avg       || null,
-      hr_max:       extracted.hr_max       || null,
-      calories:     extracted.calories     || null,
-      elevation_m:  extracted.elevation_m  || null,
-      pace_sec_km:  extracted.pace_sec_km  || null,
-      speed_kmh:    extracted.speed_kmh    || null,
-      power_avg:    extracted.power_avg    || null,
-      cadence_avg:  extracted.cadence_avg  || null,
-      raw: null
-    };
-
-    hideImportLoading(sport);
-    showPreviewModal(activity, sport, null);
-  } catch(e){
-    hideImportLoading(sport);
-    console.error('Screenshot error:', e);
-    alert('Erreur : '+e.message);
-  }
-}
-
 function showImportLoading(sport, msg){
   const listEl = document.getElementById('act-list-'+sport);
   if(listEl) listEl.innerHTML='<div class="empty"><div class="ico"><div class="spin"></div></div><p>'+msg+'</p></div>';
 }
 function hideImportLoading(sport){
   // will be replaced by renderActivities or modal
-}
-
-// ════ PREVIEW MODAL ════
-function buildManualFields(sport){
-  const cfg = SPORT_CONFIG[sport];
-  if(!cfg || !cfg.manualFields.length) return '';
-  let h = '<div style="margin-top:4px;padding-top:14px;border-top:1px solid var(--border)">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px">À saisir manuellement</div>';
-  h += '<div class="modal-grid">';
-  cfg.manualFields.forEach(f=>{
-    h += '<div class="modal-field"><label>'+f.label+'</label>';
-    h += '<input class="modal-input" id="manual-'+f.key+'" type="'+f.type+'" placeholder="—"></div>';
-  });
-  h += '</div></div>';
-  return h;
 }
 
 function fmtDuration(sec){
@@ -708,99 +705,6 @@ function fmtPace(secKm){
 function fmtDist(m){
   if(!m) return '—';
   return m>=1000 ? (m/1000).toFixed(2)+' km' : m+' m';
-}
-
-function showPreviewModal(activity, sport, linkedSessionId){
-  const dateVal = activity.date ? new Date(activity.date).toISOString().slice(0,16) : new Date().toISOString().slice(0,16);
-  const isMuscu = sport === 'muscu';
-  const isCourse = sport === 'course';
-  const isVelo = sport === 'velo';
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.id = 'import-modal';
-
-  let metricsHtml = '<div class="modal-grid">';
-  metricsHtml += '<div class="modal-field"><label>Durée</label><input class="modal-input" id="m-duration" value="'+fmtDuration(activity.duration_sec)+'" placeholder="—"></div>';
-  if(!isMuscu) metricsHtml += '<div class="modal-field"><label>Distance</label><input class="modal-input" id="m-distance" value="'+fmtDist(activity.distance_m)+'" placeholder="—"></div>';
-  metricsHtml += '<div class="modal-field"><label>FC moy</label><input class="modal-input" id="m-hravg" type="number" value="'+(activity.hr_avg||'')+'" placeholder="—"></div>';
-  metricsHtml += '<div class="modal-field"><label>FC max</label><input class="modal-input" id="m-hrmax" type="number" value="'+(activity.hr_max||'')+'" placeholder="—"></div>';
-  metricsHtml += '<div class="modal-field"><label>Calories</label><input class="modal-input" id="m-cal" type="number" value="'+(activity.calories||'')+'" placeholder="—"></div>';
-  if(isCourse) metricsHtml += '<div class="modal-field"><label>Allure</label><input class="modal-input" id="m-pace" value="'+fmtPace(activity.pace_sec_km)+'" placeholder="ex: 5min30"></div>';
-  if(isCourse || isVelo) metricsHtml += '<div class="modal-field"><label>Dénivelé (m)</label><input class="modal-input" id="m-elev" type="number" value="'+(activity.elevation_m||'')+'" placeholder="—"></div>';
-  if(isVelo) metricsHtml += '<div class="modal-field"><label>Vitesse moy (km/h)</label><input class="modal-input" id="m-speed" type="number" value="'+(activity.speed_kmh||'')+'" placeholder="—"></div>';
-  if(isVelo) metricsHtml += '<div class="modal-field"><label>Puissance moy (W)</label><input class="modal-input" id="m-power" type="number" value="'+(activity.power_avg||'')+'" placeholder="—"></div>';
-  metricsHtml += '</div>';
-
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title">CONFIRMER</div>
-      <div class="modal-sub">${activity.source==='fit'?'Importé depuis .fit':'Extrait du screenshot'} · Vérifie et corrige si besoin</div>
-      <div class="modal-field"><label>📅 Date & heure</label>
-        <input class="modal-input" id="m-date" type="datetime-local" value="${dateVal}" max="${new Date().toISOString().slice(0,16)}">
-      </div>
-      ${metricsHtml}
-      ${buildManualFields(sport)}
-      <div class="modal-btns">
-        <button class="modal-cancel" onclick="closeModal()">Annuler</button>
-        <button class="modal-save" id="modal-save-btn">SAUVEGARDER</button>
-      </div>
-    </div>`;
-
-  document.body.appendChild(overlay);
-  // Store activity data on window to avoid inline JSON issues
-  window._pendingActivity = activity;
-  window._pendingSport = sport;
-  window._pendingSessionId = linkedSessionId || null;
-  document.getElementById('modal-save-btn').onclick = () => confirmSave();
-}
-
-function closeModal(){
-  const m = document.getElementById('import-modal');
-  if(m) m.remove();
-}
-
-async function confirmSave(){
-  const activity = window._pendingActivity;
-  const sport = window._pendingSport;
-  const linkedSessionId = window._pendingSessionId;
-
-  const btn = document.getElementById('modal-save-btn');
-  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
-
-  // Read edited values from modal inputs
-  const dateStr = document.getElementById('m-date')?.value;
-  if(dateStr) activity.date = new Date(dateStr).toISOString();
-  activity.hr_avg     = parseInt(document.getElementById('m-hravg')?.value)||null;
-  activity.hr_max     = parseInt(document.getElementById('m-hrmax')?.value)||null;
-  // Read manual fields if present
-  const cfg = SPORT_CONFIG[sport];
-  if(cfg && cfg.manualFields){
-    cfg.manualFields.forEach(f=>{
-      const el = document.getElementById('manual-'+f.key);
-      if(el && el.value) activity[f.key] = f.type==='number' ? parseInt(el.value)||null : el.value;
-    });
-  }
-  activity.calories   = parseInt(document.getElementById('m-cal')?.value)||null;
-  const elevEl  = document.getElementById('m-elev');
-  const speedEl = document.getElementById('m-speed');
-  const powerEl = document.getElementById('m-power');
-  if(elevEl)  activity.elevation_m = parseFloat(elevEl.value)||null;
-  if(speedEl) activity.speed_kmh   = parseFloat(speedEl.value)||null;
-  if(powerEl) activity.power_avg   = parseInt(powerEl.value)||null;
-
-  const saved = await dbSave(activity);
-
-  window._pendingActivity = null;
-  window._pendingSport = null;
-  window._pendingSessionId = null;
-
-  closeModal();
-  if(sport !== 'muscu'){
-    renderActivities(sport);
-  }
-  if(sport === 'muscu' || linkedSessionId){ cachedHist=null; renderHist(); }
-  renderHome();
 }
 
 // ════ RENDER ACTIVITIES ════
@@ -853,137 +757,376 @@ function togAct(headEl){
   metrics.style.display = metrics.style.display==='none' ? 'grid' : 'none';
 }
 
-// ════ MUSCU STANDALONE IMPORT ════
+// ════ MANUAL ENTRY FORMS ════
 
-async function handleScreenshotStandalone(event){
-  const file = event.target.files[0]; if(!file) return; event.target.value='';
-  const listEl = document.getElementById('hlist');
-  const oldHtml = listEl.innerHTML;
-  listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>📸 Analyse du screenshot...</p></div>';
-  try {
-    const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
-    const prompt = SPORT_CONFIG.muscu.prompt;
-    const extracted = await callClaude(base64, file.type||'image/jpeg', prompt);
-    const activity = {id:Date.now(),type:'muscu',source:'screenshot',raw:null,date:extracted.date||new Date().toISOString(),...extracted};
-    listEl.innerHTML = oldHtml;
-    showSessionPickerModal(activity);
-  } catch(e){
-    listEl.innerHTML = oldHtml;
-    alert("Erreur analyse screenshot");
+// Field definitions per sport
+const MANUAL_FIELDS = {
+  muscu: {
+    title: 'Données cardio',
+    icon: '💪',
+    fields: [
+      {key:'date',       label:'Date & heure',   type:'datetime-local', required:true},
+      {key:'duration_sec', label:'Durée (min:sec)', type:'durée',        required:false},
+      {key:'hr_avg',     label:'FC moyenne (bpm)',type:'number',         required:false},
+      {key:'hr_max',     label:'FC max (bpm)',    type:'number',         required:false},
+      {key:'calories',   label:'Calories',        type:'number',         required:false},
+      {key:'feeling',    label:'Ressenti',        type:'feeling',        required:false},
+      {key:'note',       label:'Note',            type:'textarea',       required:false},
+    ]
+  },
+  course: {
+    title: 'Nouvelle sortie course',
+    icon: '🏃',
+    fields: [
+      {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
+      {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
+      {key:'duration_sec',label:'Moving Time (min:sec)', type:'durée',   required:false},
+      {key:'pace_sec_km', label:'Allure moy (min:sec/km)', type:'allure',required:false},
+      {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
+      {key:'hr_avg',      label:'FC moyenne (bpm)',type:'number',         required:false},
+      {key:'hr_max',      label:'FC max (bpm)',    type:'number',         required:false},
+      {key:'calories',    label:'Calories',        type:'number',         required:false},
+      {key:'feeling',     label:'Ressenti',        type:'feeling',        required:false},
+      {key:'note',        label:'Note',            type:'textarea',       required:false},
+    ]
+  },
+  velo: {
+    title: 'Nouvelle sortie vélo',
+    icon: '🚴',
+    fields: [
+      {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
+      {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
+      {key:'duration_sec',label:'Moving Time (min:sec)', type:'durée',   required:false},
+      {key:'speed_kmh',   label:'Vitesse moy (km/h)',type:'decimal',      required:false},
+      {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
+      {key:'power_avg',   label:'Puissance moy (W)',type:'number',        required:false},
+      {key:'hr_avg',      label:'FC moyenne (bpm)',type:'number',         required:false},
+      {key:'hr_max',      label:'FC max (bpm)',    type:'number',         required:false},
+      {key:'calories',    label:'Calories',        type:'number',         required:false},
+      {key:'feeling',     label:'Ressenti',        type:'feeling',        required:false},
+      {key:'note',        label:'Note',            type:'textarea',       required:false},
+    ]
   }
+};
+
+// Parse "MM:SS" → seconds
+function parseDuration(str){
+  if(!str) return null;
+  const p = str.split(':');
+  if(p.length===2) return parseInt(p[0])*60 + parseInt(p[1]);
+  if(p.length===3) return parseInt(p[0])*3600 + parseInt(p[1])*60 + parseInt(p[2]);
+  return parseInt(str)||null;
 }
 
-async function showSessionPickerModal(activity){
-  // Load sessions for picker
-  const sessions = cachedHist !== null ? cachedHist : await dbLoad('muscu');
-  cachedHist = sessions;
+// Parse "M:SS" allure → sec/km
+function parsePace(str){
+  if(!str) return null;
+  const p = str.split(':');
+  if(p.length===2) return parseInt(p[0])*60 + parseInt(p[1]);
+  return null;
+}
+
+// Linked session for muscu cardio (optional)
+let _manualLinkedSession = null;
+
+async function showManualForm(sport, linkedSessionId){
+  _manualLinkedSession = linkedSessionId || null;
+  const cfg = MANUAL_FIELDS[sport];
+  const now = new Date().toISOString().slice(0,16);
+
+  // If muscu cardio linked to a session, preload sessions for picker
+  let sessionPicker = '';
+  if(sport === 'muscu'){
+    const sessions = cachedHist !== null ? cachedHist : await dbLoad('muscu');
+    cachedHist = sessions;
+    const opts = sessions.slice(0,20).map(s=>{
+      const d = new Date(s.date);
+      const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+      const lbl = s.session_label||s.label||'';
+      const sel = s.id===linkedSessionId?' selected':'';
+      return '<option value="'+s.id+'"'+sel+'>'+(s.feeling||'')+' '+lbl+' — '+ds+'</option>';
+    }).join('');
+    sessionPicker = '<div class="modal-field"><label>🏋️ Lier à une séance</label>'+
+      '<select class="modal-input" id="mf-session"><option value="">— Ne pas lier —</option>'+opts+'</select></div>';
+  }
+
+  // Build fields HTML
+  let fieldsHtml = '';
+  cfg.fields.forEach(f=>{
+    fieldsHtml += '<div class="modal-field"><label>'+f.label+(f.required?' *':'')+'</label>';
+    if(f.type==='datetime-local'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="datetime-local" value="'+now+'" max="'+now+'">';
+    } else if(f.type==='number'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="number" inputmode="decimal" placeholder="—">';
+    } else if(f.type==='decimal'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="number" inputmode="decimal" step="0.01" placeholder="—">';
+    } else if(f.type==='durée'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="text" inputmode="numeric" placeholder="ex: 47:09">';
+    } else if(f.type==='allure'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="text" inputmode="numeric" placeholder="ex: 6:26">';
+    } else if(f.type==='textarea'){
+      fieldsHtml += '<textarea class="ni" id="mf-'+f.key+'" placeholder="—" style="margin-bottom:0;height:60px"></textarea>';
+    } else if(f.type==='feeling'){
+      fieldsHtml += '<div class="frow" id="mf-feeling-row" style="margin-bottom:0">'+
+        ['😴','😐','💪','🔥'].map(em=>'<button class="fbtn" onclick="pickModalFeel(this)" data-feel="'+em+'"><div>'+em+'</div></button>').join('')+
+        '</div>';
+    }
+    fieldsHtml += '</div>';
+  });
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.id = 'import-modal';
-
-  const actDate = new Date(activity.date);
-  const dateVal = actDate.toISOString().slice(0,16);
-
-  // Build session options — show last 20
-  const opts = sessions.slice(0,20).map(s => {
-    const d = new Date(s.date);
-    const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
-    const lbl = s.session_label || s.label || '';
-    return '<option value="'+s.id+'">'+(s.feeling||'')+' '+lbl+' — '+ds+'</option>';
-  }).join('');
-
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-title">DONNÉES CARDIO</div>
-      <div class="modal-sub">Associe ces données à une séance muscu</div>
-
-      <div class="modal-field"><label>📅 Date & heure activité</label>
-        <input class="modal-input" id="m-date" type="datetime-local" value="${dateVal}" max="${new Date().toISOString().slice(0,16)}">
-      </div>
-
-      <div class="modal-grid">
-        <div class="modal-field"><label>FC moy (bpm)</label>
-          <input class="modal-input" id="m-hravg" type="number" value="${activity.hr_avg||''}" placeholder="—">
-        </div>
-        <div class="modal-field"><label>FC max (bpm)</label>
-          <input class="modal-input" id="m-hrmax" type="number" value="${activity.hr_max||''}" placeholder="—">
-        </div>
-        <div class="modal-field"><label>Durée</label>
-          <input class="modal-input" id="m-duration" value="${fmtDuration(activity.duration_sec)}" placeholder="—">
-        </div>
-        <div class="modal-field"><label>Calories</label>
-          <input class="modal-input" id="m-cal" type="number" value="${activity.calories||''}" placeholder="—">
-        </div>
-      </div>
-
-      <div class="modal-field"><label>🏋️ Lier à une séance</label>
-        <select class="modal-input" id="m-session-pick" style="cursor:pointer">
-          <option value="">— Ne pas lier —</option>
-          ${opts}
-        </select>
-      </div>
-
-      ${buildManualFields(sport)}
-      <div class="modal-btns">
-        <button class="modal-cancel" onclick="closeModal()">Annuler</button>
-        <button class="modal-save" id="modal-save-btn">SAUVEGARDER</button>
-      </div>
-    </div>`;
+  overlay.innerHTML = '<div class="modal">'+
+    '<div class="modal-title">'+cfg.icon+' '+cfg.title.toUpperCase()+'</div>'+
+    '<div class="modal-sub">Saisis les données manuellement</div>'+
+    '<div class="modal-grid">'+fieldsHtml+'</div>'+
+    sessionPicker+
+    '<div class="modal-btns">'+
+    '<button class="modal-cancel" onclick="closeModal()">Annuler</button>'+
+    '<button class="modal-save" id="modal-save-btn">SAUVEGARDER</button>'+
+    '</div></div>';
 
   document.body.appendChild(overlay);
-  window._pendingActivity = activity;
-  window._pendingSport = 'muscu';
-  window._pendingSessionId = null;
-  document.getElementById('modal-save-btn').onclick = confirmSaveMuscu;
+  document.getElementById('modal-save-btn').onclick = () => saveManualForm(sport);
 }
 
-async function confirmSaveMuscu(){
-  const activity = window._pendingActivity;
+function closeModal(){
+  const m = document.getElementById('import-modal');
+  if(m) m.remove();
+}
+
+function pickModalFeel(btn){
+  btn.closest('#mf-feeling-row').querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveManualForm(sport){
   const btn = document.getElementById('modal-save-btn');
   if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
 
-  const dateStr = document.getElementById('m-date')?.value;
-  if(dateStr) activity.date = new Date(dateStr).toISOString();
-  activity.hr_avg   = parseInt(document.getElementById('m-hravg')?.value)||null;
-  activity.hr_max   = parseInt(document.getElementById('m-hrmax')?.value)||null;
-  activity.calories = parseInt(document.getElementById('m-cal')?.value)||null;
+  const cfg = MANUAL_FIELDS[sport];
+  const dateVal = document.getElementById('mf-date')?.value;
+  if(!dateVal){ alert('La date est requise'); btn.disabled=false; btn.textContent='SAUVEGARDER'; return; }
 
-  const pickedSession = document.getElementById('m-session-pick')?.value;
-  const sessionId = pickedSession ? parseInt(pickedSession) : null;
+  const activity = {
+    id: Date.now(),
+    type: sport,
+    source: 'manual',
+    date: new Date(dateVal).toISOString(),
+  };
+
+  // Read each field
+  cfg.fields.forEach(f=>{
+    if(f.key==='date') return;
+    const el = document.getElementById('mf-'+f.key);
+    if(f.type==='feeling'){
+      const active = document.querySelector('#mf-feeling-row .fbtn.active');
+      activity.feeling = active ? active.dataset.feel : null;
+    } else if(f.type==='durée'){
+      activity.duration_sec = el ? parseDuration(el.value) : null;
+    } else if(f.type==='allure'){
+      activity.pace_sec_km = el ? parsePace(el.value) : null;
+    } else if(f.type==='decimal'){
+      const raw = parseFloat(el?.value);
+      if(f.key==='distance_m') activity.distance_m = !isNaN(raw) ? Math.round(raw*1000) : null;
+      else activity[f.key] = !isNaN(raw) ? raw : null;
+    } else if(f.type==='number'){
+      activity[f.key] = el?.value ? parseInt(el.value)||null : null;
+    } else if(f.type==='textarea'){
+      activity.note = el?.value || null;
+    }
+  });
 
   await dbSave(activity);
 
-  window._pendingActivity = null;
-  closeModal();
+  // Link to muscu session if selected
+  const sessionPick = document.getElementById('mf-session')?.value;
+  const linkId = sessionPick ? parseInt(sessionPick) : (_manualLinkedSession||null);
+  // Store cardio link: update the activity with a session reference isn't needed
+  // since we store everything in activities table — just make sure type=muscu
+
   cachedHist = null;
-  await renderHist();
+  closeModal();
+
+  if(sport === 'muscu') renderHist();
+  else renderActivities(sport);
+  renderHome();
 }
 
-// ════ MUSCU CARDIO IMPORT ════
-function showMusCuCardioImport(sessionId){
-  const bar = document.createElement('div');
-  bar.style.cssText='display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)';
-  bar.innerHTML=
-    '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;width:100%">Données cardio Coros</div>'+
-    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit</button>'+
-    '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport('+sessionId+')">📸 Screenshot</button>'+
-    '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">';
-  return bar.outerHTML;
-}
+// ════ RECIPES DB ════
+const CAT_LABELS = {RC:'🥘 Repas chaud', PD:'🥣 Petit déjeuner', D:'🍫 Dessert', RF:'🥗 Repas froid'};
+const CAT_ORDER  = ['RC','PD','D','RF'];
+let cachedRecipes = null;
 
-function triggerMusCuImport(sessionId){
-  document.getElementById('img-input-muscu-'+sessionId)?.click();
-}
-
-async function handleScreenshotMuscu(event, sessionId){
-  const file = event.target.files[0]; if(!file) return; event.target.value='';
+async function dbLoadRecipes(){
   try {
-    const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); });
-    const extracted = await callClaude(base64, file.type||'image/jpeg', SPORT_CONFIG.muscu.prompt);
-    const activity = {id:Date.now(),type:'muscu',source:'screenshot',raw:null,date:extracted.date||new Date().toISOString(),...extracted};
-    showPreviewModal(activity, 'muscu', sessionId);
-  } catch(e){ alert('Erreur : '+e.message); }
+    const r = await fetch(SB_URL+'/rest/v1/recipes?order=id.asc', { headers: SB_GET });
+    if(!r.ok) throw new Error('load failed');
+    cachedRecipes = await r.json();
+    return cachedRecipes;
+  } catch(e){ console.warn('recipes load error',e); return []; }
+}
+
+async function dbSaveRecipe(recipe){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/recipes', {
+      method:'POST',
+      headers:{...SB_HDR,'Prefer':'return=minimal'},
+      body: JSON.stringify(recipe)
+    });
+    if(!r.ok) throw new Error(await r.text());
+    cachedRecipes = null;
+  } catch(e){ console.warn('recipe save error',e); throw e; }
+}
+
+async function dbDeleteRecipe(id){
+  try {
+    await fetch(SB_URL+'/rest/v1/recipes?id=eq.'+encodeURIComponent(id), {
+      method:'DELETE', headers: SB_HDR
+    });
+    cachedRecipes = null;
+  } catch(e){ console.warn('recipe delete error',e); }
+}
+
+async function renderRecettes(){
+  const listEl = document.getElementById('recettes-content');
+  if(!listEl) return;
+  listEl.innerHTML='<div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>';
+  const recipes = await dbLoadRecipes();
+
+  if(!recipes.length){
+    listEl.innerHTML='<div class="empty"><div class="ico">🍽️</div><p>Aucune recette.<br>Ajoute ta première recette !</p></div>';
+    return;
+  }
+
+  let html='';
+  CAT_ORDER.forEach(cat=>{
+    const catRecipes = recipes.filter(r=>r.cat===cat);
+    if(!catRecipes.length) return;
+    html += '<div class="slabel" style="margin:16px 0 10px">'+CAT_LABELS[cat]+'</div>';
+    catRecipes.forEach(r=>{
+      html += '<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="toggleRecipe(&quot;'+r.id+'&quot;)">'+
+        '<div class="crow" style="border-bottom:none">'+
+        '<div>'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'+
+        '<span class="a-badge" style="font-size:10px">'+r.id+'</span>'+
+        '<span style="font-size:14px;font-weight:600">'+r.name+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--text2)">'+r.portions+(r.goal?' · '+{perf:'Performance',cut:'Perte de gras',muscle:'Muscle',general:'Général'}[r.goal]:'')+' </div>'+
+        '</div>'+
+        '<span style="color:var(--text3);font-size:18px">›</span>'+
+        '</div>'+
+        '<div id="recipe-detail-'+r.id+'" style="display:none;padding:0 16px 14px">'+
+        '<div style="margin-bottom:10px">'+
+        '<div class="slabel" style="margin:10px 0 6px">Ingrédients</div>'+
+        (r.ingredients||[]).map(i=>'<div style="font-size:13px;color:var(--text2);padding:2px 0">· '+i+'</div>').join('')+
+        '</div>'+
+        '<div style="margin-bottom:10px">'+
+        '<div class="slabel" style="margin:10px 0 6px">Préparation</div>'+
+        (r.steps||[]).map((s,i)=>'<div style="font-size:13px;color:var(--text2);padding:3px 0"><span style="color:var(--accent);font-weight:700">'+(i+1)+'.</span> '+s+'</div>').join('')+
+        '</div>'+
+        (r.notes?'<div style="font-size:12px;color:var(--text2);font-style:italic;background:var(--bg3);border-radius:8px;padding:8px 10px">💡 '+r.notes+'</div>':'')+
+        '<button onclick="deleteRecipeConfirm(&quot;'+r.id+'&quot;,event)" style="margin-top:12px;font-size:12px;color:var(--red);background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer">Supprimer</button>'+
+        '</div>'+
+        '</div>';
+    });
+  });
+  listEl.innerHTML = html;
+}
+
+function toggleRecipe(id){
+  const el = document.getElementById('recipe-detail-'+id);
+  if(!el) return;
+  const open = el.style.display!=='none';
+  // Close all
+  document.querySelectorAll('[id^="recipe-detail-"]').forEach(e=>e.style.display='none');
+  if(!open) el.style.display='block';
+}
+
+async function deleteRecipeConfirm(id, ev){
+  ev.stopPropagation();
+  if(!confirm('Supprimer '+id+' ?')) return;
+  await dbDeleteRecipe(id);
+  renderRecettes();
+}
+
+async function saveRecipe(){
+  const cat  = document.getElementById('r-cat').value;
+  const name = document.getElementById('r-name').value.trim();
+  if(!name){ alert('Nom requis'); return; }
+
+  const recipes = cachedRecipes !== null ? cachedRecipes : await dbLoadRecipes();
+  const existing = recipes.filter(r=>r.cat===cat);
+  const num = existing.length + 1;
+  const id  = cat + num;
+
+  const recipe = {
+    id,
+    cat,
+    name,
+    portions: document.getElementById('r-portions').value.trim() || null,
+    goal:     document.getElementById('r-goal').value,
+    ingredients: document.getElementById('r-ingredients').value.split(String.fromCharCode(10)).map(l=>l.trim()).filter(Boolean),
+    steps:       document.getElementById('r-steps').value.split(String.fromCharCode(10)).map(l=>l.trim()).filter(Boolean),
+    notes:    document.getElementById('r-notes').value.trim() || null,
+  };
+
+  const btn = document.querySelector('#recettes-add .savebtn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+
+  try {
+    await dbSaveRecipe(recipe);
+    // Reset form
+    ['r-name','r-portions','r-ingredients','r-steps','r-notes'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+    if(btn){ btn.disabled=false; btn.textContent='AJOUTER LA RECETTE'; }
+    // Switch to list
+    const listBtn = document.querySelector('#recettes-nav .stab');
+    if(listBtn) showRecettesTab('list', listBtn);
+  } catch(e){
+    if(btn){ btn.disabled=false; btn.textContent='AJOUTER LA RECETTE'; }
+    alert('Erreur sauvegarde: '+e.message);
+  }
+}
+
+function showRecettesTab(tab, btn){
+  document.querySelectorAll('#page-recettes .sc').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#recettes-nav .stab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('recettes-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='list') renderRecettes();
+}
+
+// Seed initial recipes if DB is empty
+async function seedRecipesIfEmpty(){
+  const existing = await dbLoadRecipes();
+  if(existing.length > 0) return;
+  const seeds = [
+    {
+      id:'RC1', cat:'RC', name:'One pot bœuf riz haricots', portions:'4 portions', goal:'muscle',
+      ingredients:['250–300g bœuf haché','1 tasse riz','1 canne haricots rouges','1/2 tasse maïs','1 tasse légumes verts (brocoli, haricots verts ou épinards)','2 tasses bouillon','1/2 oignon','2 gousses ail','Épices : paprika, cumin, chili','Pâte de tomate ou sauce soja'],
+      steps:['Faire revenir oignon + ail','Ajouter bœuf et cuire','Ajouter riz cru','Ajouter liquides + reste','Cuire 15 min couvert','Ajouter légumes verts selon type','Repos 5 min'],
+      notes:'Donne environ 4 portions. Peut se conserver 3-4 jours au frigo.'
+    },
+    {
+      id:'PD1', cat:'PD', name:'Overnight oats chocolat protéinés', portions:'2 portions', goal:'muscle',
+      ingredients:["1 tasse flocons d'avoine","2 scoops whey chocolat","1 à 1,25 tasse lait","1 banane","2 c. à soupe yogourt grec","2 c. à soupe graines de chia","2 c. à soupe beurre d'arachide"],
+      steps:['Mélanger tous les ingrédients','Mettre au frigo toute la nuit','Consommer froid'],
+      notes:"Calibration : 2 tasses avoine + 2 tasses lait = ~2,5 portions. Pour 2 portions → 1 tasse avoine + 1 à 1,25 tasse lait."
+    },
+    {
+      id:'D1', cat:'D', name:'Mousse chocolat protéinée', portions:'1 portion', goal:'general',
+      ingredients:['1 banane','2 c. à soupe cacao','2–3 c. à soupe yogourt grec'],
+      steps:['Mixer ou écraser tous les ingrédients','Frigo 10–15 min (optionnel)'],
+      notes:"Options : ajouter whey pour + protéines. Ajouter beurre d'arachide ou noix."
+    },
+  ];
+  for(const r of seeds){
+    try { await dbSaveRecipe(r); } catch(e){ console.warn('seed error',e); }
+  }
+  cachedRecipes = null;
 }
 
 // ════ DATA ════
@@ -1056,15 +1199,81 @@ let customSets = {}; // ei -> number of sets
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
 // ════ NAV ════
+// ════ NAVIGATION ════
+let currentSection = 'home'; // 'home' | 'sports' | 'nutrition'
+let currentSport   = 'muscu';
+let currentNutri   = 'recettes';
+
 function showPage(id, btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  // Legacy compatibility — called from home cards
+  if(['muscu','course','velo'].includes(id)){
+    showSection('sports');
+    showSport(id, document.getElementById('snav-'+id));
+    return;
+  }
+  _activatePage(id);
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  document.getElementById('subnav-sports').style.display='none';
+  document.getElementById('subnav-nutrition').style.display='none';
+  currentSection='home';
+  if(id==='home') renderHome();
+}
+
+function showSection(section){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+section).classList.add('active');
+  currentSection = section;
+
+  // Hide all subnavs
+  document.getElementById('subnav-sports').style.display='none';
+  document.getElementById('subnav-nutrition').style.display='none';
+
+  if(section==='sports'){
+    document.getElementById('subnav-sports').style.display='flex';
+    // Show last active sport or hub
+    showSport(currentSport, document.getElementById('snav-'+currentSport));
+  } else if(section==='nutrition'){
+    document.getElementById('subnav-nutrition').style.display='flex';
+    showNutrition(currentNutri, document.getElementById('snav-recettes'));
+  }
+}
+
+function showSport(sport, btn){
+  currentSport = sport;
+  _activatePage('page-'+sport);
+  document.querySelectorAll('#subnav-sports .subnav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  if(id==='home') renderHome();
-  if(id==='course'){ renderActivities('course'); }
-  if(id==='velo'){ renderActivities('velo'); }
+  if(sport==='course') renderActivities('course');
+  if(sport==='velo')   renderActivities('velo');
+  if(sport==='muscu') { /* stays ready */ }
+}
+
+function showNutrition(tab, btn){
+  currentNutri = tab;
+  _activatePage('page-'+tab);
+  document.querySelectorAll('#subnav-nutrition .subnav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(tab==='recettes') renderRecettes();
+}
+
+function _activatePage(id){
+  // id may be 'home', 'page-muscu', etc — normalize
+  const fullId = id.startsWith('page-') ? id : 'page-'+id;
+  document.querySelectorAll('.page').forEach(p=>{ p.style.display='none'; p.classList.remove('active'); });
+  const el = document.getElementById(fullId);
+  if(el){ el.style.display='block'; el.classList.add('active'); }
+}
+
+function showSportTab(sport, tab, btn){
+  const page = document.getElementById('page-'+sport);
+  page.querySelectorAll('.sc').forEach(s=>s.classList.remove('active'));
+  page.querySelectorAll('#'+sport+'-nav .stab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(sport+'-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='main') renderActivities(sport);
 }
 
 function showSportTab(sport, tab, btn){
@@ -1370,8 +1579,7 @@ function renderCardioBloc(activity, sessionId){
       '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport(&quot;fit&quot;,'+sessionId+')">📂 .fit Coros</button>'+
       '<button class="imp-btn" style="font-size:12px" onclick="triggerMusCuImport('+sessionId+')">📸 Screenshot</button>'+
       '</div>'+
-      '<input type="file" id="img-input-muscu-'+sessionId+'" accept="image/*" style="display:none" onchange="handleScreenshotMuscu(event,'+sessionId+')">'+
-      '</div></div>';
+        '</div></div>';
   }
   const metrics = [
     {val: activity.hr_avg ? activity.hr_avg+' bpm' : '—', lbl:'FC moy'},
@@ -1498,8 +1706,13 @@ function showLoader(elId){
 
 // ════ INIT ════
 (async()=>{
+  // Init pages display
+  document.querySelectorAll('.page').forEach(p=>{ p.style.display='none'; p.classList.remove('active'); });
+  document.getElementById('page-home').style.display='block';
+  document.getElementById('page-home').classList.add('active');
   await renderHome();
   renderLogNav();
+  seedRecipesIfEmpty();
 })();
 </script>
 </body>
