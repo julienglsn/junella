@@ -346,6 +346,44 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
 
 <script>
+// ════ SUPABASE ════
+const SB_URL  = 'https://xpyurfunaxycbcvbrzxy.supabase.co';
+const SB_KEY  = 'sb_publishable_5maD93mcmj8ZvujOcEqV7Q_JtCe6H2e';
+const SB_HDR  = { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+
+async function dbLoad(){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/sessions?order=date.desc', { headers: SB_HDR });
+    if(!r.ok) throw new Error('load failed');
+    return await r.json();
+  } catch(e) {
+    console.warn('Supabase load error, falling back to localStorage', e);
+    return JSON.parse(localStorage.getItem('cju_hist')||'[]');
+  }
+}
+
+async function dbSave(data){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/sessions', {
+      method: 'POST',
+      headers: { ...SB_HDR, 'Prefer':'return=minimal' },
+      body: JSON.stringify(data)
+    });
+    if(!r.ok) throw new Error('save failed');
+    // also mirror locally as cache
+    const local = JSON.parse(localStorage.getItem('cju_hist')||'[]');
+    local.unshift(data);
+    local.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    localStorage.setItem('cju_hist', JSON.stringify(local));
+  } catch(e) {
+    console.warn('Supabase save error, saving to localStorage only', e);
+    const local = JSON.parse(localStorage.getItem('cju_hist')||'[]');
+    local.unshift(data);
+    local.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    localStorage.setItem('cju_hist', JSON.stringify(local));
+  }
+}
+
 // ════ DATA ════
 const SESSIONS = {
   a:{ label:'Séance A — Push', exercises:[
@@ -368,13 +406,12 @@ const SESSIONS = {
 };
 
 // ════ STATE ════
-let curLog  = 'a';
-let logDate = todayKey();
-let feeling = null;
+let curLog   = 'a';
+let logDate  = todayKey();
+let feeling  = null;
+let cachedHist = null;
 
 function todayKey(){ return new Date().toISOString().slice(0,10); }
-function getHist(){ return JSON.parse(localStorage.getItem('cju_hist')||'[]'); }
-function saveHist(h){ localStorage.setItem('cju_hist',JSON.stringify(h)); }
 
 // ════ NAV ════
 function showPage(id, btn){
@@ -405,12 +442,14 @@ function showSession(id, btn){
 }
 
 // ════ HOME ════
-function renderHome(){
+async function renderHome(){
   const now = new Date();
   const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
 
-  const h = getHist();
+  showLoader('h-lastdetail');
+  const h = cachedHist !== null ? cachedHist : await dbLoad();
+  cachedHist = h;
   document.getElementById('h-total').textContent = h.length;
 
   if(!h.length){
@@ -487,7 +526,7 @@ function setF(emoji, btn){
   btn.classList.add('active');
 }
 
-function saveSess(){
+async function saveSess(){
   const sess = SESSIONS[curLog];
   const data = {
     id: Date.now(),
@@ -505,10 +544,11 @@ function saveSess(){
     }))
   };
 
-  const h = getHist();
-  h.unshift(data);
-  h.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  saveHist(h);
+  // Disable button to prevent double submit
+  const btn = document.querySelector('.savebtn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+  await dbSave(data);
+  cachedHist = null; // invalidate cache
 
   document.getElementById('lform').innerHTML=
     '<div style="text-align:center;padding:48px 20px">'+
@@ -521,8 +561,10 @@ function saveSess(){
 }
 
 // ════ HISTORY ════
-function renderHist(){
-  const h = getHist();
+async function renderHist(){
+  document.getElementById('hlist').innerHTML='<div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>';
+  const h = await dbLoad();
+  cachedHist = h;
   document.getElementById('hcount').textContent =
     h.length+' séance'+(h.length!==1?'s':'')+' enregistrée'+(h.length!==1?'s':'');
 
@@ -555,9 +597,17 @@ function togHist(i){
   document.getElementById('hd-'+i).classList.toggle('open');
 }
 
+// ════ HELPERS ════
+function showLoader(elId){
+  const el = document.getElementById(elId);
+  if(el) el.innerHTML='<div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>';
+}
+
 // ════ INIT ════
-renderHome();
-renderLog();
+(async()=>{
+  await renderHome();
+  renderLog();
+})();
 </script>
 </body>
 </html>
