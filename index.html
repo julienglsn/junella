@@ -541,7 +541,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <div class="slabel" style="margin-bottom:10px">Progression des charges</div>
       <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
         <div id="muscu-lift-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--text2);"></div>
-        <div style="position:relative;width:100%;height:200px;"><canvas id="muscu-lift-chart"></canvas></div>
+        <div id="muscu-lift-wrap" style="position:relative;width:100%;height:200px;"><canvas id="muscu-lift-chart"></canvas></div>
       </div>
 
       <!-- Volume par groupe musculaire -->
@@ -2724,10 +2724,10 @@ function _filterActsByGroup(acts){
 let _cachedMuscuActs = [];
 
 function renderMuscuLiftChart(acts){
-  const liftWrap = document.getElementById('muscu-lift-chart')?.parentElement;
+  const liftWrap = document.getElementById('muscu-lift-wrap');
   const lg = document.getElementById('muscu-lift-legend');
 
-  // Option D: no chart in "Tout" mode — prompt user to pick a group
+  // In "Tout" mode — show invitation message
   if(_activeMuscuGroup === 'all'){
     _destroyChart('muscu-lift-chart');
     if(lg) lg.innerHTML = '';
