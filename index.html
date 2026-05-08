@@ -189,9 +189,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .lsce:last-child{border-bottom:none}
 .lsce strong{color:var(--text);font-weight:600}
 
-/* APP ROW */
-.app-row{text-decoration:none;color:var(--text);transition:background .15s}
-.app-row:active{background:var(--bg3)}
+/* APP BUTTONS */
+.app-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:9px;font-size:12px;font-weight:600;font-family:var(--fb);cursor:pointer;white-space:nowrap;text-decoration:none;transition:opacity .15s;border:1px solid var(--border)}
+.app-btn:active{opacity:.7}
+.app-btn-primary{background:var(--accent);color:#060a12;border-color:var(--accent)}
+.app-btn-secondary{background:var(--bg3);color:var(--text2)}
 
 /* PLACEHOLDER */
 .phpg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:40px 24px;text-align:center}
@@ -302,6 +304,24 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .slc-row-name{color:var(--text2)}
 .slc-row-val{font-weight:600;font-size:12px}
 .slc-empty{font-size:12px;color:var(--text3);font-style:italic}
+
+/* ════ DESKTOP (≥640px) ════ */
+@media (min-width:640px){
+  :root{--safe-bottom:0px}
+  body{background:#03060e}
+
+  /* Centred shell */
+  .page,.subnav,.nav-bar{max-width:480px;margin-left:auto;margin-right:auto}
+  .subnav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}
+  .nav-bar{left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+
+  /* Chart: ne pas laisser le SVG s'étirer indéfiniment */
+  #home-weekly-chart svg{max-width:460px;display:block;margin:0 auto}
+
+  /* Bigger headings */
+  .ph h1{font-size:42px}
+  .ph p{font-size:14px}
+}
 </style>
 </head>
 <body>
@@ -595,13 +615,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 </div>
 
 <!-- ════ NAV ════ -->
-<!-- ════ APPS ════ -->
-<div class="page" id="page-apps" style="display:none">
-  <div class="ph">
-    <div class="ey">Coaching Ju</div>
-    <h1>MES <span>APPS</span></h1>
-    <p>Raccourcis vers tes applications sportives</p>
-  </div>
 
   <div class="sec">
     <div class="slabel">Social</div>
@@ -1370,8 +1383,7 @@ function showSection(section){
     document.getElementById('subnav-nutrition').style.display='flex';
     showNutrition(currentNutri, document.getElementById('snav-recettes'));
   } else if(section==='apps'){
-    _activatePage('page-apps');
-    window.scrollTo({top:0,behavior:'smooth'});
+    _renderAppsPage();
   }
 }
 
@@ -1393,6 +1405,57 @@ function showNutrition(tab, btn){
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(tab==='recettes') renderRecettes();
+}
+
+
+function _renderAppsPage(){
+  // Create page-apps dynamically if it doesn't exist
+  let pg = document.getElementById('page-apps');
+  if(!pg){
+    pg = document.createElement('div');
+    pg.className = 'page';
+    pg.id = 'page-apps';
+    // Insert before nav
+    const nav = document.querySelector('nav.nav-bar');
+    nav.parentNode.insertBefore(pg, nav);
+  }
+
+  const apps = [
+    {sec:'Social',   ico:'🏅', name:'Strava',        desc:'Activités · Segments · Social',   scheme:'strava://',      store:'https://apps.apple.com/app/strava/id426826309',          web:'https://www.strava.com'},
+    {sec:'Capteurs', ico:'📡', name:'Wahoo Fitness', desc:'ELEMNT · TICKR · Vélo',            scheme:'wahoo://',       store:'https://apps.apple.com/app/wahoo-fitness/id391599506',   web:'https://www.wahoofitness.com'},
+    {sec:'Capteurs', ico:'⌚', name:'Coros',          desc:'Pace 4 · Entraînement · Données', scheme:'coros://',       store:'https://apps.apple.com/app/coros/id1268292507',          web:'https://www.coros.com'},
+    {sec:'Capteurs', ico:'⚙️',name:'SRAM AXS',      desc:'Dérailleur · Groupset · Config',  scheme:'sramaxs://',     store:'https://apps.apple.com/app/sram-axs/id1350928676',       web:'https://www.sram.com/en/sram/axs'},
+    {sec:'Autres',   ico:'🏋️',name:'Gymverse',      desc:'Programmes · Exercices',           scheme:'gymverse://',    store:'https://apps.apple.com/app/gymverse/id1476686320',       web:'https://www.gymverse.com'},
+    {sec:'Autres',   ico:'🏊', name:'Nautilus Plus', desc:'Gym · Cours · Réservations',       scheme:'nautilusplus://',store:'https://apps.apple.com/ca/app/nautilus-plus/id1100476104',web:'https://www.nautilusplus.com'},
+  ];
+
+  const sections = {};
+  const order = [];
+  apps.forEach(a=>{ if(!sections[a.sec]){sections[a.sec]=[];order.push(a.sec);} sections[a.sec].push(a); });
+
+  let h = '<div class="ph"><div class="ey">Coaching Ju</div><h1>MES <span>APPS</span></h1><p>Raccourcis vers tes applications sportives</p></div>';
+  h += '<div class="sec">';
+  order.forEach((sec,si)=>{
+    h += '<div class="slabel"'+(si>0?' style="margin-top:18px"':'')+'>'+sec+'</div>';
+    h += '<div class="card">';
+    sections[sec].forEach(a=>{
+      h += '<div class="crow" style="gap:10px">';
+      h += '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">';
+      h += '<span style="font-size:22px;flex-shrink:0">'+a.ico+'</span>';
+      h += '<div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:11px;color:var(--text2)">'+a.desc+'</div></div>';
+      h += '</div>';
+      h += '<div style="display:flex;gap:6px;flex-shrink:0">';
+      h += '<button class="app-btn app-btn-primary" onclick="openApp(\''+a.scheme+'\',\''+a.store+'\')">📱 App</button>';
+      h += '<a class="app-btn app-btn-secondary" href="'+a.web+'" target="_blank" rel="noopener">🌐 Site</a>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+  });
+  h += '</div>';
+  pg.innerHTML = h;
+
+  _activatePage('page-apps');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function _activatePage(id){
@@ -1490,7 +1553,7 @@ function renderWeeklyChart(activities){
   //   0..LABEL_TOP  → espace pour label valeur au-dessus des barres
   //   LABEL_TOP..BAR_BOT → zone des barres
   //   BAR_BOT..H     → labels semaines
-  const W=320, H=180;
+  const W=294, H=180; // 294 = 320-26px pour labels axe Y à droite
   const LABEL_TOP=18;   // hauteur réservée pour les labels de valeur
   const BAR_BOT=H-28;   // bas des barres (au-dessus des labels semaine)
   const BAR_H=BAR_BOT-LABEL_TOP; // hauteur disponible pour les barres
@@ -1591,7 +1654,7 @@ function renderWeeklyChart(activities){
     overlays+=`<rect data-week="${i}" x="${x}" y="0" width="${barW}" height="${H}" fill="transparent" style="cursor:${hasData?'pointer':'default'}" onclick="toggleWeekDetail(${i})"/>`;
   });
 
-  el.innerHTML=`<svg id="weekly-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">${grid}${bars}${overlays}</svg>`;
+  el.innerHTML=`<svg id="weekly-svg" viewBox="0 0 320 ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">${grid}${bars}${overlays}</svg>`;
 }
 
 
@@ -1802,11 +1865,20 @@ function _refreshExoRows(ei){
   const container = document.getElementById('exo-rows-'+ei);
   if(!container) return;
   const isTimed = !!flatExos(curLog)[ei]?.timed;
+  // Snapshot existing values before rebuilding
+  const prev = {};
+  for(let s=1;s<=20;s++){
+    const w = document.getElementById('w_'+ei+'_'+s);
+    const r = document.getElementById('r_'+ei+'_'+s);
+    if(!w && !r) break;
+    prev[s] = {w:w?.value||'', r:r?.value||''};
+  }
   let t = '<table class="stbl"><tr><th>#</th><th>'+(isTimed?'—':'Poids (lbs)')+'</th><th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
   for(let s=1;s<=n;s++){
+    const pv = prev[s]||{};
     t += '<tr><td><span class="sn">'+s+'</span></td>';
-    t += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal">')+'</td>';
-    t += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
+    t += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal" value="'+(pv.w||'')+'">')+'</td>';
+    t += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal" value="'+(pv.r||'')+'"></td></tr>';
   }
   t += '</table>';
   container.innerHTML = t;
