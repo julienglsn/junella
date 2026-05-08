@@ -45,9 +45,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;font-weight:500;color:var(--text3);position:relative;cursor:default}
 .cal-day.this-month{color:var(--text2)}
 .cal-day.today{background:var(--bg3);color:var(--text);font-weight:700}
-.cal-day.has-activity{background:var(--accent2);color:var(--accent);font-weight:700}
-.cal-day.has-activity.today{background:var(--accent);color:#060a12}
-.cal-day.multi::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
+.cal-day.has-muscu{background:rgba(77,158,255,0.15);color:#4d9eff;font-weight:700}
+.cal-day.has-course{background:rgba(52,211,153,0.15);color:#34d399;font-weight:700}
+.cal-day.has-velo{background:rgba(255,179,71,0.15);color:#ffb347;font-weight:700}
+.cal-day.has-multi{background:linear-gradient(135deg,rgba(77,158,255,0.2),rgba(255,179,71,0.2));color:var(--text);font-weight:700}
+.cal-day.has-activity.today{outline:2px solid var(--accent);outline-offset:-2px}
+.cal-day.today:not(.has-activity){background:var(--bg3);color:var(--text);font-weight:700}
+.cal-day.dot::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.8}
 
 /* HOME FEED */
 .feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:9px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -362,14 +366,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
   </div>
   <div class="stabs" id="muscu-nav">
-    <button class="stab active" onclick="showMuscu('prog',this)">📋 Programme</button>
-    <button class="stab" onclick="showMuscu('log',this)">✏️ Logger</button>
-    <button class="stab" onclick="showMuscu('hist',this)">📈 Historique</button>
+    <button class="stab active" onclick="showMuscu('hist',this)">📈 Historique</button>
     <button class="stab" onclick="showMuscu('charts',this)">📊 Graphiques</button>
+    <button class="stab" onclick="showMuscu('prog',this)">📋 Programme</button>
   </div>
 
   <!-- Programme -->
-  <div class="sc active" id="muscu-prog">
+  <div class="sc" id="muscu-prog">
     <!-- Programme selector -->
     <div class="prog-selector">
       <div class="prog-card active" id="prog-sfb" onclick="selectProg('sfb',this)">
@@ -465,7 +468,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
   <!-- Historique -->
-  <div class="sc" id="muscu-hist">
+  <div class="sc active" id="muscu-hist">
+    <div class="import-bar" style="padding:0 0 14px 0">
+      <button class="imp-btn" onclick="openLoggerModal()">✏️ Logger une séance</button>
+    </div>
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="hcount">—</div>
     <div id="hlist"></div>
   </div>
@@ -759,8 +765,8 @@ const MANUAL_FIELDS = {
     title: 'Données cardio',
     icon: '💪',
     fields: [
-      {key:'date',         label:'Date & heure',   type:'datetime-local', required:true},
-      {key:'duration_sec', label:'Durée',           type:'time-parts',    required:false},
+      {key:'date',         label:'Date',            type:'date-only',      required:true},
+      {key:'duration_sec', label:'Durée',           type:'time-parts',     required:false},
       {key:'hr_avg',       label:'FC moyenne (bpm)',type:'number',         required:false},
       {key:'hr_max',       label:'FC max (bpm)',    type:'number',         required:false},
       {key:'calories',     label:'Calories',        type:'number',         required:false},
@@ -772,7 +778,7 @@ const MANUAL_FIELDS = {
     title: 'Nouvelle sortie course',
     icon: '🏃',
     fields: [
-      {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
+      {key:'date',        label:'Date',            type:'date-only',      required:true},
       {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
       {key:'duration_sec',label:'Moving Time',     type:'time-parts',     required:false},
       {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
@@ -787,7 +793,7 @@ const MANUAL_FIELDS = {
     title: 'Nouvelle sortie vélo',
     icon: '🚴',
     fields: [
-      {key:'date',        label:'Date & heure',    type:'datetime-local', required:true},
+      {key:'date',        label:'Date',            type:'date-only',      required:true},
       {key:'distance_m',  label:'Distance (km)',   type:'decimal',        required:false},
       {key:'duration_sec',label:'Moving Time',     type:'time-parts',     required:false},
       {key:'elevation_m', label:'Dénivelé (m)',    type:'number',         required:false},
@@ -848,6 +854,8 @@ async function showManualForm(sport, linkedSessionId){
     fieldsHtml += '<div class="modal-field"><label>'+f.label+(f.required?' *':'')+'</label>';
     if(f.type==='datetime-local'){
       fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="datetime-local" value="'+now+'" max="'+now+'">';
+    } else if(f.type==='date-only'){
+      fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="date" value="'+now.slice(0,10)+'" max="'+now.slice(0,10)+'">';
     } else if(f.type==='number'){
       fieldsHtml += '<input class="modal-input" id="mf-'+f.key+'" type="number" inputmode="decimal" placeholder="—">';
     } else if(f.type==='decimal'){
@@ -906,11 +914,14 @@ async function saveManualForm(sport){
   const dateVal = document.getElementById('mf-date')?.value;
   if(!dateVal){ alert('La date est requise'); btn.disabled=false; btn.textContent='SAUVEGARDER'; return; }
 
+  // date-only fields use noon to avoid TZ issues
+  const dateIso = dateVal.length===10 ? new Date(dateVal+'T12:00:00').toISOString() : new Date(dateVal).toISOString();
+
   const activity = {
     id: Date.now(),
     type: sport,
     source: 'manual',
-    date: new Date(dateVal).toISOString(),
+    date: dateIso,
   };
 
   // Read each field
@@ -1358,11 +1369,16 @@ function renderCalendar(activities){
 
   for(let day=1; day<=daysInMonth; day++){
     const dateStr = year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
-    const count = activeDays[dateStr]||0;
+    const sports = activeDays[dateStr];
     let cls = 'cal-day this-month';
     if(dateStr===todayStr) cls += ' today';
-    if(count>0) cls += ' has-activity';
-    if(count>1) cls += ' multi';
+    if(sports && sports.size>0){
+      if(sports.size>1) cls += ' has-multi';
+      else if(sports.has('muscu'))  cls += ' has-muscu';
+      else if(sports.has('course')) cls += ' has-course';
+      else if(sports.has('velo'))   cls += ' has-velo';
+      if(sports.size>1) cls += ' dot';
+    }
     html += '<div class="'+cls+'">'+day+'</div>';
   }
   html += '</div>';
@@ -1447,67 +1463,68 @@ function selLog(s){
   renderLogNav();
 }
 
-function renderLogNav(){
-  // Step 1 — programme buttons
-  const progBtns = document.getElementById('log-prog-btns');
+function openLoggerModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'logger-modal';
+  overlay.innerHTML =
+    '<div class="modal" style="max-height:94dvh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom))">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+    '<div style="font-family:var(--fd);font-size:26px;letter-spacing:.04em">LOGGER UNE SÉANCE</div>'+
+    '<button onclick="closeLoggerModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;flex-shrink:0">✕</button>'+
+    '</div>'+
+    '<div id="lm-step-prog"><div class="log-step-label">Programme</div><div class="selbts" id="lm-prog-btns"></div></div>'+
+    '<div id="lm-step-sess" style="display:none"><div class="log-step-label" id="lm-sess-label">Séance</div><div class="selbts" id="lm-sess-btns"></div></div>'+
+    '<div id="lm-form"></div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  renderLogModal();
+}
+
+function closeLoggerModal(){
+  const m = document.getElementById('logger-modal');
+  if(m) m.remove();
+  cachedHist=null;
+  renderHist();
+}
+
+function renderLogModal(){
+  const progBtns = document.getElementById('lm-prog-btns');
   if(progBtns){
     progBtns.innerHTML = Object.entries(PROGRAMS).map(([id,p])=>{
-      const act = id===curLogProg ? ' active' : '';
-      return '<button class="selbt'+act+'" onclick="selLogProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
+      const act = id===curLogProg?' active':'';
+      return '<button class="selbt'+act+'" onclick="selLMProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
     }).join('');
   }
-
-  // Step 2 — session buttons for current programme
-  const sessStep = document.getElementById('log-step-sess');
-  const sessBtns = document.getElementById('log-sess-btns');
-  const sessLabel = document.getElementById('log-step-sess-label');
+  const sessStep = document.getElementById('lm-step-sess');
+  const sessBtns = document.getElementById('lm-sess-btns');
+  const sessLabel = document.getElementById('lm-sess-label');
   const prog = PROGRAMS[curLogProg];
   if(sessStep && sessBtns && prog){
-    sessStep.style.display = 'block';
-    if(sessLabel) sessLabel.textContent = prog.label + ' — Choisir la séance';
+    sessStep.style.display='block';
+    if(sessLabel) sessLabel.textContent = prog.label+' — Séance';
     sessBtns.innerHTML = prog.sessions.map(s=>{
-      const sess = SESSIONS[s];
-      const short = s.toUpperCase();
-      const sub = sess.label.split('—')[1]?.trim() || '';
-      const act = s===curLog ? ' active' : '';
-      return '<button class="selbt'+act+'" onclick="selLog(&quot;'+s+'&quot;)" style="flex-direction:column;gap:2px;padding:10px 4px;font-size:13px">'+
-        '<span>'+short+'</span>'+
-        '<span style="font-size:9px;font-weight:500;color:inherit;opacity:.7">'+sub+'</span>'+
-        '</button>';
+      const sub = SESSIONS[s].label.split('—')[1]?.trim()||'';
+      const act = s===curLog?' active':'';
+      return '<button class="selbt'+act+'" onclick="selLMSess(&quot;'+s+'&quot;)" style="flex-direction:column;gap:2px;padding:10px 4px;font-size:13px">'+
+        '<span>'+s.toUpperCase()+'</span>'+
+        '<span style="font-size:9px;font-weight:500;color:inherit;opacity:.7">'+sub+'</span></button>';
     }).join('');
   }
-
-  renderLog();
+  // Render form into lm-form
+  const target = document.getElementById('lm-form');
+  if(target) renderLog(target);
 }
 
-function getSets(ei){
-  return customSets[ei] !== undefined ? customSets[ei] : flatExos(curLog)[ei].sets;
+function selLMProg(progId){
+  curLogProg=progId; customSets={};
+  curLog=PROGRAMS[progId].sessions[0];
+  renderLogModal();
 }
 
-function addSet(ei){
-  customSets[ei] = getSets(ei) + 1;
-  rebuildExo(ei);
-}
-
-function removeSet(ei){
-  const cur = getSets(ei);
-  if(cur <= 1) return;
-  customSets[ei] = cur - 1;
-  rebuildExo(ei);
-}
-
-function rebuildExo(ei){
-  const exo = flatExos(curLog)[ei];
-  const n = getSets(ei);
-  let h = '<table class="stbl"><tr><th>#</th><th>Poids (lbs)</th><th>Reps</th></tr>';
-  for(let s=1;s<=n;s++){
-    h += '<tr><td><span class="sn">'+s+'</span></td>';
-    h += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal"></td>';
-    h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
-  }
-  h += '</table>';
-  document.getElementById('exo-rows-'+ei).innerHTML = h;
-  document.getElementById('sets-count-'+ei).textContent = n+' série'+(n>1?'s':'');
+function selLMSess(s){
+  curLog=s; customSets={};
+  renderLogModal();
 }
 
 function renderLog(){
@@ -1552,24 +1569,22 @@ function renderLog(){
   });
 
   // Cardio section
-  h += '<div class="slabel" style="margin:14px 0 8px">Cardio & calories</div>';
+  h += '<div class="slabel" style="margin:14px 0 8px">Durée · Cardio · Calories</div>';
   h += '<div class="card" style="margin-bottom:12px">';
+  // Duration row
+  h += '<div style="padding:12px 14px;border-bottom:1px solid var(--border)">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Durée</div>';
+  h += '<div style="display:flex;gap:6px;align-items:center">';
+  h += '<input class="li" type="number" id="l-dur-h" inputmode="numeric" placeholder="hh" min="0" style="width:60px;text-align:center">';
+  h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+  h += '<input class="li" type="number" id="l-dur-m" inputmode="numeric" placeholder="mm" min="0" max="59" style="width:60px;text-align:center">';
+  h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+  h += '<input class="li" type="number" id="l-dur-s" inputmode="numeric" placeholder="ss" min="0" max="59" style="width:60px;text-align:center">';
+  h += '</div></div>';
   h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">';
-  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC moy</div>';
-  h += '<input class="li" type="number" id="l-hr-avg" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
-  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div>';
-  h += '</div>';
-  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC max</div>';
-  h += '<input class="li" type="number" id="l-hr-max" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
-  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div>';
-  h += '</div>';
-  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Calories</div>';
-  h += '<input class="li" type="number" id="l-calories" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
-  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">kcal</div>';
-  h += '</div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC moy</div><input class="li" type="number" id="l-hr-avg" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div></div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC max</div><input class="li" type="number" id="l-hr-max" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div></div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Calories</div><input class="li" type="number" id="l-calories" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">kcal</div></div>';
   h += '</div></div>';
 
   // Note
@@ -1597,6 +1612,7 @@ async function saveSess(){
     date: new Date(logDate+'T12:00:00').toISOString(),
     feeling: feeling||'😐',
     note: document.getElementById('lnote').value,
+    duration_sec: (()=>{ const h=parseInt(document.getElementById('l-dur-h')?.value)||0; const m=parseInt(document.getElementById('l-dur-m')?.value)||0; const s=parseInt(document.getElementById('l-dur-s')?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
     hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
     hr_max:   parseInt(document.getElementById('l-hr-max')?.value)||null,
     calories: parseInt(document.getElementById('l-calories')?.value)||null,
@@ -1621,7 +1637,11 @@ async function saveSess(){
     '<div style="color:var(--text2);font-size:13px;margin-top:8px">'+sess.label+'</div></div>';
 
   logDate = todayKey();
-  setTimeout(()=>renderLog(), 2200);
+  if(document.getElementById('logger-modal')){
+    setTimeout(()=>closeLoggerModal(), 1800);
+  } else {
+    setTimeout(()=>renderLog(), 2200);
+  }
 }
 
 // ════ HISTORY ════
