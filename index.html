@@ -817,6 +817,20 @@ async function dbUpdate(id, patch){
   }
 }
 
+// Delete one activity
+async function dbDelete(id){
+  try {
+    const r = await fetch(SB_URL+ACT_TABLE+'?id=eq.'+id, {
+      method:'DELETE', headers: SB_HDR
+    });
+    if(!r.ok) throw new Error('delete failed');
+    _cacheDelete(id);
+  } catch(e){
+    console.warn('Supabase delete error', e);
+    _cacheDelete(id);
+  }
+}
+
 // Local cache helpers
 function _cacheAdd(data){
   const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
@@ -828,6 +842,10 @@ function _cacheUpdate(id, patch){
   const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
   const idx = local.findIndex(e=>e.id===id);
   if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('cju_acts',JSON.stringify(local)); }
+}
+function _cacheDelete(id){
+  const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
+  localStorage.setItem('cju_acts', JSON.stringify(local.filter(e=>e.id!==id)));
 }
 
 // Aliases kept for compatibility
@@ -2075,10 +2093,8 @@ async function saveSess(){
   await dbSave(data);
   cachedHist = null;
 
-  const saved = await dbSave._last || data;
-  // Reload to get the real saved id
   const reloaded = await dbLoad('muscu');
-  const savedId = (reloaded[0] && reloaded[0].date === data.date) ? reloaded[0].id : data.id;
+  const savedId = (reloaded[0] && Math.abs(new Date(reloaded[0].date) - new Date(data.date)) < 5000) ? reloaded[0].id : data.id;
 
   const successHtml =
     '<div style="text-align:center;padding:40px 20px 24px">'+
@@ -2107,6 +2123,7 @@ async function saveSess(){
 async function openStravaLinkModal(muscuId, dateStr){
   const allActs = await dbLoad(null);
   const targetDate = new Date(dateStr+'T12:00:00');
+  // Find Strava-imported muscu activities within ±1 day
   const stravaActs = allActs.filter(a=>{
     if(a.source !== 'strava') return false;
     const diffDays = Math.abs(new Date(a.date) - targetDate) / (1000*60*60*24);
@@ -2131,7 +2148,7 @@ async function openStravaLinkModal(muscuId, dateStr){
       const d = new Date(a.date);
       const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
       const dur = a.duration_sec ? fmtDuration(a.duration_sec) : '—';
-      const name = a.strava_name || a.label || a.session_label || 'Weight Training';
+      const name = a.strava_name || a.session_label || a.label || 'Weight Training';
       body +=
         '<div onclick="linkStravaActivity('+muscuId+','+a.id+',this)" '+
         'style="padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px" class="strava-pick-row">'+
@@ -2161,25 +2178,49 @@ async function openStravaLinkModal(muscuId, dateStr){
 }
 
 async function linkStravaActivity(muscuId, stravaId, rowEl){
+  // Visual feedback
   document.querySelectorAll('.strava-pick-row').forEach(r=>{ r.style.borderColor='var(--border)'; r.style.background=''; });
   rowEl.style.borderColor = '#fc4c02';
   rowEl.style.background = 'rgba(252,76,2,.08)';
+  rowEl.style.pointerEvents = 'none';
 
-  await dbUpdate(muscuId, { strava_activity_id: stravaId });
+  // Load both entries to get Strava data
+  const allActs = await dbLoad(null);
+  const stravaEntry = allActs.find(a=>a.id===stravaId);
+  const muscuEntry  = allActs.find(a=>a.id===muscuId);
+
+  if(!stravaEntry || !muscuEntry){
+    alert('Erreur : entrée introuvable'); return;
+  }
+
+  // Build enriched patch: keep muscu's exercises, enrich with Strava's cardio data
+  // Only overwrite cardio fields if muscu entry doesn't already have them
+  const patch = {
+    source: 'strava',
+    strava_activity_id: stravaId,
+    duration_sec: stravaEntry.duration_sec || muscuEntry.duration_sec || null,
+    hr_avg:       stravaEntry.hr_avg       || muscuEntry.hr_avg       || null,
+    hr_max:       stravaEntry.hr_max       || muscuEntry.hr_max       || null,
+    calories:     stravaEntry.calories     || muscuEntry.calories     || null,
+  };
+
+  // Patch the muscu entry (exercises untouched — PATCH only updates specified fields)
+  await dbUpdate(muscuId, patch);
+  // Delete the Strava-only entry
+  await dbDelete(stravaId);
+
   cachedHist = null;
 
   setTimeout(()=>{
-    // Close Strava modal
     document.getElementById('strava-link-modal')?.remove();
-    // Update success screen button if still visible
+    // Update success screen if still open
     const linkArea = document.getElementById('strava-link-area');
     if(linkArea){
       linkArea.innerHTML =
-        '<div style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;border:1px solid rgba(252,76,2,.35);background:rgba(252,76,2,.1);color:#fc4c02;font-size:14px;font-weight:600">'+
-        '✅ Activité Strava liée !</div>';
+        '<div style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;'+
+        'border:1px solid rgba(252,76,2,.35);background:rgba(252,76,2,.1);color:#fc4c02;font-size:14px;font-weight:600">'+
+        '✅ Activité Strava fusionnée !</div>';
     }
-    // Update history entry if expanded (clear filled flag so it re-renders)
-    document.querySelectorAll('[id^="hd-body-"]').forEach(el=>{ delete el.dataset.filled; });
     renderHist();
   }, 600);
 }
