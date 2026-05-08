@@ -616,80 +616,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
 <!-- ════ NAV ════ -->
 
-  <div class="sec">
-    <div class="slabel">Social</div>
-    <div class="card">
-      <a class="crow app-row" href="strava://" onclick="return openApp('strava://', 'https://apps.apple.com/app/strava/id426826309')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">🏅</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">Strava</div>
-            <div style="font-size:11px;color:var(--text2)">Activités · Segments · Social</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-    </div>
-
-    <div class="slabel" style="margin-top:18px">Capteurs</div>
-    <div class="card">
-      <a class="crow app-row" href="wahoo://" onclick="return openApp('wahoo://', 'https://apps.apple.com/app/wahoo-fitness/id391599506')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">📡</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">Wahoo Fitness</div>
-            <div style="font-size:11px;color:var(--text2)">ELEMNT · TICKR · Vélo</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-      <a class="crow app-row" href="coros://" onclick="return openApp('coros://', 'https://apps.apple.com/app/coros/id1268292507')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">⌚</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">Coros</div>
-            <div style="font-size:11px;color:var(--text2)">Pace 4 · Entraînement · Données</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-      <a class="crow app-row" href="sramaxs://" onclick="return openApp('sramaxs://', 'https://apps.apple.com/app/sram-axs/id1350928676')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">⚙️</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">SRAM AXS</div>
-            <div style="font-size:11px;color:var(--text2)">Dérailleur · Groupset · Config</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-    </div>
-
-    <div class="slabel" style="margin-top:18px">Autres</div>
-    <div class="card">
-      <a class="crow app-row" href="gymverse://" onclick="return openApp('gymverse://', 'https://apps.apple.com/app/gymverse/id1476686320')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">🏋️</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">Gymverse</div>
-            <div style="font-size:11px;color:var(--text2)">Programmes · Exercices</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-      <a class="crow app-row" href="nautilusplus://" onclick="return openApp('nautilusplus://', 'https://apps.apple.com/ca/app/nautilus-plus/id1100476104')">
-        <div class="cl" style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">🏊</span>
-          <div>
-            <div style="font-size:14px;font-weight:600">Nautilus Plus</div>
-            <div style="font-size:11px;color:var(--text2)">Gym · Cours · Réservations</div>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </a>
-    </div>
-  </div>
-</div>
 
 <nav class="nav-bar">
   <button class="nav-item active" id="nav-home" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
@@ -1421,12 +1347,12 @@ function _renderAppsPage(){
   }
 
   const apps = [
-    {sec:'Social',   ico:'🏅', name:'Strava',        desc:'Activités · Segments · Social',   scheme:'strava://',      store:'https://apps.apple.com/app/strava/id426826309',          web:'https://www.strava.com'},
-    {sec:'Capteurs', ico:'📡', name:'Wahoo Fitness', desc:'ELEMNT · TICKR · Vélo',            scheme:'wahoo://',       store:'https://apps.apple.com/app/wahoo-fitness/id391599506',   web:'https://www.wahoofitness.com'},
-    {sec:'Capteurs', ico:'⌚', name:'Coros',          desc:'Pace 4 · Entraînement · Données', scheme:'coros://',       store:'https://apps.apple.com/app/coros/id1268292507',          web:'https://www.coros.com'},
-    {sec:'Capteurs', ico:'⚙️',name:'SRAM AXS',      desc:'Dérailleur · Groupset · Config',  scheme:'sramaxs://',     store:'https://apps.apple.com/app/sram-axs/id1350928676',       web:'https://www.sram.com/en/sram/axs'},
-    {sec:'Autres',   ico:'🏋️',name:'Gymverse',      desc:'Programmes · Exercices',           scheme:'gymverse://',    store:'https://apps.apple.com/app/gymverse/id1476686320',       web:'https://www.gymverse.com'},
-    {sec:'Autres',   ico:'🏊', name:'Nautilus Plus', desc:'Gym · Cours · Réservations',       scheme:'nautilusplus://',store:'https://apps.apple.com/ca/app/nautilus-plus/id1100476104',web:'https://www.nautilusplus.com'},
+    {sec:'Social',   ico:'🏅', name:'Strava',        desc:'Activités · Segments · Social',   scheme:'strava://',          store:'https://apps.apple.com/ca/app/strava-run-bike-walk/id426826309',          web:'https://www.strava.com/dashboard'},
+    {sec:'Capteurs', ico:'📡', name:'Wahoo',         desc:'ELEMNT · TICKR · Vélo',             scheme:'wahoofitness://',    store:'https://apps.apple.com/ca/app/wahoo/id391599899',                         web:null},
+    {sec:'Capteurs', ico:'⌚', name:'Coros',          desc:'Pace 4 · Entraînement · Données',  scheme:'coros://',           store:'https://apps.apple.com/ca/app/coros/id1277625343',                        web:'https://t.coros.com/admin/views/dash-board'},
+    {sec:'Capteurs', ico:'⚙️',name:'SRAM AXS',      desc:'Dérailleur · Groupset · Config',   scheme:'sramaxs://',         store:'https://apps.apple.com/ca/app/sram-axs/id1430049231',                    web:'https://axs.sram.com/activities'},
+    {sec:'Autres',   ico:'🏋️',name:'Gymverse',      desc:'Programmes · Exercices',            scheme:'gymverse://',        store:'https://apps.apple.com/ca/app/gymverse-ai-gym-workout-plans/id1048454034',web:null},
+    {sec:'Autres',   ico:'🏊', name:'Nautilus Plus', desc:'Gym · Cours · Réservations',        scheme:'nautilusplus://',    store:'https://apps.apple.com/ca/app/nautilus-plus/id1321627621',               web:'https://www.nautilusplus.com/fr/'},
   ];
 
   const sections = {};
@@ -1445,8 +1371,8 @@ function _renderAppsPage(){
       h += '<div><div style="font-size:14px;font-weight:600">'+a.name+'</div><div style="font-size:11px;color:var(--text2)">'+a.desc+'</div></div>';
       h += '</div>';
       h += '<div style="display:flex;gap:6px;flex-shrink:0">';
+      if(a.web) h += '<a class="app-btn app-btn-secondary" href="'+a.web+'" target="_blank" rel="noopener">🌐 Site</a>';
       h += '<button class="app-btn app-btn-primary" onclick="openApp(\''+a.scheme+'\',\''+a.store+'\')">📱 App</button>';
-      h += '<a class="app-btn app-btn-secondary" href="'+a.web+'" target="_blank" rel="noopener">🌐 Site</a>';
       h += '</div></div>';
     });
     h += '</div>';
@@ -1553,7 +1479,7 @@ function renderWeeklyChart(activities){
   //   0..LABEL_TOP  → espace pour label valeur au-dessus des barres
   //   LABEL_TOP..BAR_BOT → zone des barres
   //   BAR_BOT..H     → labels semaines
-  const W=294, H=180; // 294 = 320-26px pour labels axe Y à droite
+  const W=272, H=180; // bar area; viewBox is wider to give Y labels room
   const LABEL_TOP=18;   // hauteur réservée pour les labels de valeur
   const BAR_BOT=H-28;   // bas des barres (au-dessus des labels semaine)
   const BAR_H=BAR_BOT-LABEL_TOP; // hauteur disponible pour les barres
@@ -1570,11 +1496,11 @@ function renderWeeklyChart(activities){
     const y=LABEL_TOP+BAR_H*(1-i/nLines);
     const hVal=(maxSec/3600*i/nLines);
     const lbl=hVal>=1?hVal.toFixed(1)+'h':Math.round(hVal*60)+'m';
-    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-    grid+=`<text x="${W-1}" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="7.5" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
+    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W+4}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    grid+=`<text x="318" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="7.5" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
   }
   // ligne de base
-  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W+4}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
 
   // ── Barres ──
   let bars='';
@@ -2290,15 +2216,24 @@ async function saveEdit(i){
 }
 
 // ════ HELPERS ════
-function openApp(scheme, fallback){
-  // Tente d'ouvrir l'app via son URL scheme
-  // Si elle n'est pas installée, redirige vers l'App Store après 1.2s
-  const t = Date.now();
-  setTimeout(()=>{
-    if(Date.now()-t < 1500) window.location.href = fallback;
-  }, 1200);
-  window.location.href = scheme;
-  return false; // empêche le href par défaut
+function openApp(scheme, store){
+  // On mobile, try the app scheme; if app not installed after 1.5s, open App Store
+  // On desktop, go straight to App Store
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile && store){
+    const t = Date.now();
+    const timer = setTimeout(()=>{ window.location.href = store; }, 1500);
+    window.location.href = scheme;
+    // If page visibility changes (app opened), cancel the timer
+    document.addEventListener('visibilitychange', function cancel(){
+      if(Date.now()-t < 2000) clearTimeout(timer);
+      document.removeEventListener('visibilitychange', cancel);
+    });
+  } else if(isMobile){
+    window.location.href = scheme;
+  } else if(store){
+    window.open(store, '_blank');
+  }
 }
 function showLoader(elId){
   const el = document.getElementById(elId);
