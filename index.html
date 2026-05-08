@@ -318,8 +318,15 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
   <div class="sec" style="padding-top:0">
-    <div class="slabel" id="cal-label">—</div>
-    <div id="home-calendar" class="cal-grid-wrap"></div>
+    <div class="slabel">Heures de sport · 10 dernières semaines</div>
+    <div id="home-weekly-chart" class="cal-grid-wrap" style="padding:16px 10px 10px;min-height:160px">
+      <div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>
+    </div>
+    <div style="display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#4d9eff;display:inline-block"></span>Muscu</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#34d399;display:inline-block"></span>Course</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#ffb347;display:inline-block"></span>Vélo</div>
+    </div>
   </div>
 
 </div>
@@ -1355,60 +1362,122 @@ function showSession(id, btn){
 }
 
 // ════ HOME ════
-function renderCalendar(activities){
+function renderWeeklyChart(activities){
+  const el = document.getElementById('home-weekly-chart');
+  if(!el) return;
+
+  // Build 10 week buckets (Mon→Sun), most recent last
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  // Get start of current week (Monday)
+  const dayOfWeek = (now.getDay()+6)%7; // 0=Mon
+  const thisMonday = new Date(now);
+  thisMonday.setHours(0,0,0,0);
+  thisMonday.setDate(now.getDate() - dayOfWeek);
 
-  // Month label
-  const monthLabel = now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  const labelEl = document.getElementById('cal-label');
-  if(labelEl) labelEl.textContent = monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+  const NWEEKS = 10;
+  const weeks = [];
+  for(let w=NWEEKS-1; w>=0; w--){
+    const mon = new Date(thisMonday);
+    mon.setDate(thisMonday.getDate() - w*7);
+    const sun = new Date(mon);
+    sun.setDate(mon.getDate()+6);
+    sun.setHours(23,59,59,999);
+    weeks.push({ mon, sun, muscu:0, course:0, velo:0 });
+  }
 
-  // Build set of active days (YYYY-MM-DD)
-  const activeDays = {};
+  // Accumulate seconds per sport per week
   activities.forEach(a=>{
     const d = new Date(a.date);
-    if(d.getFullYear()===year && d.getMonth()===month){
-      const key = d.toISOString().slice(0,10);
-      activeDays[key] = (activeDays[key]||0)+1;
+    const sec = a.duration_sec||0;
+    if(!sec) return;
+    for(const w of weeks){
+      if(d >= w.mon && d <= w.sun){
+        if(a.type==='muscu')  w.muscu  += sec;
+        else if(a.type==='course') w.course += sec;
+        else if(a.type==='velo')   w.velo   += sec;
+        break;
+      }
     }
   });
 
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const todayStr = now.toISOString().slice(0,10);
+  // Max total hours for scale
+  const maxSec = Math.max(...weeks.map(w=>w.muscu+w.course+w.velo), 1);
+  const maxH = maxSec/3600;
 
-  // Mon-first: shift
-  const startOffset = (firstDay+6)%7;
+  // Chart dimensions
+  const W = 300, H = 130, BAR_AREA = H - 24; // reserve 24px for labels
+  const barW = Math.floor((W - (NWEEKS-1)*4) / NWEEKS);
+  const barSpacing = barW + 4;
 
-  const DOWS = ['L','M','M','J','V','S','D'];
+  const fmtWeekLabel = (w)=>{
+    const isThis = w.mon <= now && now <= w.sun;
+    if(isThis) return 'cette sem.';
+    const d = w.mon;
+    return (d.getDate())+'/'+(d.getMonth()+1);
+  };
 
-  let html = '<div class="cal-dow">';
-  DOWS.forEach(d=>{ html += '<div class="cal-dow-cell">'+d+'</div>'; });
-  html += '</div><div class="cal-grid">';
+  let bars = '';
+  weeks.forEach((w, i)=>{
+    const total = w.muscu+w.course+w.velo;
+    const x = i*barSpacing;
+    const isThis = w.mon <= now && now <= w.sun;
 
-  // Empty cells before first day
-  for(let i=0;i<startOffset;i++) html += '<div class="cal-day"></div>';
+    const hMuscu  = total>0 ? Math.round((w.muscu/maxSec)*BAR_AREA)  : 0;
+    const hCourse = total>0 ? Math.round((w.course/maxSec)*BAR_AREA) : 0;
+    const hVelo   = total>0 ? Math.round((w.velo/maxSec)*BAR_AREA)   : 0;
 
-  for(let day=1; day<=daysInMonth; day++){
-    const dateStr = year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
-    const sports = activeDays[dateStr];
-    let cls = 'cal-day this-month';
-    if(dateStr===todayStr) cls += ' today';
-    if(sports && sports.size>0){
-      if(sports.size>1) cls += ' has-multi';
-      else if(sports.has('muscu'))  cls += ' has-muscu';
-      else if(sports.has('course')) cls += ' has-course';
-      else if(sports.has('velo'))   cls += ' has-velo';
-      if(sports.size>1) cls += ' dot';
+    let yBase = H - 20; // bottom of bars area (above labels)
+
+    // Empty bar placeholder
+    if(total===0){
+      bars += `<rect x="${x}" y="${yBase-2}" width="${barW}" height="2" rx="1" fill="rgba(255,255,255,0.05)"/>`;
     }
-    html += '<div class="'+cls+'">'+day+'</div>';
-  }
-  html += '</div>';
 
-  const el = document.getElementById('home-calendar');
-  if(el) el.innerHTML = html;
+    // Velo (bottom)
+    if(hVelo>0){
+      bars += `<rect x="${x}" y="${yBase-hVelo}" width="${barW}" height="${hVelo}" rx="0" fill="#ffb347" opacity="${isThis?1:.8}"/>`;
+      yBase -= hVelo;
+    }
+    // Course (middle)
+    if(hCourse>0){
+      bars += `<rect x="${x}" y="${yBase-hCourse}" width="${barW}" height="${hCourse}" rx="0" fill="#34d399" opacity="${isThis?1:.8}"/>`;
+      yBase -= hCourse;
+    }
+    // Muscu (top)
+    if(hMuscu>0){
+      // top bar gets rounded top corners
+      const topY = yBase-hMuscu;
+      bars += `<path d="M${x+2},${topY} Q${x},${topY} ${x},${topY+2} L${x},${yBase} L${x+barW},${yBase} L${x+barW},${topY+2} Q${x+barW},${topY} ${x+barW-2},${topY} Z" fill="#4d9eff" opacity="${isThis?1:.8}"/>`;
+    }
+    if(total>0 && (hVelo>0||hCourse>0) && !hMuscu){
+      // round top of topmost bar
+    }
+
+    // Total label above bar (if >0)
+    const totalH = total/3600;
+    if(total>0){
+      const topOfStack = (H-20) - hMuscu - hCourse - hVelo;
+      const labelY = Math.max(topOfStack - 3, 8);
+      const label = totalH >= 1 ? totalH.toFixed(1)+'h' : Math.round(total/60)+'m';
+      bars += `<text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="8" font-weight="700" fill="${isThis?'#4d9eff':'rgba(255,255,255,0.45)'}"> ${label}</text>`;
+    }
+
+    // Week label
+    const lbl = fmtWeekLabel(w);
+    const isShort = !lbl.includes('/') && lbl.length > 4;
+    bars += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="${isShort?6.5:8}" fill="${isThis?'#e8f0ff':'rgba(255,255,255,0.3)'}" font-weight="${isThis?700:500}">${lbl}</text>`;
+  });
+
+  // Y-axis guide line at max
+  const guideY = H-20-BAR_AREA;
+  const svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;overflow:visible">
+    <line x1="0" y1="${guideY}" x2="${W}" y2="${guideY}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <line x1="0" y1="${H-20}" x2="${W}" y2="${H-20}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="${W}" y="${guideY-2}" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.2)">${maxH.toFixed(1)}h</text>
+    ${bars}
+  </svg>`;
+
+  el.innerHTML = svg;
 }
 
 async function renderHome(){
@@ -1431,8 +1500,8 @@ async function renderHome(){
   const SPORT_ICO = {muscu:'💪', course:'🏃', velo:'🚴'};
   const SPORT_LBL = {muscu:'Muscu', course:'Course', velo:'Vélo'};
 
-  // Calendar
-  renderCalendar(all);
+  // Weekly chart
+  renderWeeklyChart(all);
 
   feed.innerHTML = all.slice(0,5).map(a=>{
     const d = new Date(a.date);
@@ -1674,67 +1743,99 @@ async function saveSess(){
 
 // ════ HISTORY ════
 async function renderHist(){
-  document.getElementById('hlist').innerHTML='<div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>';
-  const h = await dbLoad('muscu');
-  cachedHist = h;
-  document.getElementById('hcount').textContent =
-    h.length+' séance'+(h.length!==1?'s':'')+' enregistrée'+(h.length!==1?'s':'');
   const list = document.getElementById('hlist');
+  const countEl = document.getElementById('hcount');
+
+  // Show skeleton immediately if no cache
+  if(!cachedHist){
+    list.innerHTML='<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
+    cachedHist = await dbLoad('muscu');
+  }
+  const h = cachedHist;
+
+  countEl.textContent = h.length+' séance'+(h.length!==1?'s':'')+' enregistrée'+(h.length!==1?'s':'');
+
   if(!h.length){
     list.innerHTML='<div class="empty"><div class="ico">📋</div><p>Aucune séance enregistrée.<br>Commence par logger une séance !</p></div>';
     return;
   }
-  list.innerHTML = h.map((e,i)=>{
+
+  // Build HTML string all at once (much faster than DOM mutations)
+  const html = h.map((e,i)=>{
     const d = new Date(e.date);
     const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
     const exos = e.exercises || [];
-    const rows = exos.map(exo=>{
-      const isTimed = exo.name.toLowerCase().includes('plank');
-      let sv;
-      if(isTimed){
-        // Show as "Nsec × M séries"
-        const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
-        if(setsWithReps.length){
-          const dur = setsWithReps[0].reps;
-          sv = setsWithReps.length+'×'+dur+'sec';
-        }
-      } else {
-        sv = (exo.sets||[]).filter(s=>s.weight||s.reps)
-          .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
-      }
-      return sv?'<div class="her"><span class="hen">'+exo.name+'</span><span class="hev">'+sv+'</span></div>':'';
-    }).filter(Boolean).join('');
+
+    // Only render exercise summary (no expanded details until user taps)
     const label = e.session_label || e.label || '';
     const stype = e.session_type || e.type || '';
-    return '<div class="he">'+
-      '<div class="heh" onclick="togHist('+i+')">'+
+    const metaChips = [];
+    if(e.duration_sec) metaChips.push('⏱ '+fmtDuration(e.duration_sec));
+    if(e.calories)     metaChips.push('🔥 '+e.calories+' kcal');
+    if(e.hr_avg)       metaChips.push('♥ '+e.hr_avg+' bpm');
+    const metaStr = metaChips.length ? '<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">'+metaChips.map(c=>'<span style="font-size:11px;color:var(--text2)">'+c+'</span>').join('')+'</div>' : '';
+
+    return '<div class="he" id="he-'+i+'">'+
+      '<div class="heh" onclick="togHistEntry('+i+')">'+
       '<div>'+
       '<div class="het">'+(e.feeling||'')+' '+label+'</div>'+
-      '<div class="hed">'+ds+(e.program?' · <span style="color:var(--accent);font-size:11px">'+e.program.toUpperCase()+'</span>':'')+'</div>'+
+      '<div class="hed">'+ds+(e.program?' · <span style="color:var(--accent);font-size:11px">'+e.program.toUpperCase()+'</span>':'')+
+      (exos.length ? ' · <span style="font-size:11px;color:var(--text3)">'+exos.length+' exo</span>' : '')+
+      '</div>'+metaStr+
       '</div>'+
       '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span></div>'+
       '<div class="hdt" id="hd-'+i+'">'+
-      '<div class="edit-bar">'+
-      '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
-      '</div>'+
-      '<div id="hd-view-'+i+'">'+
-      (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
-      (e.note?'<div class="hno">💬 '+e.note+'</div>':'')+
-      ((e.duration_sec||e.hr_avg||e.hr_max||e.calories)?
-        '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
-        (e.duration_sec?'<span style="font-size:12px;color:var(--text2)">⏱ <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong></span>':'')+
-        (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
-        (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
-        (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
-        '</div>':'')+
-      '</div>'+
-      '<div id="hd-edit-'+i+'" style="display:none"></div>'+
+      '<div id="hd-body-'+i+'"></div>'+ // lazy-filled on open
       '</div></div>';
   }).join('');
+
+  list.innerHTML = html;
 }
 
-function togHist(i){
-  document.getElementById('hd-'+i).classList.toggle('open');
+function togHistEntry(i){
+  const dt = document.getElementById('hd-'+i);
+  const isOpen = dt.classList.contains('open');
+  dt.classList.toggle('open');
+  if(!isOpen) _fillHistDetail(i); // lazy render detail
+}
+
+function _fillHistDetail(i){
+  const body = document.getElementById('hd-body-'+i);
+  if(!body || body.dataset.filled) return;
+  body.dataset.filled = '1';
+  const e = cachedHist[i];
+  if(!e) return;
+
+  const exos = e.exercises || [];
+  const rows = exos.map(exo=>{
+    const isTimed = exo.name.toLowerCase().includes('plank');
+    let sv;
+    if(isTimed){
+      const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
+      if(setsWithReps.length) sv = setsWithReps.length+'×'+setsWithReps[0].reps+'sec';
+    } else {
+      sv = (exo.sets||[]).filter(s=>s.weight||s.reps)
+        .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
+    }
+    return sv?'<div class="her"><span class="hen">'+exo.name+'</span><span class="hev">'+sv+'</span></div>':'';
+  }).filter(Boolean).join('');
+
+  body.innerHTML =
+    '<div class="edit-bar">'+
+    '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
+    '</div>'+
+    '<div id="hd-view-'+i+'">'+
+    (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
+    (e.note?'<div class="hno">💬 '+e.note+'</div>':'')+
+    ((e.duration_sec||e.hr_avg||e.hr_max||e.calories)?
+      '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
+      (e.duration_sec?'<span style="font-size:12px;color:var(--text2)">⏱ <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong></span>':'')+
+      (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
+      (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
+      (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
+      '</div>':'')+
+    '</div>'+
+    '<div id="hd-edit-'+i+'" style="display:none"></div>';
 }
 
 function renderCardioBloc(activity, sessionId){
@@ -1773,6 +1874,8 @@ async function loadCardioForEntry(entry){
 
 function startEdit(i, ev){
   ev.stopPropagation();
+  // Ensure lazy content is rendered first
+  _fillHistDetail(i);
   const entry = cachedHist[i];
   const editDiv = document.getElementById('hd-edit-'+i);
   const viewDiv = document.getElementById('hd-view-'+i);
@@ -1897,6 +2000,28 @@ function showLoader(elId){
 }
 
 // ════ INIT ════
+// Migrate existing course/velo records that are missing pace/speed
+async function migrateActivityMetrics(){
+  try {
+    const acts = await dbLoad(null);
+    const toFix = acts.filter(a=>
+      (a.type==='course' && a.distance_m && a.duration_sec && !a.pace_sec_km) ||
+      (a.type==='velo'   && a.distance_m && a.duration_sec && !a.speed_kmh)
+    );
+    if(!toFix.length) return;
+    for(const a of toFix){
+      const patch = {};
+      if(a.type==='course'){
+        patch.pace_sec_km = Math.round(a.duration_sec / (a.distance_m/1000));
+      } else {
+        patch.speed_kmh = Math.round((a.distance_m/1000) / (a.duration_sec/3600) * 10) / 10;
+      }
+      await dbUpdate(a.id, patch);
+    }
+    console.log('[migrate] Fixed metrics for '+toFix.length+' activities');
+  } catch(e){ console.warn('migrate error', e); }
+}
+
 (async()=>{
   // Init pages display
   document.querySelectorAll('.page').forEach(p=>{ p.style.display='none'; p.classList.remove('active'); });
@@ -1905,6 +2030,7 @@ function showLoader(elId){
   await renderHome();
   renderLogNav();
   seedRecipesIfEmpty();
+  migrateActivityMetrics(); // background migration — no await needed
 })();
 </script>
 </body>
