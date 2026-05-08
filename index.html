@@ -305,33 +305,110 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .slc-row-val{font-weight:600;font-size:12px}
 .slc-empty{font-size:12px;color:var(--text3);font-style:italic}
 
-/* ════ DESKTOP (≥640px) ════ */
+/* ════ DESKTOP (≥640px) — iPhone shell ════ */
 @media (min-width:640px){
-  :root{--safe-bottom:0px}
-  body{background:#03060e}
+  :root{--safe-bottom:0px;--safe-top:44px}
+  body{
+    background:#1a1a1a;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    min-height:100vh;
+    padding-bottom:0;
+    overflow:hidden;
+  }
 
-  /* Centred shell */
-  .page,.subnav,.nav-bar{max-width:480px;margin-left:auto;margin-right:auto}
-  .subnav{left:50%;transform:translateX(-50%);width:100%;max-width:480px}
-  .nav-bar{left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  /* iPhone 15 Pro frame */
+  body::before{
+    content:'';
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:393px;
+    height:852px;
+    background:#060a12;
+    border-radius:54px;
+    border:10px solid #1c1c1e;
+    box-shadow:
+      0 0 0 1px #3a3a3c,
+      0 0 0 3px #1c1c1e,
+      0 40px 120px rgba(0,0,0,.8),
+      inset 0 0 0 1px rgba(255,255,255,.07);
+    z-index:0;
+    pointer-events:none;
+  }
+  /* Dynamic island */
+  body::after{
+    content:'';
+    position:fixed;
+    top:calc(50% - 426px + 14px);
+    left:50%;
+    transform:translateX(-50%);
+    width:120px;height:34px;
+    background:#000;
+    border-radius:20px;
+    z-index:200;
+    pointer-events:none;
+  }
 
-  /* Chart: ne pas laisser le SVG s'étirer indéfiniment */
-  #home-weekly-chart svg{max-width:460px;display:block;margin:0 auto}
+  /* Scroll container inside iPhone */
+  #iphone-scroll{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:373px;
+    height:832px;
+    border-radius:44px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    z-index:1;
+    background:var(--bg);
+  }
+  #iphone-scroll::-webkit-scrollbar{display:none}
 
-  /* Bigger headings */
+  /* All pages inside scroll container */
+  .page{max-width:373px;margin:0;padding-bottom:calc(72px + var(--safe-bottom))}
+  .subnav{
+    position:sticky;bottom:60px;
+    left:0;right:0;
+    width:373px;
+    max-width:373px;
+    transform:none;
+    z-index:99;
+  }
+  .nav-bar{
+    position:sticky;bottom:0;
+    left:0;right:0;
+    width:373px;
+    max-width:373px;
+    transform:none;
+    border-radius:0 0 44px 44px;
+    border-left:none;border-right:none;
+  }
+
+  #home-weekly-chart svg{max-width:340px;display:block;margin:0 auto}
   .ph h1{font-size:42px}
   .ph p{font-size:14px}
 }
 </style>
 </head>
 <body>
-
+<div id="iphone-scroll">
 <!-- ════ ACCUEIL ════ -->
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hrey">Coaching Ju</div>
     <div class="hrt">BON<span>JOUR</span></div>
     <div class="hrs" id="home-date">Chargement...</div>
+  </div>
+
+  <div class="sec" style="padding-top:0">
+    <div class="slabel" style="margin-bottom:10px">Calendrier · 3 mois</div>
+    <div class="cal-grid-wrap" style="padding:10px;" id="home-heatmap-wrap">
+      <div id="home-heatmap"></div>
+    </div>
   </div>
 
   <div class="sec" style="padding-top:0">
@@ -348,20 +425,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
   <div class="sec" style="padding-top:0">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div>
-        <div class="slabel" style="margin-bottom:10px">Répartition · 30j</div>
-        <div class="cal-grid-wrap" style="padding:12px;" id="home-donut-wrap">
-          <div style="position:relative;width:100%;height:120px;"><canvas id="home-donut-canvas"></canvas></div>
-          <div id="home-donut-legend" style="margin-top:8px;"></div>
-        </div>
-      </div>
-      <div>
-        <div class="slabel" style="margin-bottom:10px">Calendrier · 3 mois</div>
-        <div class="cal-grid-wrap" style="padding:10px;" id="home-heatmap-wrap">
-          <div id="home-heatmap"></div>
-        </div>
-      </div>
+    <div class="slabel" style="margin-bottom:10px">Répartition · 30j</div>
+    <div class="cal-grid-wrap" style="padding:12px;" id="home-donut-wrap">
+      <div style="position:relative;width:100%;height:160px;"><canvas id="home-donut-canvas"></canvas></div>
+      <div id="home-donut-legend" style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;"></div>
     </div>
   </div>
 
@@ -509,15 +576,18 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="sc" id="muscu-charts">
     <div class="sec" style="padding-top:14px">
 
+      <!-- Filtre groupe musculaire global -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;" id="muscu-group-filters">
+        <button class="subnav-item active" style="padding:5px 12px;font-size:11px;" onclick="setMuscuGroup('all',this)">Tout</button>
+        <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setMuscuGroup('bras',this)">💪 Bras</button>
+        <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setMuscuGroup('torse',this)">🫁 Torse</button>
+        <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setMuscuGroup('dos',this)">🔙 Dos</button>
+        <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setMuscuGroup('jambes',this)">🦵 Jambes</button>
+      </div>
+
       <!-- Progression des charges -->
       <div class="slabel" style="margin-bottom:10px">Progression des charges</div>
       <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="muscu-lift-filters">
-          <button class="subnav-item active" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('all',this)">Toutes</button>
-          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sa',this)">A</button>
-          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sb',this)">B</button>
-          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sc',this)">C</button>
-        </div>
         <div id="muscu-lift-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--text2);"></div>
         <div style="position:relative;width:100%;height:200px;"><canvas id="muscu-lift-chart"></canvas></div>
       </div>
@@ -593,12 +663,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div style="position:relative;width:100%;height:190px;"><canvas id="course-km-chart"></canvas></div>
       </div>
 
-      <!-- Scatter allure / FC -->
-      <div class="slabel" style="margin-bottom:10px">Nuage allure / FC</div>
+      <!-- Scatter allure / FC moy -->
+      <div class="slabel" style="margin-bottom:10px">Nuage allure / FC moy</div>
       <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="course-scatter-legend"></div>
         <div style="position:relative;width:100%;height:200px;"><canvas id="course-scatter-chart"></canvas></div>
-        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC bpm (x) · Allure min/km (y)</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Allure min/km (y)</div>
       </div>
 
     </div>
@@ -646,12 +716,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div style="position:relative;width:100%;height:190px;"><canvas id="velo-km-chart"></canvas></div>
       </div>
 
-      <!-- Scatter vitesse / FC -->
-      <div class="slabel" style="margin-bottom:10px">Nuage vitesse / FC</div>
+      <!-- Scatter vitesse / FC moy -->
+      <div class="slabel" style="margin-bottom:10px">Nuage vitesse / FC moy</div>
       <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="velo-scatter-legend"></div>
         <div style="position:relative;width:100%;height:200px;"><canvas id="velo-scatter-chart"></canvas></div>
-        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC bpm (x) · Vitesse km/h (y)</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Vitesse km/h (y)</div>
       </div>
 
     </div>
@@ -738,8 +808,9 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <button class="subnav-item active" id="snav-recettes" onclick="showNutrition('recettes',this)">🍽️ Recettes</button>
 </div>
 
+</div><!-- end #iphone-scroll -->
+
 <script>
-// ════ SUPABASE ════
 const SB_URL = 'https://xpyurfunaxycbcvbrzxy.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhweXVyZnVuYXh5Y2JjdmJyenh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNjU4OTIsImV4cCI6MjA5Mzc0MTg5Mn0.vgOW25xJPSX7UxatbtEc_at8Ekc4JCTBe6V6BfIkqck';
 const SB_HDR = { 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY };
@@ -2096,6 +2167,8 @@ async function renderHist(){
     // Only render exercise summary (no expanded details until user taps)
     const label = e.session_label || e.label || '';
     const stype = e.session_type || e.type || '';
+    const progLabel = e.program ? e.program.toUpperCase() : '';
+    const progBadge = progLabel ? '<span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border);padding:2px 6px;border-radius:5px;margin-right:4px">'+progLabel+'</span>' : '';
     const metaChips = [];
     if(e.duration_sec) metaChips.push('⏱ '+fmtDuration(e.duration_sec));
     if(e.calories)     metaChips.push('🔥 '+e.calories+' kcal');
@@ -2106,11 +2179,15 @@ async function renderHist(){
       '<div class="heh" onclick="togHistEntry('+i+')">'+
       '<div>'+
       '<div class="het">'+(e.feeling||'')+' '+label+'</div>'+
-      '<div class="hed">'+ds+(e.program?' · <span style="color:var(--accent);font-size:11px">'+e.program.toUpperCase()+'</span>':'')+
+      '<div class="hed">'+ds+
       (exos.length ? ' · <span style="font-size:11px;color:var(--text3)">'+exos.length+' exo</span>' : '')+
       '</div>'+metaStr+
       '</div>'+
-      '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span></div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">'+
+      (progLabel ? '<span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border);padding:2px 7px;border-radius:5px">'+progLabel+'</span>' : '')+
+      '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span>'+
+      '</div>'+
+      '</div>'+
       '<div class="hdt" id="hd-'+i+'">'+
       '<div id="hd-body-'+i+'"></div>'+ // lazy-filled on open
       '</div></div>';
@@ -2483,12 +2560,24 @@ function renderHomeHeatmap(activities){
     let title = '';
     if(types.length && !isFut){
       const dominant = types[0];
-      bg = SPORT_C[dominant]||CJ_ACCENT;
       title = types.join(', ');
+      const uniqueTypes = [...new Set(types)];
+      if(uniqueTypes.length === 1){
+        bg = SPORT_C[uniqueTypes[0]]||CJ_ACCENT;
+      } else if(uniqueTypes.length === 2){
+        bg = 'linear-gradient(135deg, '+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 50%, '+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 50%)';
+      } else {
+        bg = 'linear-gradient(135deg, '+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 33%, '+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 33% 66%, '+(SPORT_C[uniqueTypes[2]]||CJ_AMBER)+' 66%)';
+      }
     }
     const isToday = d.getTime()===today.getTime();
     const border = isToday?'outline:1px solid '+CJ_ACCENT+';outline-offset:-1px;':'';
-    h += '<div title="'+k+(title?' — '+title:'')+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+(isFut?0.2:types.length?0.85:0.5)+';'+border+'"></div>';
+    // For gradient backgrounds we need a div with background set directly (no title attr issue)
+    if(types.length > 1 && !isFut){
+      h += '<div title="'+k+(title?' — '+title:'')+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+(isFut?0.2:0.85)+';'+border+'"></div>';
+    } else {
+      h += '<div title="'+k+(title?' — '+title:'')+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+(isFut?0.2:types.length?0.85:0.5)+';'+border+'"></div>';
+    }
   });
   h += '</div>';
   el.innerHTML = h;
@@ -2503,11 +2592,38 @@ function setLiftSession(sess, btn){
   renderMuscuCharts(_cachedMuscuActs);
 }
 
+// Muscle group filter
+const MUSCLE_GROUP_MAP = {
+  bras:   ['Cable curl','Hammer curl','Cable triceps pushdown','Triceps pushdown','Overhead triceps stretch'],
+  torse:  ['Bench press','Incline bench press','Lateral raises','Face pull','Overhead press'],
+  dos:    ['Lat pulldown','Single-arm dumbbell row','Dumbbell row','Romanian deadlift','Pull-up'],
+  jambes: ['Goblet squat','Static lunges','Leg press','Standing calf raises','Hamstring curl','Hip thrust'],
+};
+
+let _activeMuscuGroup = 'all';
+
+function setMuscuGroup(group, btn){
+  _activeMuscuGroup = group;
+  document.querySelectorAll('#muscu-group-filters .subnav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderMuscuCharts(_cachedMuscuActs);
+}
+
+function _filterActsByGroup(acts){
+  if(_activeMuscuGroup === 'all') return acts;
+  const allowed = MUSCLE_GROUP_MAP[_activeMuscuGroup] || [];
+  // Filter acts to only keep exercises in the group, and only include acts that have at least one
+  return acts.map(a=>{
+    const filtered = {...a, exercises:(a.exercises||[]).filter(e=>allowed.includes(e.name))};
+    return filtered;
+  }).filter(a=>a.exercises.length>0);
+}
+
 let _cachedMuscuActs = [];
 
 function renderMuscuLiftChart(acts){
-  // Extract exercise data per session
-  const filtered = _activeLiftSession==='all' ? acts : acts.filter(a=>a.session_type===_activeLiftSession);
+  // Acts are already filtered by group
+  const filtered = acts;
   // Collect all exercise names
   const exoNames = {};
   filtered.forEach(a=>{
@@ -2626,9 +2742,10 @@ function renderMuscuIntensityChart(acts){
 // ════ MUSCU: ALL CHARTS ════
 function renderMuscuCharts(acts){
   _cachedMuscuActs = acts || [];
-  renderMuscuLiftChart(_cachedMuscuActs);
-  renderMuscuVolChart(_cachedMuscuActs);
-  renderMuscuIntensityChart(_cachedMuscuActs);
+  const filtered = _filterActsByGroup(_cachedMuscuActs);
+  renderMuscuLiftChart(filtered);
+  renderMuscuVolChart(filtered);
+  renderMuscuIntensityChart(filtered);
 }
 
 // ════ COURSE: ALLURE vs FC ════
@@ -2663,7 +2780,11 @@ function renderCourseKmChart(acts){
     const k = _monthKey(new Date(a.date));
     byMonth[k] = (byMonth[k]||0) + a.distance_m/1000;
   });
-  const keys = Object.keys(byMonth).slice(-6);
+  // Sort chronologically: parse dates to compare, newest at right
+  const keys = Object.keys(byMonth).sort((a,b)=>{
+    const pa = a.split(' '), pb = b.split(' ');
+    return new Date('1 '+a) - new Date('1 '+b);
+  }).slice(-6);
   const data = keys.map(k=>+byMonth[k].toFixed(1));
 
   _mkChart('course-km-chart', {
@@ -2739,7 +2860,9 @@ function renderVeloKmChart(acts){
     const k = _monthKey(new Date(a.date));
     byMonth[k] = (byMonth[k]||0) + a.distance_m/1000;
   });
-  const keys = Object.keys(byMonth).slice(-6);
+  const keys = Object.keys(byMonth).sort((a,b)=>{
+    return new Date('1 '+a) - new Date('1 '+b);
+  }).slice(-6);
   const data = keys.map(k=>+byMonth[k].toFixed(1));
 
   _mkChart('velo-km-chart', {
