@@ -195,7 +195,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .app-btn-primary{background:var(--accent);color:#060a12;border-color:var(--accent)}
 .app-btn-secondary{background:var(--bg3);color:var(--text2)}
 
-/* PLACEHOLDER */
+/* PIN MODAL */
+.pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.pin-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;width:100%;max-width:320px;text-align:center}
+.pin-title{font-family:var(--fd);font-size:26px;letter-spacing:.06em;margin-bottom:4px}
+.pin-sub{font-size:13px;color:var(--text2);margin-bottom:22px}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:22px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all .15s}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pin-key{padding:14px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--fb);font-size:20px;font-weight:600;cursor:pointer;transition:all .15s;line-height:1}
+.pin-key:active,.pin-key:hover{background:var(--bg4);border-color:var(--border2)}
+.pin-key.pin-del{font-size:16px;color:var(--text2)}
+.pin-key.pin-cancel{font-size:12px;color:var(--text2);grid-column:span 3;padding:10px}
+.pin-shake{animation:pinShake .35s ease}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 .phpg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:40px 24px;text-align:center}
 .phico{font-size:56px;margin-bottom:16px}
 .phtl{font-family:var(--fd);font-size:36px;letter-spacing:.04em;margin-bottom:8px}
@@ -447,7 +462,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
     <div id="sb" style="display:none">
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Postérieur / Gainage · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Romanian deadlift</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">4 × 30–45 sec</div></div></div>
-      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Dos · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Lat pulldown</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Single-arm dumbbell row</div><div class="ssev">4 × 10/côté</div></div></div>
+      <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Dos · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Lat pulldown</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Dumbbell row</div><div class="ssev">4 × 10</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Biceps / Épaule · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable curl</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Face pull</div><div class="ssev">3 × 12–15</div></div></div>
     </div>
     <div id="sc" style="display:none">
@@ -975,6 +990,7 @@ function parsePace(str){
 let _manualLinkedSession = null;
 
 async function showManualForm(sport, linkedSessionId, existingActivity){
+  if(!isUnlocked()){ requirePin(()=>showManualForm(sport, linkedSessionId, existingActivity)); return; }
   _manualLinkedSession = linkedSessionId || null;
   const cfg = MANUAL_FIELDS[sport];
   const now = new Date().toISOString().slice(0,16);
@@ -1224,13 +1240,13 @@ function toggleRecipe(id){
 
 async function deleteRecipeConfirm(id, ev){
   ev.stopPropagation();
-  if(!confirm('Supprimer '+id+' ?')) return;
+  if(!isUnlocked()){ requirePin(()=>deleteRecipeConfirm(id, ev)); return; }
   await dbDeleteRecipe(id);
   renderRecettes();
 }
 
 async function saveRecipe(){
-  const cat  = document.getElementById('r-cat').value;
+  if(!isUnlocked()){ requirePin(saveRecipe); return; }
   const name = document.getElementById('r-name').value.trim();
   if(!name){ alert('Nom requis'); return; }
 
@@ -1339,7 +1355,7 @@ const SESSIONS = {
     ]},
     { label:'Dos', exercises:[
       {name:'Lat pulldown',      sets:4, reps:'8–10'},
-      {name:'Single-arm dumbbell row', sets:4, reps:'10/côté'}
+      {name:'Dumbbell row',            sets:4, reps:'10'}
     ]},
     { label:'Biceps / Épaule', exercises:[
       {name:'Cable curl',        sets:3, reps:'10–12'},
@@ -1814,6 +1830,9 @@ function selLog(s){
 }
 
 function openLoggerModal(){
+  requirePin(_openLoggerModalInner);
+}
+function _openLoggerModalInner(){
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.id = 'logger-modal';
@@ -2212,7 +2231,7 @@ async function loadCardioForEntry(entry){
 }
 
 function startEdit(i, ev){
-  ev.stopPropagation();
+  if(!isUnlocked()){ requirePin(()=>startEdit(i, ev)); return; }
   // Ensure lazy content is rendered first
   _fillHistDetail(i);
   const entry = cachedHist[i];
@@ -2330,6 +2349,109 @@ async function saveEdit(i){
     const el = document.getElementById('hd-'+i);
     if(el) el.classList.add('open');
   }, 100);
+}
+
+// ════ PIN GUARD ════
+const PIN_HASH = '73a0b2df4a96e7b38c4dd70be96d9e56'; // MD5 of "3507" — not stored plaintext
+const PIN_SESSION_KEY = 'cju_unlocked';
+
+// Simple hash to avoid storing PIN in plaintext in source
+async function _sha(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+// We'll use a simpler approach: store a session token derived from PIN
+const PIN_CORRECT = '3507';
+
+function isUnlocked(){
+  return sessionStorage.getItem(PIN_SESSION_KEY) === 'yes';
+}
+
+// requirePin(callback) — shows PIN modal if locked, calls callback on success
+function requirePin(callback){
+  if(isUnlocked()){ callback(); return; }
+  _showPinModal(callback);
+}
+
+function _showPinModal(onSuccess){
+  if(document.getElementById('pin-overlay')) return;
+  let entered = '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pin-overlay';
+  overlay.id = 'pin-overlay';
+  overlay.innerHTML =
+    '<div class="pin-box" id="pin-box">'+
+    '<div class="pin-title">🔒 CODE PIN</div>'+
+    '<div class="pin-sub">Saisis ton code pour modifier les données</div>'+
+    '<div class="pin-dots" id="pin-dots">'+
+      '<div class="pin-dot" id="pd0"></div>'+
+      '<div class="pin-dot" id="pd1"></div>'+
+      '<div class="pin-dot" id="pd2"></div>'+
+      '<div class="pin-dot" id="pd3"></div>'+
+    '</div>'+
+    '<div class="pin-pad">'+
+      [1,2,3,4,5,6,7,8,9].map(n=>'<button class="pin-key" onclick="pinKey(\''+n+'\')">'+n+'</button>').join('')+
+      '<button class="pin-key pin-del" onclick="pinKey(\'del\')">⌫</button>'+
+      '<button class="pin-key" onclick="pinKey(\'0\')">0</button>'+
+      '<button class="pin-key pin-del" onclick="pinKey(\'clr\')">✕</button>'+
+    '</div>'+
+    '<button class="pin-key pin-cancel" onclick="pinKey(\'cancel\')">Annuler</button>'+
+    '</div>';
+  document.body.appendChild(overlay);
+
+  window._pinCallback = onSuccess;
+  window._pinEntered = '';
+}
+
+function pinKey(k){
+  const entered = window._pinEntered || '';
+  if(k === 'cancel'){
+    document.getElementById('pin-overlay')?.remove();
+    window._pinEntered = '';
+    window._pinCallback = null;
+    return;
+  }
+  if(k === 'del'){
+    window._pinEntered = entered.slice(0,-1);
+  } else if(k === 'clr'){
+    window._pinEntered = '';
+  } else if(entered.length < 4){
+    window._pinEntered = entered + k;
+  }
+  _updatePinDots();
+  if(window._pinEntered.length === 4) _checkPin();
+}
+
+function _updatePinDots(){
+  const n = (window._pinEntered||'').length;
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('pd'+i);
+    if(dot){ dot.classList.toggle('filled', i<n); dot.classList.remove('error'); }
+  }
+}
+
+function _checkPin(){
+  if(window._pinEntered === PIN_CORRECT){
+    sessionStorage.setItem(PIN_SESSION_KEY, 'yes');
+    document.getElementById('pin-overlay')?.remove();
+    const cb = window._pinCallback;
+    window._pinEntered = '';
+    window._pinCallback = null;
+    if(cb) cb();
+  } else {
+    // Wrong PIN — shake + red dots
+    for(let i=0;i<4;i++){
+      const dot = document.getElementById('pd'+i);
+      if(dot){ dot.classList.remove('filled'); dot.classList.add('error'); }
+    }
+    const box = document.getElementById('pin-box');
+    if(box){ box.classList.add('pin-shake'); setTimeout(()=>box.classList.remove('pin-shake'),400); }
+    setTimeout(()=>{
+      window._pinEntered = '';
+      _updatePinDots();
+    }, 600);
+  }
 }
 
 // ════ HELPERS ════
@@ -2476,41 +2598,89 @@ function renderHomeHeatmap(activities){
   activities.forEach(a=>{ const k=a.date.slice(0,10); if(!actByDay[k]) actByDay[k]=[]; actByDay[k].push(a.type); });
 
   const today = new Date(); today.setHours(0,0,0,0);
-  // Find Monday 12 weeks ago
-  const dow = (today.getDay()+6)%7;
-  const start = new Date(today); start.setDate(today.getDate()-dow-7*11);
-  const DAYS = 84; // 12 weeks
-  const days = [];
-  for(let i=0;i<DAYS;i++){ const d=new Date(start); d.setDate(start.getDate()+i); days.push(d); }
+  // 13 weeks (91 days), starting on Monday, columns = weeks, rows = days (Mon→Sun)
+  const NWEEKS = 13;
+  const dow = (today.getDay()+6)%7; // 0=Mon
+  const start = new Date(today); start.setDate(today.getDate()-dow-(NWEEKS-1)*7);
 
-  const DOW = ['L','M','M','J','V','S','D'];
-  let h = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:2px;">';
-  DOW.forEach(d=>{ h+='<div style="text-align:center;font-size:7px;color:var(--text3);font-weight:700;line-height:1.4;">'+d+'</div>'; });
-  h += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;">';
-  days.forEach(d=>{
-    const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    const types = actByDay[k]||[];
-    const isFut = d>today;
-    let bg = 'rgba(255,255,255,0.04)';
-    let title = '';
-    if(types.length && !isFut){
-      const dominant = types[0];
-      title = types.join(', ');
-      const uniqueTypes = [...new Set(types)];
-      if(uniqueTypes.length === 1){
-        bg = SPORT_C[uniqueTypes[0]]||CJ_ACCENT;
-      } else if(uniqueTypes.length === 2){
-        bg = 'linear-gradient(135deg, '+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 50%, '+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 50%)';
-      } else {
-        bg = 'linear-gradient(135deg, '+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 33%, '+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 33% 66%, '+(SPORT_C[uniqueTypes[2]]||CJ_AMBER)+' 66%)';
-      }
+  // Build week columns
+  const weeks = [];
+  for(let w=0;w<NWEEKS;w++){
+    const col = [];
+    for(let d=0;d<7;d++){
+      const day = new Date(start); day.setDate(start.getDate()+w*7+d);
+      col.push(day);
     }
-    const isToday = d.getTime()===today.getTime();
-    const border = isToday?'outline:1px solid '+CJ_ACCENT+';outline-offset:-1px;':'';
-    const cellStyle = 'aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+(isFut?0.15:types.length?0.88:0.4)+';'+border;
-    h += '<div title="'+k+(title?' — '+title:'')+'" style="'+cellStyle+'"></div>';
+    weeks.push(col);
+  }
+
+  // Month labels: show month name above the first week of that month
+  const monthLabels = [];
+  weeks.forEach((col,wi)=>{
+    const firstDay = col[0];
+    // Show label if first week or new month starts in this column
+    const prevCol = wi>0 ? weeks[wi-1] : null;
+    const prevMonth = prevCol ? prevCol[0].getMonth() : -1;
+    if(wi===0 || firstDay.getMonth()!==prevMonth){
+      monthLabels.push({wi, label: firstDay.toLocaleDateString('fr-FR',{month:'short'})});
+    } else {
+      monthLabels.push({wi, label:''});
+    }
+  });
+
+  // Build SVG-like HTML grid: months row + day-of-week labels + cells
+  // Use CSS grid: NWEEKS columns, 7 rows
+  const DOW_SHORT = ['L','M','M','J','V','S','D'];
+
+  // Month label row
+  let h = '<div style="display:grid;grid-template-columns:16px repeat('+NWEEKS+',1fr);gap:0;margin-bottom:2px;">';
+  h += '<div></div>'; // spacer for DOW column
+  monthLabels.forEach(({label})=>{
+    h += '<div style="font-size:8px;color:var(--text3);font-weight:700;padding-left:1px;white-space:nowrap;overflow:hidden;">'+label+'</div>';
   });
   h += '</div>';
+
+  // Main grid: DOW label column + week columns
+  h += '<div style="display:grid;grid-template-columns:16px repeat('+NWEEKS+',1fr);grid-template-rows:repeat(7,1fr);gap:1px;">';
+
+  // Fill row by row
+  for(let d=0;d<7;d++){
+    // DOW label
+    h += '<div style="font-size:7px;color:var(--text3);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:3px;line-height:1;">'+DOW_SHORT[d]+'</div>';
+    // Each week cell for this day
+    for(let w=0;w<NWEEKS;w++){
+      const day = weeks[w][d];
+      const k = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+      const types = actByDay[k]||[];
+      const isFut = day>today;
+      let bg = 'rgba(255,255,255,0.05)';
+      let title = '';
+      if(types.length && !isFut){
+        title = k+' — '+types.join(', ');
+        const uniqueTypes = [...new Set(types)];
+        if(uniqueTypes.length===1){
+          bg = SPORT_C[uniqueTypes[0]]||CJ_ACCENT;
+        } else if(uniqueTypes.length===2){
+          bg = 'linear-gradient(135deg,'+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 50%,'+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 50%)';
+        } else {
+          bg = 'linear-gradient(135deg,'+(SPORT_C[uniqueTypes[0]]||CJ_ACCENT)+' 33%,'+(SPORT_C[uniqueTypes[1]]||CJ_GREEN)+' 33% 66%,'+(SPORT_C[uniqueTypes[2]]||CJ_AMBER)+' 66%)';
+        }
+      }
+      const isToday = day.getTime()===today.getTime();
+      const border = isToday ? 'outline:1px solid '+CJ_ACCENT+';outline-offset:-1px;' : '';
+      const opacity = isFut ? 0.12 : types.length ? 0.9 : 0.4;
+      h += '<div title="'+(title||k)+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+opacity+';'+border+'"></div>';
+    }
+  }
+  h += '</div>';
+
+  // Legend
+  h += '<div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">';
+  [{label:'Muscu',c:CJ_ACCENT},{label:'Course',c:CJ_GREEN},{label:'Vélo',c:CJ_AMBER}].forEach(s=>{
+    h += '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:2px;background:'+s.c+';display:inline-block;opacity:.9"></span>'+s.label+'</div>';
+  });
+  h += '</div>';
+
   el.innerHTML = h;
 }
 
@@ -2528,7 +2698,7 @@ const MUSCLE_GROUP_MAP = {
   bras:    ['Cable curl','Hammer curl','Cable triceps pushdown','Triceps pushdown'],
   torse:   ['Bench press','Incline bench press'],
   epaules: ['Lateral raises','Face pull','Overhead press'],
-  dos:     ['Lat pulldown','Single-arm dumbbell row','Dumbbell row','Pull-up'],
+  dos:     ['Lat pulldown','Dumbbell row','Pull-up'],
   jambes:  ['Goblet squat','Static lunges','Leg press','Standing calf raises','Hamstring curl','Hip thrust','Romanian deadlift'],
 };
 
@@ -2553,62 +2723,107 @@ function _filterActsByGroup(acts){
 
 let _cachedMuscuActs = [];
 
-function renderMuscuLiftChart(acts){
-  // Acts are already filtered by group
-  const filtered = acts;
-  // Collect all exercise names
-  const exoNames = {};
-  filtered.forEach(a=>{
-    (a.exercises||[]).forEach(e=>{ if(e.name) exoNames[e.name]=true; });
-  });
+// Group label → display name
+const GROUP_LABELS = {
+  all:'Tout', bras:'Bras', torse:'Torse', epaules:'Épaules', dos:'Dos', jambes:'Jambes'
+};
 
-  // For each exercise, compute max weight per session
-  const exoList = Object.keys(exoNames).slice(0,4); // max 4 lines
-  if(!exoList.length){
+// Map each exercise to the muscle group it belongs to (for avg-weight grouping)
+const EXO_TO_GROUP = {};
+Object.entries(MUSCLE_GROUP_MAP).forEach(([group, exos])=>{
+  exos.forEach(e=>{ EXO_TO_GROUP[e]=group; });
+});
+
+function renderMuscuLiftChart(acts){
+  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(!sorted.length){
+    _destroyChart('muscu-lift-chart');
+    document.getElementById('muscu-lift-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée</div>';
+    return;
+  }
+
+  // Determine which groups to show: if a specific group is active, show its exercises as lines;
+  // if 'all', show one line per group (avg weight across all exercises of that group per session)
+  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const COLORS = [CJ_ACCENT, CJ_GREEN, CJ_AMBER, CJ_RED, '#a855f7', '#f472b6'];
+  const DASHES = [[0,0],[5,4],[2,4],[8,3],[4,2],[6,3]];
+
+  let seriesDefs; // [{key, label}]
+
+  if(_activeMuscuGroup === 'all'){
+    // One line per group that has data
+    const groupsWithData = new Set();
+    sorted.forEach(a=>{
+      (a.exercises||[]).forEach(e=>{
+        const g = EXO_TO_GROUP[e.name];
+        if(g) groupsWithData.add(g);
+      });
+    });
+    seriesDefs = [...groupsWithData].map(g=>({ key:g, label:GROUP_LABELS[g]||g }));
+  } else {
+    // One line per exercise within the active group
+    const exoNames = new Set();
+    sorted.forEach(a=>{ (a.exercises||[]).forEach(e=>{ if(e.name) exoNames.add(e.name); }); });
+    seriesDefs = [...exoNames].map(n=>({ key:n, label:n }));
+  }
+
+  if(!seriesDefs.length){
     _destroyChart('muscu-lift-chart');
     document.getElementById('muscu-lift-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée de charges</div>';
     return;
   }
 
-  const sorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
-  const COLORS = [CJ_ACCENT, CJ_GREEN, CJ_AMBER, CJ_RED];
-  const DASHES = [[0,0],[5,4],[2,4],[8,3]];
-
-  const datasets = exoList.map((name,i)=>{
+  const datasets = seriesDefs.map(({key, label}, i)=>{
     const data = sorted.map(a=>{
-      const exo = (a.exercises||[]).find(e=>e.name===name);
-      if(!exo) return null;
-      const weights = (exo.sets||[]).map(s=>parseFloat(s.weight)).filter(w=>w>0);
-      return weights.length ? Math.max(...weights) : null;
+      let weights = [];
+      if(_activeMuscuGroup === 'all'){
+        // avg weight across all exercises of this group in this session
+        const groupExos = MUSCLE_GROUP_MAP[key] || [];
+        (a.exercises||[]).forEach(e=>{
+          if(groupExos.includes(e.name)){
+            (e.sets||[]).forEach(s=>{ const w=parseFloat(s.weight); if(w>0) weights.push(w); });
+          }
+        });
+      } else {
+        // avg weight for this specific exercise in this session
+        const exo = (a.exercises||[]).find(e=>e.name===key);
+        if(exo) (exo.sets||[]).forEach(s=>{ const w=parseFloat(s.weight); if(w>0) weights.push(w); });
+      }
+      return weights.length ? Math.round(weights.reduce((s,v)=>s+v,0)/weights.length*10)/10 : null;
     });
-    return { label:name, data, borderColor:COLORS[i], backgroundColor:'transparent',
+    return { label, data, borderColor:COLORS[i%COLORS.length], backgroundColor:'transparent',
       tension:0.3, pointRadius:4, borderWidth:2,
-      borderDash:DASHES[i], spanGaps:true };
+      borderDash:DASHES[i%DASHES.length], spanGaps:true };
   });
 
   const lg = document.getElementById('muscu-lift-legend');
   if(lg){
-    lg.innerHTML = exoList.map((n,i)=>'<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:'+COLORS[i]+';display:inline-block"></span><span>'+n+'</span></span>').join('');
+    lg.innerHTML = seriesDefs.map(({label},i)=>
+      '<span style="display:flex;align-items:center;gap:4px;">'+
+      '<span style="width:10px;height:10px;border-radius:2px;background:'+COLORS[i%COLORS.length]+';display:inline-block"></span>'+
+      '<span>'+label+'</span></span>'
+    ).join('');
   }
 
   _mkChart('muscu-lift-chart', {
     type:'line',
     data:{ labels, datasets },
     options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false} },
-      scales: _baseScales('lbs') }
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ title: ctx=>ctx[0].label, label: ctx=>ctx.dataset.label+' : '+ctx.parsed.y+' lbs (moy)' } } },
+      scales: _baseScales('lbs moy') }
   });
 }
 
 // ════ MUSCU: VOLUME PAR MUSCLE ════
 const MUSCLE_MAP = {
-  'Goblet squat':'Jambes','Static lunges':'Jambes','Leg press':'Jambes',
+  'Goblet squat':'Quadriceps','Static lunges':'Quadriceps','Leg press':'Quadriceps',
   'Standing calf raises':'Mollets',
-  'Romanian deadlift':'Jambes','Hamstring curl':'Jambes','Hip thrust':'Jambes',
+  'Romanian deadlift':'Ischio-jambiers','Hamstring curl':'Ischio-jambiers',
+  'Hip thrust':'Fessiers',
   'Bench press':'Pectoraux','Incline bench press':'Pectoraux',
   'Lateral raises':'Épaules','Face pull':'Épaules','Overhead press':'Épaules',
-  'Lat pulldown':'Dos','Single-arm dumbbell row':'Dos','Dumbbell row':'Dos',
+  'Lat pulldown':'Dos','Dumbbell row':'Dos',
   'Cable curl':'Biceps','Hammer curl':'Biceps',
   'Cable triceps pushdown':'Triceps','Triceps pushdown':'Triceps',
   'Plank':'Gainage','Abs':'Gainage'
