@@ -37,12 +37,17 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(72px + var(--safe-bottom))}
 
-/* SLIM HEADER */
-.slim-header{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 14px) 16px 0;gap:10px;border-bottom:1px solid var(--border);padding-bottom:10px}
-.slim-title{font-family:var(--fd);font-size:22px;letter-spacing:.04em;white-space:nowrap;color:var(--text)}
-.stabs-inline{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:0}
-.stabs-inline::-webkit-scrollbar{display:none}
-.stabs-inline .stab{font-size:11px;padding:5px 12px}
+/* CALENDAR */
+.cal-grid-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;overflow:hidden}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px}
+.cal-dow-cell{text-align:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:4px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;font-weight:500;color:var(--text3);position:relative;cursor:default}
+.cal-day.this-month{color:var(--text2)}
+.cal-day.today{background:var(--bg3);color:var(--text);font-weight:700}
+.cal-day.has-activity{background:var(--accent2);color:var(--accent);font-weight:700}
+.cal-day.has-activity.today{background:var(--accent);color:#060a12}
+.cal-day.multi::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
 
 /* HOME FEED */
 .feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:9px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -308,6 +313,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
   </div>
 
+  <div class="sec" style="padding-top:0">
+    <div class="slabel" id="cal-label">—</div>
+    <div id="home-calendar" class="cal-grid-wrap"></div>
+  </div>
+
 </div>
 
 <!-- ════ SPORTS HUB ════ -->
@@ -346,14 +356,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
-  <div class="slim-header">
-    <span class="slim-title">💪 Musculation</span>
-    <div class="stabs-inline" id="muscu-nav">
-      <button class="stab active" onclick="showMuscu('prog',this)">Programme</button>
-      <button class="stab" onclick="showMuscu('log',this)">Logger</button>
-      <button class="stab" onclick="showMuscu('hist',this)">Historique</button>
-      <button class="stab" onclick="showMuscu('charts',this)">Graphiques</button>
-    </div>
+  <div class="ph">
+    <div class="ey">Coaching Ju</div>
+    <h1>MUSCU<span>LATION</span></h1>
+    <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
+  </div>
+  <div class="stabs" id="muscu-nav">
+    <button class="stab active" onclick="showMuscu('prog',this)">📋 Programme</button>
+    <button class="stab" onclick="showMuscu('log',this)">✏️ Logger</button>
+    <button class="stab" onclick="showMuscu('hist',this)">📈 Historique</button>
+    <button class="stab" onclick="showMuscu('charts',this)">📊 Graphiques</button>
   </div>
 
   <!-- Programme -->
@@ -380,19 +392,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <button class="stab" style="font-size:12px" onclick="showSession('scool',this)">❄️ Cool down</button>
       </div>
     <div id="sa">
-      <div class="chips"><span class="chip">🏋️ Jambes / Push</span><span class="chip">⏱ 45–60 min</span><span class="chip">🎯 1–3 reps réserve</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Goblet squat</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Static lunges</div><div class="ssev">4 × 8/jambe</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">4 × 12–15</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Triceps / Gainage · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable triceps pushdown</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">3 × 30–45 sec</div></div></div>
     </div>
     <div id="sb" style="display:none">
-      <div class="chips"><span class="chip">🏋️ Pull</span><span class="chip">⏱ 45–60 min</span><span class="chip">🩺 Sangles pouce</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Postérieur / Gainage · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Romanian deadlift</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Plank</div><div class="ssev">4 × 30–45 sec</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Dos · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Lat pulldown</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Single-arm dumbbell row</div><div class="ssev">4 × 10/côté</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Biceps / Épaule · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Cable curl</div><div class="ssev">3 × 10–12</div></div><div class="sse"><div class="ssen">Face pull</div><div class="ssev">3 × 12–15</div></div></div>
     </div>
     <div id="sc" style="display:none">
-      <div class="chips"><span class="chip">🏋️ Full body</span><span class="chip">⏱ 45–60 min</span><span class="chip">⚡ Éloigné du basket</span></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS1</span><span class="sss">Jambes · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Leg press</div><div class="ssev">4 × 10</div></div><div class="sse"><div class="ssen">Standing calf raises</div><div class="ssev">4 × 12–15</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS2</span><span class="sss">Push / Pull · 4 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Incline bench press</div><div class="ssev">4 × 8–10</div></div><div class="sse"><div class="ssen">Dumbbell row</div><div class="ssev">4 × 10</div></div></div>
       <div class="ssb"><div class="ssh"><span class="sst">SS3</span><span class="sss">Bras / Épaules · 3 séries · repos 45–90 sec</span></div><div class="sse"><div class="ssen">Hammer curl</div><div class="ssev">3 × 10</div></div><div class="sse"><div class="ssen">Lateral raises</div><div class="ssev">3 × 12–15</div></div></div>
@@ -457,9 +466,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
   <!-- Historique -->
   <div class="sc" id="muscu-hist">
-    <div class="import-bar" style="padding:0 0 14px 0">
-      <button class="imp-btn" onclick="showManualForm('muscu',null)">+ Ajouter données cardio</button>
-    </div>
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="hcount">—</div>
     <div id="hlist"></div>
   </div>
@@ -1314,6 +1320,57 @@ function showSession(id, btn){
 }
 
 // ════ HOME ════
+function renderCalendar(activities){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  // Month label
+  const monthLabel = now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const labelEl = document.getElementById('cal-label');
+  if(labelEl) labelEl.textContent = monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+
+  // Build set of active days (YYYY-MM-DD)
+  const activeDays = {};
+  activities.forEach(a=>{
+    const d = new Date(a.date);
+    if(d.getFullYear()===year && d.getMonth()===month){
+      const key = d.toISOString().slice(0,10);
+      activeDays[key] = (activeDays[key]||0)+1;
+    }
+  });
+
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayStr = now.toISOString().slice(0,10);
+
+  // Mon-first: shift
+  const startOffset = (firstDay+6)%7;
+
+  const DOWS = ['L','M','M','J','V','S','D'];
+
+  let html = '<div class="cal-dow">';
+  DOWS.forEach(d=>{ html += '<div class="cal-dow-cell">'+d+'</div>'; });
+  html += '</div><div class="cal-grid">';
+
+  // Empty cells before first day
+  for(let i=0;i<startOffset;i++) html += '<div class="cal-day"></div>';
+
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const count = activeDays[dateStr]||0;
+    let cls = 'cal-day this-month';
+    if(dateStr===todayStr) cls += ' today';
+    if(count>0) cls += ' has-activity';
+    if(count>1) cls += ' multi';
+    html += '<div class="'+cls+'">'+day+'</div>';
+  }
+  html += '</div>';
+
+  const el = document.getElementById('home-calendar');
+  if(el) el.innerHTML = html;
+}
+
 async function renderHome(){
   const now = new Date();
   const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
@@ -1333,6 +1390,9 @@ async function renderHome(){
 
   const SPORT_ICO = {muscu:'💪', course:'🏃', velo:'🚴'};
   const SPORT_LBL = {muscu:'Muscu', course:'Course', velo:'Vélo'};
+
+  // Calendar
+  renderCalendar(all);
 
   feed.innerHTML = all.slice(0,5).map(a=>{
     const d = new Date(a.date);
@@ -1491,6 +1551,28 @@ function renderLog(){
     h += '</div>';
   });
 
+  // Cardio section
+  h += '<div class="slabel" style="margin:14px 0 8px">Cardio & calories</div>';
+  h += '<div class="card" style="margin-bottom:12px">';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC moy</div>';
+  h += '<input class="li" type="number" id="l-hr-avg" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
+  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div>';
+  h += '</div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC max</div>';
+  h += '<input class="li" type="number" id="l-hr-max" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
+  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div>';
+  h += '</div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Calories</div>';
+  h += '<input class="li" type="number" id="l-calories" inputmode="decimal" placeholder="—" style="width:100%;text-align:center">';
+  h += '<div style="font-size:10px;color:var(--text3);margin-top:4px">kcal</div>';
+  h += '</div>';
+  h += '</div></div>';
+
+  // Note
   h += '<div class="slabel" style="margin:14px 0 8px">Note</div>';
   h += '<textarea class="ni" id="lnote" placeholder="Fatigue jambes ? Charge trop lourde ? Cardio avant ?"></textarea>';
   h += '<button class="savebtn" onclick="saveSess()">ENREGISTRER</button>';
@@ -1515,6 +1597,9 @@ async function saveSess(){
     date: new Date(logDate+'T12:00:00').toISOString(),
     feeling: feeling||'😐',
     note: document.getElementById('lnote').value,
+    hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
+    hr_max:   parseInt(document.getElementById('l-hr-max')?.value)||null,
+    calories: parseInt(document.getElementById('l-calories')?.value)||null,
     exercises: flatExos(curLog).map((exo,ei)=>({
       name: exo.name,
       sets: Array.from({length:getSets(ei)},(_,si)=>({
@@ -1576,7 +1661,10 @@ async function renderHist(){
     const stype = e.session_type || e.type || '';
     return '<div class="he">'+
       '<div class="heh" onclick="togHist('+i+')">'+
-      '<div><div class="het">'+(e.feeling||'')+ ' '+label+'</div><div class="hed">'+ds+' à '+ts+'</div></div>'+
+      '<div>'+
+      '<div class="het">'+(e.feeling||'')+' '+label+'</div>'+
+      '<div class="hed">'+ds+' à '+ts+(e.program?' · <span style="color:var(--accent);font-size:11px">'+e.program.toUpperCase()+'</span>':'')+'</div>'+
+      '</div>'+
       '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span></div>'+
       '<div class="hdt" id="hd-'+i+'">'+
       '<div class="edit-bar">'+
@@ -1585,6 +1673,12 @@ async function renderHist(){
       '<div id="hd-view-'+i+'">'+
       (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
       (e.note?'<div class="hno">💬 '+e.note+'</div>':'')+
+      ((e.hr_avg||e.hr_max||e.calories)?
+        '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
+        (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
+        (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
+        (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
+        '</div>':'')+
       '</div>'+
       '<div id="hd-edit-'+i+'" style="display:none"></div>'+
       '</div></div>';
@@ -1675,6 +1769,12 @@ function startEdit(i, ev){
     h += '</table></div>';
   });
   // Note
+  h += '<div class="edit-field"><label>Cardio & calories</label>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">';
+  h += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:4px">FC moy (bpm)</div><input class="li" type="number" id="edit-hr-avg-'+i+'" value="'+(entry.hr_avg||'')+'" placeholder="—" style="width:100%;text-align:center"></div>';
+  h += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:4px">FC max (bpm)</div><input class="li" type="number" id="edit-hr-max-'+i+'" value="'+(entry.hr_max||'')+'" placeholder="—" style="width:100%;text-align:center"></div>';
+  h += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:4px">Calories</div><input class="li" type="number" id="edit-cal-'+i+'" value="'+(entry.calories||'')+'" placeholder="—" style="width:100%;text-align:center"></div>';
+  h += '</div></div>';
   h += '<div class="edit-field"><label>Note</label>';
   h += '<textarea class="ni" id="edit-note-'+i+'" style="margin-bottom:0">'+( entry.note||'')+'</textarea></div>';
   // Save
@@ -1705,9 +1805,12 @@ async function saveEdit(i){
     }))
   }));
 
+  const hr_avg   = parseInt(document.getElementById('edit-hr-avg-'+i)?.value)||null;
+  const hr_max   = parseInt(document.getElementById('edit-hr-max-'+i)?.value)||null;
+  const calories = parseInt(document.getElementById('edit-cal-'+i)?.value)||null;
   const patch = {
     date: new Date(dateVal+'T12:00:00').toISOString(),
-    feeling, note, exercises
+    feeling, note, exercises, hr_avg, hr_max, calories
   };
 
   const btn = document.querySelector('#hd-edit-'+i+' .savebtn');
