@@ -189,6 +189,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .lsce:last-child{border-bottom:none}
 .lsce strong{color:var(--text);font-weight:600}
 
+/* APP ROW */
+.app-row{text-decoration:none;color:var(--text);transition:background .15s}
+.app-row:active{background:var(--bg3)}
+
 /* PLACEHOLDER */
 .phpg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:40px 24px;text-align:center}
 .phico{font-size:56px;margin-bottom:16px}
@@ -310,13 +314,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="hrs" id="home-date">Chargement...</div>
   </div>
 
-  <div class="sec">
-    <div class="slabel">5 dernières activités</div>
-    <div id="home-feed">
-      <div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>
-    </div>
-  </div>
-
   <div class="sec" style="padding-top:0">
     <div class="slabel">Heures de sport · 10 dernières semaines</div>
     <div id="home-weekly-chart" class="cal-grid-wrap" style="padding:12px 12px 8px;">
@@ -327,6 +324,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#34d399;display:inline-block"></span>Course</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#ffb347;display:inline-block"></span>Vélo</div>
     </div>
+    <div id="week-detail" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px"></div>
   </div>
 
 </div>
@@ -597,10 +595,94 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 </div>
 
 <!-- ════ NAV ════ -->
+<!-- ════ APPS ════ -->
+<div class="page" id="page-apps" style="display:none">
+  <div class="ph">
+    <div class="ey">Coaching Ju</div>
+    <h1>MES <span>APPS</span></h1>
+    <p>Raccourcis vers tes applications sportives</p>
+  </div>
+
+  <div class="sec">
+    <div class="slabel">Social</div>
+    <div class="card">
+      <a class="crow app-row" href="strava://" onclick="return openApp('strava://', 'https://apps.apple.com/app/strava/id426826309')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🏅</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">Strava</div>
+            <div style="font-size:11px;color:var(--text2)">Activités · Segments · Social</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+    </div>
+
+    <div class="slabel" style="margin-top:18px">Capteurs</div>
+    <div class="card">
+      <a class="crow app-row" href="wahoo://" onclick="return openApp('wahoo://', 'https://apps.apple.com/app/wahoo-fitness/id391599506')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">📡</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">Wahoo Fitness</div>
+            <div style="font-size:11px;color:var(--text2)">ELEMNT · TICKR · Vélo</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+      <a class="crow app-row" href="coros://" onclick="return openApp('coros://', 'https://apps.apple.com/app/coros/id1268292507')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">⌚</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">Coros</div>
+            <div style="font-size:11px;color:var(--text2)">Pace 4 · Entraînement · Données</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+      <a class="crow app-row" href="sramaxs://" onclick="return openApp('sramaxs://', 'https://apps.apple.com/app/sram-axs/id1350928676')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">⚙️</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">SRAM AXS</div>
+            <div style="font-size:11px;color:var(--text2)">Dérailleur · Groupset · Config</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+    </div>
+
+    <div class="slabel" style="margin-top:18px">Autres</div>
+    <div class="card">
+      <a class="crow app-row" href="gymverse://" onclick="return openApp('gymverse://', 'https://apps.apple.com/app/gymverse/id1476686320')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🏋️</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">Gymverse</div>
+            <div style="font-size:11px;color:var(--text2)">Programmes · Exercices</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+      <a class="crow app-row" href="nautilusplus://" onclick="return openApp('nautilusplus://', 'https://apps.apple.com/ca/app/nautilus-plus/id1100476104')">
+        <div class="cl" style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🏊</span>
+          <div>
+            <div style="font-size:14px;font-weight:600">Nautilus Plus</div>
+            <div style="font-size:11px;color:var(--text2)">Gym · Cours · Réservations</div>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:18px">›</span>
+      </a>
+    </div>
+  </div>
+</div>
+
 <nav class="nav-bar">
   <button class="nav-item active" id="nav-home" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
   <button class="nav-item" id="nav-sports" onclick="showSection('sports')"><span class="nav-icon">🏋️</span>Sports</button>
   <button class="nav-item" id="nav-nutrition" onclick="showSection('nutrition')"><span class="nav-icon">🥗</span>Nutrition</button>
+  <button class="nav-item" id="nav-apps" onclick="showSection('apps')"><span class="nav-icon">📱</span>Apps</button>
 </nav>
 
 <!-- ════ SPORTS SUB-NAV ════ -->
@@ -1244,6 +1326,8 @@ let curLogProg = 'sfb';
 let logDate    = todayKey();
 let feeling    = null;
 let cachedHist = null;
+let chartWeeks = []; // [{mon,sun,acts:[]}] populated by renderWeeklyChart
+let activeWeekIdx = null;
 let customSets = {}; // ei -> number of sets
 
 function todayKey(){ return new Date().toISOString().slice(0,10); }
@@ -1281,11 +1365,13 @@ function showSection(section){
 
   if(section==='sports'){
     document.getElementById('subnav-sports').style.display='flex';
-    // Show last active sport or hub
     showSport(currentSport, document.getElementById('snav-'+currentSport));
   } else if(section==='nutrition'){
     document.getElementById('subnav-nutrition').style.display='flex';
     showNutrition(currentNutri, document.getElementById('snav-recettes'));
+  } else if(section==='apps'){
+    _activatePage('page-apps');
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 }
 
@@ -1366,6 +1452,7 @@ function showSession(id, btn){
 function renderWeeklyChart(activities){
   const el = document.getElementById('home-weekly-chart');
   if(!el) return;
+  _lastChartActivities = activities;
 
   // ── Semaines (lun→dim) ──
   const now = new Date();
@@ -1379,19 +1466,24 @@ function renderWeeklyChart(activities){
   for(let w=NWEEKS-1;w>=0;w--){
     const mon = new Date(thisMonday); mon.setDate(thisMonday.getDate()-w*7);
     const sun = new Date(mon);       sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
-    weeks.push({mon,sun,muscu:0,course:0,velo:0});
+    weeks.push({mon,sun,muscu:0,course:0,velo:0,acts:[]});
   }
   activities.forEach(a=>{
-    const d=new Date(a.date), sec=a.duration_sec||0; if(!sec) return;
+    const d=new Date(a.date), sec=a.duration_sec||0;
     for(const w of weeks){
       if(d>=w.mon&&d<=w.sun){
-        if(a.type==='muscu') w.muscu+=sec;
-        else if(a.type==='course') w.course+=sec;
-        else if(a.type==='velo')   w.velo+=sec;
+        w.acts.push(a);
+        if(sec){
+          if(a.type==='muscu') w.muscu+=sec;
+          else if(a.type==='course') w.course+=sec;
+          else if(a.type==='velo')   w.velo+=sec;
+        }
         break;
       }
     }
   });
+  // Save to global for click handler
+  chartWeeks = weeks;
 
   // ── Layout ──
   // Zones (toutes en px du viewBox) :
@@ -1427,12 +1519,19 @@ function renderWeeklyChart(activities){
     const total=w.muscu+w.course+w.velo;
     const x=i*step;
     const isCur=w.mon<=now&&now<=w.sun;
-    const alpha=isCur?1:0.72;
+    const isSelected = activeWeekIdx===i;
+    const isDimmed = activeWeekIdx!==null && !isSelected;
+    const alpha = isDimmed ? 0.25 : (isCur?1:0.72);
 
     const pxMuscu =total>0?Math.round((w.muscu /maxSec)*BAR_H):0;
     const pxCourse=total>0?Math.round((w.course/maxSec)*BAR_H):0;
     const pxVelo  =total>0?Math.round((w.velo  /maxSec)*BAR_H):0;
     const totalPx =pxMuscu+pxCourse+pxVelo;
+
+    // selection background
+    if(isSelected){
+      bars+=`<rect x="${x-1}" y="${LABEL_TOP}" width="${barW+2}" height="${BAR_BOT-LABEL_TOP}" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>`;
+    }
 
     // placeholder semaine vide
     if(total===0){
@@ -1484,7 +1583,108 @@ function renderWeeklyChart(activities){
     }
   });
 
-  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">${grid}${bars}</svg>`;
+  // Transparent clickable overlays per bar
+  let overlays='';
+  weeks.forEach((w,i)=>{
+    const x=i*step;
+    const hasData=w.acts.length>0;
+    overlays+=`<rect data-week="${i}" x="${x}" y="0" width="${barW}" height="${H}" fill="transparent" style="cursor:${hasData?'pointer':'default'}" onclick="toggleWeekDetail(${i})"/>`;
+  });
+
+  el.innerHTML=`<svg id="weekly-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">${grid}${bars}${overlays}</svg>`;
+}
+
+
+// ════ WEEK DETAIL ════
+const SPORT_ICO2 = {muscu:'💪', course:'🏃', velo:'🚴'};
+const SPORT_CLR  = {muscu:'#4d9eff', course:'#34d399', velo:'#ffb347'};
+
+function toggleWeekDetail(idx){
+  const panel = document.getElementById('week-detail');
+  if(!panel) return;
+  if(activeWeekIdx === idx){
+    // toggle off
+    activeWeekIdx = null;
+    panel.style.display = 'none';
+    panel.innerHTML = '';
+    // reset bar highlights
+    _highlightWeekBar(null);
+    return;
+  }
+  activeWeekIdx = idx;
+  _highlightWeekBar(idx);
+  _renderWeekDetail(idx);
+}
+
+function _highlightWeekBar(idx){
+  const svg = document.getElementById('weekly-svg');
+  if(!svg) return;
+  // Apply opacity to the clickable overlay rects — the visual bars underneath will dim via CSS filter
+  // Actually, just re-render with activeWeekIdx set
+  renderWeeklyChart(_lastChartActivities);
+}
+let _lastChartActivities = [];
+
+function _renderWeekDetail(idx){
+  const panel = document.getElementById('week-detail');
+  if(!panel) return;
+  const w = chartWeeks[idx];
+  if(!w){ panel.style.display='none'; return; }
+
+  const isCur = w.mon <= new Date() && new Date() <= w.sun;
+  const monStr = w.mon.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
+  const sunStr = w.sun.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
+  const totalSec = w.muscu+w.course+w.velo;
+  const totalLbl = totalSec>=3600 ? (totalSec/3600).toFixed(1)+'h' : Math.round(totalSec/60)+'min';
+
+  let h = '';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+  h += '<div>';
+  h += '<div style="font-size:12px;font-weight:700;color:var(--text)">'+(isCur?'Cette semaine':monStr+' – '+sunStr)+'</div>';
+  h += '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+w.acts.length+' séance'+(w.acts.length>1?'s':'')+' · '+totalLbl+' au total</div>';
+  h += '</div>';
+  h += '<button onclick="toggleWeekDetail('+idx+')" style="background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer;line-height:1;padding:4px">✕</button>';
+  h += '</div>';
+
+  if(!w.acts.length){
+    h += '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:12px 0">Aucune séance cette semaine</div>';
+  } else {
+    // Sort by date desc
+    const sorted = [...w.acts].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    sorted.forEach(a=>{
+      const d = new Date(a.date);
+      const ds = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});
+      const color = SPORT_CLR[a.type]||'var(--text2)';
+      const ico   = SPORT_ICO2[a.type]||'🏅';
+      const label = a.session_label||a.label||(a.type==='muscu'?'Musculation':a.type==='course'?'Course à pied':'Vélo de route');
+
+      // Metrics chips
+      const chips=[];
+      if(a.duration_sec) chips.push('⏱ '+fmtDuration(a.duration_sec));
+      if(a.distance_m)   chips.push('📍 '+fmtDist(a.distance_m));
+      if(a.type==='course'&&a.pace_sec_km) chips.push(fmtPace(a.pace_sec_km)+'/km');
+      if(a.type==='velo'&&a.speed_kmh)    chips.push(a.speed_kmh+' km/h');
+      if(a.hr_avg)       chips.push('♥ '+a.hr_avg+' bpm');
+      if(a.calories)     chips.push('🔥 '+a.calories+' kcal');
+
+      h += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">';
+      h += '<div style="width:30px;height:30px;border-radius:8px;background:'+color+'22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+ico+'</div>';
+      h += '<div style="flex:1;min-width:0">';
+      h += '<div style="font-size:13px;font-weight:600;color:var(--text)">'+(a.feeling?a.feeling+' ':'')+label+'</div>';
+      h += '<div style="font-size:11px;color:var(--text2);margin-top:1px">'+ds+'</div>';
+      if(chips.length){
+        h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">';
+        chips.forEach(c=>{ h+='<span style="font-size:11px;color:var(--text2);background:var(--bg3);border-radius:6px;padding:2px 7px">'+c+'</span>'; });
+        h += '</div>';
+      }
+      h += '</div></div>';
+    });
+  }
+
+  panel.innerHTML = h;
+  panel.style.display = 'block';
+  // Smooth scroll to panel
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
 
 async function renderHome(){
@@ -1492,61 +1692,11 @@ async function renderHome(){
   const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('home-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
 
-  const feed = document.getElementById('home-feed');
-  feed.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
-
   // Load all activities sorted by date
   const all = await dbLoad(null);
   cachedHist = all.filter(a=>a.type==='muscu');
 
-  if(!all.length){
-    feed.innerHTML = '<div class="empty"><div class="ico">🏅</div><p>Aucune activité enregistrée.</p></div>';
-    return;
-  }
-
-  const SPORT_ICO = {muscu:'💪', course:'🏃', velo:'🚴'};
-  const SPORT_LBL = {muscu:'Muscu', course:'Course', velo:'Vélo'};
-
-  // Weekly chart
   renderWeeklyChart(all);
-
-  feed.innerHTML = all.slice(0,5).map(a=>{
-    const d = new Date(a.date);
-    const diff = Math.floor((now-d)/86400000);
-    const dayStr = diff===0?'Auj.':diff===1?'Hier':'Il y a '+diff+'j';
-    const timeStr = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-    const ico = SPORT_ICO[a.type]||'🏅';
-    const sport = SPORT_LBL[a.type]||a.type;
-
-    // Build metric chips
-    const metrics = [];
-    if(a.duration_sec) metrics.push('<strong>'+fmtDuration(a.duration_sec)+'</strong>');
-    if(a.distance_m) metrics.push('<strong>'+fmtDist(a.distance_m)+'</strong>');
-    if(a.type==='course' && a.pace_sec_km) metrics.push(fmtPace(a.pace_sec_km)+'/km');
-    if(a.type==='velo' && a.speed_kmh) metrics.push(a.speed_kmh+' km/h');
-    if(a.hr_avg) metrics.push('♥ '+a.hr_avg+' bpm');
-    if(a.type==='muscu' && a.exercises){
-      const exoCount = (a.exercises||[]).length;
-      if(exoCount) metrics.push(exoCount+' exercices');
-    }
-    if(a.calories) metrics.push(a.calories+' kcal');
-
-    const label = a.session_label || a.label || sport;
-    const onclick = a.type==='muscu'
-      ? "showSection('sports'); showSport('muscu',document.getElementById('snav-muscu'))"
-      : "showSection('sports'); showSport('"+a.type+"',document.getElementById('snav-"+a.type+"'))";
-
-    return '<div class="feed-card" onclick="'+onclick+'">'+
-      '<div class="feed-left">'+
-      '<div class="feed-title">'+
-      '<span>'+ico+'</span>'+
-      '<span>'+(a.feeling?a.feeling+' ':'')+label+'</span>'+
-      '</div>'+
-      (metrics.length ? '<div class="feed-metrics">'+metrics.map(m=>'<span class="feed-metric">'+m+'</span>').join('')+'</div>' : '')+
-      '</div>'+
-      '<div class="feed-day">'+dayStr+'<br>'+timeStr+'</div>'+
-      '</div>';
-  }).join('');
 }
 
 // ════ LOGGER ════
@@ -2068,6 +2218,16 @@ async function saveEdit(i){
 }
 
 // ════ HELPERS ════
+function openApp(scheme, fallback){
+  // Tente d'ouvrir l'app via son URL scheme
+  // Si elle n'est pas installée, redirige vers l'App Store après 1.2s
+  const t = Date.now();
+  setTimeout(()=>{
+    if(Date.now()-t < 1500) window.location.href = fallback;
+  }, 1200);
+  window.location.href = scheme;
+  return false; // empêche le href par défaut
+}
 function showLoader(elId){
   const el = document.getElementById(elId);
   if(el) el.innerHTML='<div class="empty"><div class="ico">⏳</div><p>Chargement...</p></div>';
