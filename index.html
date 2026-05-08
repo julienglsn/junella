@@ -319,7 +319,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
   <div class="sec" style="padding-top:0">
     <div class="slabel">Heures de sport · 10 dernières semaines</div>
-    <div id="home-weekly-chart" class="cal-grid-wrap" style="padding:16px 10px 10px;min-height:160px">
+    <div id="home-weekly-chart" class="cal-grid-wrap" style="padding:12px 12px 8px;">
       <div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>
     </div>
     <div style="display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap">
@@ -957,10 +957,11 @@ async function saveManualForm(sport, existingActivity){
     if(f.type==='feeling'){
       const active = document.querySelector('#mf-feeling-row .fbtn.active');
       activity.feeling = active ? active.dataset.feel : null;
-    } else if(f.type==='durée'){
-      activity.duration_sec = el ? parseDuration(el.value) : null;
-    } else if(f.type==='allure'){
-      activity.pace_sec_km = el ? parsePace(el.value) : null;
+    } else if(f.type==='time-parts'){
+      const fh = parseInt(document.getElementById('mf-'+f.key+'-h')?.value)||0;
+      const fm = parseInt(document.getElementById('mf-'+f.key+'-m')?.value)||0;
+      const fs = parseInt(document.getElementById('mf-'+f.key+'-s')?.value)||0;
+      activity[f.key] = (fh||fm||fs) ? fh*3600 + fm*60 + fs : null;
     } else if(f.type==='decimal'){
       const raw = parseFloat(el?.value);
       if(f.key==='distance_m') activity.distance_m = !isNaN(raw) ? Math.round(raw*1000) : null;
@@ -1296,7 +1297,7 @@ function showSport(sport, btn){
   window.scrollTo({top:0,behavior:'smooth'});
   if(sport==='course') renderActivities('course');
   if(sport==='velo')   renderActivities('velo');
-  if(sport==='muscu') { /* stays ready */ }
+  if(sport==='muscu') renderHist();
 }
 
 function showNutrition(tab, btn){
@@ -1366,118 +1367,124 @@ function renderWeeklyChart(activities){
   const el = document.getElementById('home-weekly-chart');
   if(!el) return;
 
-  // Build 10 week buckets (Mon→Sun), most recent last
+  // ── Semaines (lun→dim) ──
   const now = new Date();
-  // Get start of current week (Monday)
-  const dayOfWeek = (now.getDay()+6)%7; // 0=Mon
+  const dow = (now.getDay()+6)%7;
   const thisMonday = new Date(now);
   thisMonday.setHours(0,0,0,0);
-  thisMonday.setDate(now.getDate() - dayOfWeek);
+  thisMonday.setDate(now.getDate()-dow);
 
   const NWEEKS = 10;
   const weeks = [];
-  for(let w=NWEEKS-1; w>=0; w--){
-    const mon = new Date(thisMonday);
-    mon.setDate(thisMonday.getDate() - w*7);
-    const sun = new Date(mon);
-    sun.setDate(mon.getDate()+6);
-    sun.setHours(23,59,59,999);
-    weeks.push({ mon, sun, muscu:0, course:0, velo:0 });
+  for(let w=NWEEKS-1;w>=0;w--){
+    const mon = new Date(thisMonday); mon.setDate(thisMonday.getDate()-w*7);
+    const sun = new Date(mon);       sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    weeks.push({mon,sun,muscu:0,course:0,velo:0});
   }
-
-  // Accumulate seconds per sport per week
   activities.forEach(a=>{
-    const d = new Date(a.date);
-    const sec = a.duration_sec||0;
-    if(!sec) return;
+    const d=new Date(a.date), sec=a.duration_sec||0; if(!sec) return;
     for(const w of weeks){
-      if(d >= w.mon && d <= w.sun){
-        if(a.type==='muscu')  w.muscu  += sec;
-        else if(a.type==='course') w.course += sec;
-        else if(a.type==='velo')   w.velo   += sec;
+      if(d>=w.mon&&d<=w.sun){
+        if(a.type==='muscu') w.muscu+=sec;
+        else if(a.type==='course') w.course+=sec;
+        else if(a.type==='velo')   w.velo+=sec;
         break;
       }
     }
   });
 
-  // Max total hours for scale
-  const maxSec = Math.max(...weeks.map(w=>w.muscu+w.course+w.velo), 1);
-  const maxH = maxSec/3600;
+  // ── Layout ──
+  // Zones (toutes en px du viewBox) :
+  //   0..LABEL_TOP  → espace pour label valeur au-dessus des barres
+  //   LABEL_TOP..BAR_BOT → zone des barres
+  //   BAR_BOT..H     → labels semaines
+  const W=320, H=180;
+  const LABEL_TOP=18;   // hauteur réservée pour les labels de valeur
+  const BAR_BOT=H-28;   // bas des barres (au-dessus des labels semaine)
+  const BAR_H=BAR_BOT-LABEL_TOP; // hauteur disponible pour les barres
+  const GAP=3;
+  const barW=Math.floor((W-GAP*(NWEEKS-1))/NWEEKS);
+  const step=barW+GAP;
 
-  // Chart dimensions
-  const W = 300, H = 130, BAR_AREA = H - 24; // reserve 24px for labels
-  const barW = Math.floor((W - (NWEEKS-1)*4) / NWEEKS);
-  const barSpacing = barW + 4;
+  const maxSec=Math.max(...weeks.map(w=>w.muscu+w.course+w.velo),1);
 
-  const fmtWeekLabel = (w)=>{
-    const isThis = w.mon <= now && now <= w.sun;
-    if(isThis) return 'cette sem.';
-    const d = w.mon;
-    return (d.getDate())+'/'+(d.getMonth()+1);
-  };
+  // ── Grille horizontale ──
+  const nLines=4;
+  let grid='';
+  for(let i=1;i<=nLines;i++){
+    const y=LABEL_TOP+BAR_H*(1-i/nLines);
+    const hVal=(maxSec/3600*i/nLines);
+    const lbl=hVal>=1?hVal.toFixed(1)+'h':Math.round(hVal*60)+'m';
+    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    grid+=`<text x="${W-1}" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="7.5" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
+  }
+  // ligne de base
+  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
 
-  let bars = '';
-  weeks.forEach((w, i)=>{
-    const total = w.muscu+w.course+w.velo;
-    const x = i*barSpacing;
-    const isThis = w.mon <= now && now <= w.sun;
+  // ── Barres ──
+  let bars='';
+  weeks.forEach((w,i)=>{
+    const total=w.muscu+w.course+w.velo;
+    const x=i*step;
+    const isCur=w.mon<=now&&now<=w.sun;
+    const alpha=isCur?1:0.72;
 
-    const hMuscu  = total>0 ? Math.round((w.muscu/maxSec)*BAR_AREA)  : 0;
-    const hCourse = total>0 ? Math.round((w.course/maxSec)*BAR_AREA) : 0;
-    const hVelo   = total>0 ? Math.round((w.velo/maxSec)*BAR_AREA)   : 0;
+    const pxMuscu =total>0?Math.round((w.muscu /maxSec)*BAR_H):0;
+    const pxCourse=total>0?Math.round((w.course/maxSec)*BAR_H):0;
+    const pxVelo  =total>0?Math.round((w.velo  /maxSec)*BAR_H):0;
+    const totalPx =pxMuscu+pxCourse+pxVelo;
 
-    let yBase = H - 20; // bottom of bars area (above labels)
-
-    // Empty bar placeholder
+    // placeholder semaine vide
     if(total===0){
-      bars += `<rect x="${x}" y="${yBase-2}" width="${barW}" height="2" rx="1" fill="rgba(255,255,255,0.05)"/>`;
+      bars+=`<rect x="${x}" y="${BAR_BOT-3}" width="${barW}" height="3" rx="1.5" fill="rgba(255,255,255,0.06)"/>`;
     }
 
-    // Velo (bottom)
-    if(hVelo>0){
-      bars += `<rect x="${x}" y="${yBase-hVelo}" width="${barW}" height="${hVelo}" rx="0" fill="#ffb347" opacity="${isThis?1:.8}"/>`;
-      yBase -= hVelo;
-    }
-    // Course (middle)
-    if(hCourse>0){
-      bars += `<rect x="${x}" y="${yBase-hCourse}" width="${barW}" height="${hCourse}" rx="0" fill="#34d399" opacity="${isThis?1:.8}"/>`;
-      yBase -= hCourse;
-    }
-    // Muscu (top)
-    if(hMuscu>0){
-      // top bar gets rounded top corners
-      const topY = yBase-hMuscu;
-      bars += `<path d="M${x+2},${topY} Q${x},${topY} ${x},${topY+2} L${x},${yBase} L${x+barW},${yBase} L${x+barW},${topY+2} Q${x+barW},${topY} ${x+barW-2},${topY} Z" fill="#4d9eff" opacity="${isThis?1:.8}"/>`;
-    }
-    if(total>0 && (hVelo>0||hCourse>0) && !hMuscu){
-      // round top of topmost bar
-    }
+    // dessiner les segments empilés (vélo en bas, course au milieu, muscu en haut)
+    let yBot=BAR_BOT;
 
-    // Total label above bar (if >0)
-    const totalH = total/3600;
+    const segs=[
+      {h:pxVelo,   color:'#ffb347'},
+      {h:pxCourse, color:'#34d399'},
+      {h:pxMuscu,  color:'#4d9eff'},
+    ];
+    segs.forEach((seg,si)=>{
+      if(seg.h<=0) return;
+      const isTop=si===segs.length-1 || segs.slice(si+1).every(s=>s.h<=0);
+      const yTop=yBot-seg.h;
+      const r=isTop?3:0;
+      if(isTop && r>0){
+        // arrondi uniquement en haut
+        bars+=`<path d="M${x},${yBot} L${x},${yTop+r} Q${x},${yTop} ${x+r},${yTop} L${x+barW-r},${yTop} Q${x+barW},${yTop} ${x+barW},${yTop+r} L${x+barW},${yBot} Z" fill="${seg.color}" opacity="${alpha}"/>`;
+      } else {
+        bars+=`<rect x="${x}" y="${yTop}" width="${barW}" height="${seg.h}" fill="${seg.color}" opacity="${alpha}"/>`;
+      }
+      yBot=yTop;
+    });
+
+    // ── Label valeur — toujours AU-DESSUS de la barre, dans la zone LABEL_TOP ──
     if(total>0){
-      const topOfStack = (H-20) - hMuscu - hCourse - hVelo;
-      const labelY = Math.max(topOfStack - 3, 8);
-      const label = totalH >= 1 ? totalH.toFixed(1)+'h' : Math.round(total/60)+'m';
-      bars += `<text x="${x+barW/2}" y="${labelY}" text-anchor="middle" font-size="8" font-weight="700" fill="${isThis?'#4d9eff':'rgba(255,255,255,0.45)'}"> ${label}</text>`;
+      const totalH=total/3600;
+      const lbl=totalH>=1?totalH.toFixed(1)+'h':Math.round(total/60)+'m';
+      const labelY=BAR_BOT-totalPx-5; // 5px au-dessus du sommet
+      const clampedY=Math.max(labelY,LABEL_TOP-2); // ne pas sortir du viewBox
+      bars+=`<text x="${x+barW/2}" y="${clampedY}" text-anchor="middle" font-size="8.5" font-weight="700" font-family="system-ui" fill="${isCur?'#4d9eff':'rgba(255,255,255,0.5)'}">${lbl}</text>`;
     }
 
-    // Week label
-    const lbl = fmtWeekLabel(w);
-    const isShort = !lbl.includes('/') && lbl.length > 4;
-    bars += `<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-size="${isShort?6.5:8}" fill="${isThis?'#e8f0ff':'rgba(255,255,255,0.3)'}" font-weight="${isThis?700:500}">${lbl}</text>`;
+    // ── Label semaine ──
+    const mon=w.mon;
+    const isCurWeek=isCur;
+    const lbl=isCurWeek
+      ? 'Sem.'
+      : (mon.getDate())+'/'+(mon.getMonth()+1);
+    bars+=`<text x="${x+barW/2}" y="${H-8}" text-anchor="middle" font-size="8" font-family="system-ui" fill="${isCurWeek?'#e8f0ff':'rgba(255,255,255,0.28)'}" font-weight="${isCurWeek?700:400}">${lbl}</text>`;
+
+    // ── Indicateur "semaine courante" — petit point sous le label ──
+    if(isCurWeek){
+      bars+=`<circle cx="${x+barW/2}" cy="${H-2}" r="2" fill="#4d9eff"/>`;
+    }
   });
 
-  // Y-axis guide line at max
-  const guideY = H-20-BAR_AREA;
-  const svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;overflow:visible">
-    <line x1="0" y1="${guideY}" x2="${W}" y2="${guideY}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-    <line x1="0" y1="${H-20}" x2="${W}" y2="${H-20}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <text x="${W}" y="${guideY-2}" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.2)">${maxH.toFixed(1)}h</text>
-    ${bars}
-  </svg>`;
-
-  el.innerHTML = svg;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">${grid}${bars}</svg>`;
 }
 
 async function renderHome(){
@@ -1620,13 +1627,81 @@ function selLMSess(s){
   renderLogModal();
 }
 
-function renderLog(){
-  const sess = SESSIONS[curLog];
+// ════ LOGGER HELPERS ════
+function getSets(ei){
+  const def = flatExos(curLog)[ei]?.sets || 4;
+  return customSets[ei] !== undefined ? customSets[ei] : def;
+}
+
+function addSet(ei){
+  customSets[ei] = getSets(ei) + 1;
+  _refreshExoRows(ei);
+}
+
+function removeSet(ei){
+  const n = getSets(ei);
+  if(n <= 1) return;
+  customSets[ei] = n - 1;
+  _refreshExoRows(ei);
+}
+
+function _refreshExoRows(ei){
+  const n = getSets(ei);
+  const countEl = document.getElementById('sets-count-'+ei);
+  if(countEl) countEl.textContent = n+' série'+(n>1?'s':'');
+  const container = document.getElementById('exo-rows-'+ei);
+  if(!container) return;
+  const isTimed = !!flatExos(curLog)[ei]?.timed;
+  let t = '<table class="stbl"><tr><th>#</th><th>'+(isTimed?'—':'Poids (lbs)')+'</th><th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
+  for(let s=1;s<=n;s++){
+    t += '<tr><td><span class="sn">'+s+'</span></td>';
+    t += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal">')+'</td>';
+    t += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
+  }
+  t += '</table>';
+  container.innerHTML = t;
+}
+
+function renderLogNav(){
+  // Render the inline log tab (muscu-log page)
+  const lform = document.getElementById('lform');
+  if(!lform) return;
+
+  // Programme selector
+  const progBtns = document.getElementById('log-prog-btns');
+  if(progBtns){
+    progBtns.innerHTML = Object.entries(PROGRAMS).map(([id,p])=>{
+      return '<button class="selbt'+(id===curLogProg?' active':'')+'" onclick="selLogProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
+    }).join('');
+  }
+  // Session selector
+  const sessStep  = document.getElementById('log-step-sess');
+  const sessBtns  = document.getElementById('log-sess-btns');
+  const sessLabel = document.getElementById('log-step-sess-label');
+  const prog = PROGRAMS[curLogProg];
+  if(sessStep && sessBtns && prog){
+    sessStep.style.display='block';
+    if(sessLabel) sessLabel.textContent = prog.label+' — Séance';
+    sessBtns.innerHTML = prog.sessions.map(s=>{
+      const sub = SESSIONS[s].label.split('—')[1]?.trim()||'';
+      return '<button class="selbt'+(s===curLog?' active':'')+'" onclick="selLog(&quot;'+s+'&quot;)" style="flex-direction:column;gap:2px;padding:10px 4px;font-size:13px">'+
+        '<span>'+s.toUpperCase()+'</span>'+
+        '<span style="font-size:9px;font-weight:500;color:inherit;opacity:.7">'+sub+'</span></button>';
+    }).join('');
+  }
+  renderLog(lform);
+}
+
+function renderLog(container){
+  // Accept either a DOM element or default to lform
+  const target = (container && container.nodeType) ? container : (document.getElementById('lm-form') || document.getElementById('lform'));
+  if(!target) return;
+
   feeling = null;
   let h = '';
 
   h += '<div class="dpr" style="margin-top:14px"><label>📅 Date</label>';
-  h += '<input class="di" type="date" id="ldi" value="'+logDate+'" max="'+todayKey()+'" onchange="logDate=this.value"></div>';
+  h += '<input class="di" type="date" id="l-date" value="'+logDate+'" max="'+todayKey()+'" onchange="logDate=this.value"></div>';
 
   h += '<div class="slabel" style="margin-bottom:8px">Ressenti</div><div class="frow">';
   h += '<button class="fbtn" onclick="setF(\'😴\',this)"><div>😴</div><div class="flbl">Fatigué</div></button>';
@@ -1664,15 +1739,14 @@ function renderLog(){
   // Cardio section
   h += '<div class="slabel" style="margin:14px 0 8px">Durée · Cardio · Calories</div>';
   h += '<div class="card" style="margin-bottom:12px">';
-  // Duration row
   h += '<div style="padding:12px 14px;border-bottom:1px solid var(--border)">';
   h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Durée</div>';
   h += '<div style="display:flex;gap:6px;align-items:center">';
-  h += '<input class="li" type="number" id="l-dur-h'+sfx+'" inputmode="numeric" placeholder="hh" min="0" style="width:60px;text-align:center">';
+  h += '<input class="li" type="number" id="l-dur-h" inputmode="numeric" placeholder="hh" min="0" style="width:60px;text-align:center">';
   h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
-  h += '<input class="li" type="number" id="l-dur-m'+sfx+'" inputmode="numeric" placeholder="mm" min="0" max="59" style="width:60px;text-align:center">';
+  h += '<input class="li" type="number" id="l-dur-m" inputmode="numeric" placeholder="mm" min="0" max="59" style="width:60px;text-align:center">';
   h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
-  h += '<input class="li" type="number" id="l-dur-s'+sfx+'" inputmode="numeric" placeholder="ss" min="0" max="59" style="width:60px;text-align:center">';
+  h += '<input class="li" type="number" id="l-dur-s" inputmode="numeric" placeholder="ss" min="0" max="59" style="width:60px;text-align:center">';
   h += '</div></div>';
   h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">';
   h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC moy</div><input class="li" type="number" id="l-hr-avg" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div></div>';
@@ -1682,9 +1756,9 @@ function renderLog(){
 
   // Note
   h += '<div class="slabel" style="margin:14px 0 8px">Note</div>';
-  h += '<textarea class="ni" id="lnote'+sfx+'" placeholder="Fatigue jambes ? Charge trop lourde ? Cardio avant ?"></textarea>';
+  h += '<textarea class="ni" id="lnote" placeholder="Fatigue jambes ? Charge trop lourde ? Cardio avant ?"></textarea>';
   h += '<button class="savebtn" onclick="saveSess()">ENREGISTRER</button>';
-  document.getElementById('lform').innerHTML = h;
+  target.innerHTML = h;
 }
 
 function setF(emoji, btn){
@@ -1704,11 +1778,11 @@ async function saveSess(){
     session_label: sess.label,
     date: new Date(logDate+'T12:00:00').toISOString(),
     feeling: feeling||'😐',
-    note: (document.getElementById('lnote')||document.getElementById('lnote-m'))?.value||'',
-    duration_sec: (()=>{ const h=parseInt((document.getElementById('l-dur-h')||document.getElementById('l-dur-h-m'))?.value)||0; const m=parseInt((document.getElementById('l-dur-m')||document.getElementById('l-dur-m-m'))?.value)||0; const s=parseInt((document.getElementById('l-dur-s')||document.getElementById('l-dur-s-m'))?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
-    hr_avg:   parseInt((document.getElementById('l-hr-avg')||document.getElementById('l-hr-avg-m'))?.value)||null,
-    hr_max:   parseInt((document.getElementById('l-hr-max')||document.getElementById('l-hr-max-m'))?.value)||null,
-    calories: parseInt((document.getElementById('l-calories')||document.getElementById('l-calories-m'))?.value)||null,
+    note: document.getElementById('lnote')?.value||'',
+    duration_sec: (()=>{ const h=parseInt(document.getElementById('l-dur-h')?.value)||0; const m=parseInt(document.getElementById('l-dur-m')?.value)||0; const s=parseInt(document.getElementById('l-dur-s')?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
+    hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
+    hr_max:   parseInt(document.getElementById('l-hr-max')?.value)||null,
+    calories: parseInt(document.getElementById('l-calories')?.value)||null,
     exercises: flatExos(curLog).map((exo,ei)=>({
       name: exo.name,
       sets: Array.from({length:getSets(ei)},(_,si)=>({
