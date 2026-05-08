@@ -347,6 +347,24 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div id="week-detail" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px"></div>
   </div>
 
+  <div class="sec" style="padding-top:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div class="slabel" style="margin-bottom:10px">Répartition · 30j</div>
+        <div class="cal-grid-wrap" style="padding:12px;" id="home-donut-wrap">
+          <div style="position:relative;width:100%;height:120px;"><canvas id="home-donut-canvas"></canvas></div>
+          <div id="home-donut-legend" style="margin-top:8px;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="slabel" style="margin-bottom:10px">Calendrier · 3 mois</div>
+        <div class="cal-grid-wrap" style="padding:10px;" id="home-heatmap-wrap">
+          <div id="home-heatmap"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ════ SPORTS HUB ════ -->
@@ -489,7 +507,39 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
   <!-- Graphiques -->
   <div class="sc" id="muscu-charts">
-    <div class="charts-coming"></div>
+    <div class="sec" style="padding-top:14px">
+
+      <!-- Progression des charges -->
+      <div class="slabel" style="margin-bottom:10px">Progression des charges</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="muscu-lift-filters">
+          <button class="subnav-item active" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('all',this)">Toutes</button>
+          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sa',this)">A</button>
+          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sb',this)">B</button>
+          <button class="subnav-item" style="padding:5px 12px;font-size:11px;" onclick="setLiftSession('sc',this)">C</button>
+        </div>
+        <div id="muscu-lift-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--text2);"></div>
+        <div style="position:relative;width:100%;height:200px;"><canvas id="muscu-lift-chart"></canvas></div>
+      </div>
+
+      <!-- Volume par groupe musculaire -->
+      <div class="slabel" style="margin-bottom:10px">Volume par groupe musculaire</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px;" id="muscu-vol-subtitle">Séries totales — 4 dernières semaines</div>
+        <div style="position:relative;width:100%;height:220px;"><canvas id="muscu-vol-chart"></canvas></div>
+      </div>
+
+      <!-- Intensité FC / Calories -->
+      <div class="slabel" style="margin-bottom:10px">Intensité par séance</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4d9eff;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ffb34755;margin-right:4px;vertical-align:middle;"></span>Calories (kcal)</span>
+        </div>
+        <div style="position:relative;width:100%;height:190px;"><canvas id="muscu-intensity-chart"></canvas></div>
+      </div>
+
+    </div>
   </div>
 
   <!-- Historique -->
@@ -525,7 +575,33 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
   </div><!-- end course-main -->
   <div class="sc" id="course-charts">
-    <div class="charts-coming"></div>
+    <div class="sec" style="padding-top:14px">
+
+      <!-- Allure vs FC -->
+      <div class="slabel" style="margin-bottom:10px">Allure vs FC</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#34d399;margin-right:4px;vertical-align:middle;"></span>Allure (min/km)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff5252;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
+        </div>
+        <div style="position:relative;width:100%;height:210px;"><canvas id="course-pace-chart"></canvas></div>
+      </div>
+
+      <!-- Kilométrage mensuel -->
+      <div class="slabel" style="margin-bottom:10px">Kilométrage mensuel</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="position:relative;width:100%;height:190px;"><canvas id="course-km-chart"></canvas></div>
+      </div>
+
+      <!-- Scatter allure / FC -->
+      <div class="slabel" style="margin-bottom:10px">Nuage allure / FC</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="course-scatter-legend"></div>
+        <div style="position:relative;width:100%;height:200px;"><canvas id="course-scatter-chart"></canvas></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC bpm (x) · Allure min/km (y)</div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -552,7 +628,33 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
   </div><!-- end velo-main -->
   <div class="sc" id="velo-charts">
-    <div class="charts-coming"></div>
+    <div class="sec" style="padding-top:14px">
+
+      <!-- Vitesse vs FC -->
+      <div class="slabel" style="margin-bottom:10px">Vitesse vs FC</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ffb347;margin-right:4px;vertical-align:middle;"></span>Vitesse (km/h)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff5252;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
+        </div>
+        <div style="position:relative;width:100%;height:210px;"><canvas id="velo-speed-chart"></canvas></div>
+      </div>
+
+      <!-- Kilométrage mensuel -->
+      <div class="slabel" style="margin-bottom:10px">Kilométrage mensuel</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="position:relative;width:100%;height:190px;"><canvas id="velo-km-chart"></canvas></div>
+      </div>
+
+      <!-- Scatter vitesse / FC -->
+      <div class="slabel" style="margin-bottom:10px">Nuage vitesse / FC</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="velo-scatter-legend"></div>
+        <div style="position:relative;width:100%;height:200px;"><canvas id="velo-scatter-chart"></canvas></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC bpm (x) · Vitesse km/h (y)</div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -1686,6 +1788,9 @@ async function renderHome(){
   cachedHist = all.filter(a=>a.type==='muscu');
 
   renderWeeklyChart(all);
+  // Home charts (donut + heatmap) — rendered after Chart.js is loaded
+  if(typeof renderHomeDonut === 'function') renderHomeDonut(all);
+  if(typeof renderHomeHeatmap === 'function') renderHomeHeatmap(all);
 }
 
 // ════ LOGGER ════
@@ -2273,6 +2378,435 @@ async function migrateActivityMetrics(){
   seedRecipesIfEmpty();
   migrateActivityMetrics(); // background migration — no await needed
 })();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ════ CHART HELPERS ════
+const CJ_ACCENT = '#4d9eff';
+const CJ_GREEN  = '#34d399';
+const CJ_AMBER  = '#ffb347';
+const CJ_RED    = '#ff5252';
+const CJ_GRID   = 'rgba(255,255,255,0.06)';
+const CJ_TICK   = 'rgba(255,255,255,0.35)';
+
+const _chartInstances = {};
+function _destroyChart(id){
+  if(_chartInstances[id]){ _chartInstances[id].destroy(); delete _chartInstances[id]; }
+}
+function _mkChart(id, config){
+  _destroyChart(id);
+  const canvas = document.getElementById(id);
+  if(!canvas) return;
+  _chartInstances[id] = new Chart(canvas, config);
+  return _chartInstances[id];
+}
+
+const _baseScales = (yLabel, y2Label) => {
+  const s = {
+    x: { grid:{ color:CJ_GRID }, ticks:{ color:CJ_TICK, font:{size:10}, maxRotation:45 } },
+    y: { grid:{ color:CJ_GRID }, ticks:{ color:CJ_TICK, font:{size:11} },
+         title: yLabel ? {display:true, text:yLabel, color:CJ_TICK, font:{size:10}} : {display:false} }
+  };
+  if(y2Label) s.y2 = { position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}},
+    title:{display:true, text:y2Label, color:CJ_TICK, font:{size:10}} };
+  return s;
+};
+
+// ── MONTH KEY ──
+function _monthKey(d){ return d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'}); }
+function _monthLabel(d){ return d.toLocaleDateString('fr-FR',{month:'short'}); }
+
+// ════ HOME: DONUT ════
+let _donutChart = null;
+function renderHomeDonut(activities){
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-30);
+  const recent = activities.filter(a=>new Date(a.date)>=cutoff);
+  const totals = {muscu:0, course:0, velo:0};
+  recent.forEach(a=>{ if(a.duration_sec && totals[a.type]!==undefined) totals[a.type]+=a.duration_sec; });
+  const total = totals.muscu+totals.course+totals.velo;
+  if(!total){ document.getElementById('home-donut-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée</div>'; return; }
+
+  const labels = ['Muscu','Course','Vélo'];
+  const data   = [totals.muscu, totals.course, totals.velo];
+  const colors = [CJ_ACCENT, CJ_GREEN, CJ_AMBER];
+
+  _destroyChart('home-donut-canvas');
+  if(_donutChart) _donutChart.destroy();
+  const canvas = document.getElementById('home-donut-canvas');
+  if(!canvas) return;
+  _donutChart = new Chart(canvas, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>{ const h=(ctx.raw/3600).toFixed(1); return ctx.label+': '+h+'h ('+Math.round(ctx.raw/total*100)+'%)'; }}} } }
+  });
+
+  const lg = document.getElementById('home-donut-legend');
+  if(lg){
+    lg.innerHTML = labels.map((l,i)=>{
+      if(!data[i]) return '';
+      const pct = Math.round(data[i]/total*100);
+      const h = (data[i]/3600).toFixed(1);
+      return '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)">'+
+        '<span style="width:8px;height:8px;border-radius:2px;background:'+colors[i]+';display:inline-block;flex-shrink:0"></span>'+
+        '<span>'+l+' <strong style="color:var(--text)">'+pct+'%</strong> ('+h+'h)</span></div>';
+    }).join('');
+  }
+}
+
+// ════ HOME: HEATMAP ════
+function renderHomeHeatmap(activities){
+  const el = document.getElementById('home-heatmap');
+  if(!el) return;
+  const SPORT_C = {muscu:CJ_ACCENT, course:CJ_GREEN, velo:CJ_AMBER, basket:'#a855f7'};
+  const actByDay = {};
+  activities.forEach(a=>{ const k=a.date.slice(0,10); if(!actByDay[k]) actByDay[k]=[]; actByDay[k].push(a.type); });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  // Find Monday 12 weeks ago
+  const dow = (today.getDay()+6)%7;
+  const start = new Date(today); start.setDate(today.getDate()-dow-7*11);
+  const DAYS = 84; // 12 weeks
+  const days = [];
+  for(let i=0;i<DAYS;i++){ const d=new Date(start); d.setDate(start.getDate()+i); days.push(d); }
+
+  const DOW = ['L','M','M','J','V','S','D'];
+  let h = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:3px;">';
+  DOW.forEach(d=>{ h+='<div style="text-align:center;font-size:8px;color:var(--text3);font-weight:700;">'+d+'</div>'; });
+  h += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">';
+  days.forEach(d=>{
+    const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const types = actByDay[k]||[];
+    const isFut = d>today;
+    let bg = 'rgba(255,255,255,0.04)';
+    let title = '';
+    if(types.length && !isFut){
+      const dominant = types[0];
+      bg = SPORT_C[dominant]||CJ_ACCENT;
+      title = types.join(', ');
+    }
+    const isToday = d.getTime()===today.getTime();
+    const border = isToday?'outline:1px solid '+CJ_ACCENT+';outline-offset:-1px;':'';
+    h += '<div title="'+k+(title?' — '+title:'')+'" style="aspect-ratio:1;border-radius:2px;background:'+bg+';opacity:'+(isFut?0.2:types.length?0.85:0.5)+';'+border+'"></div>';
+  });
+  h += '</div>';
+  el.innerHTML = h;
+}
+
+// ════ MUSCU: PROGRESSION CHARGES ════
+let _activeLiftSession = 'all';
+function setLiftSession(sess, btn){
+  _activeLiftSession = sess;
+  document.querySelectorAll('#muscu-lift-filters .subnav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderMuscuCharts(_cachedMuscuActs);
+}
+
+let _cachedMuscuActs = [];
+
+function renderMuscuLiftChart(acts){
+  // Extract exercise data per session
+  const filtered = _activeLiftSession==='all' ? acts : acts.filter(a=>a.session_type===_activeLiftSession);
+  // Collect all exercise names
+  const exoNames = {};
+  filtered.forEach(a=>{
+    (a.exercises||[]).forEach(e=>{ if(e.name) exoNames[e.name]=true; });
+  });
+
+  // For each exercise, compute max weight per session
+  const exoList = Object.keys(exoNames).slice(0,4); // max 4 lines
+  if(!exoList.length){
+    _destroyChart('muscu-lift-chart');
+    document.getElementById('muscu-lift-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée de charges</div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const COLORS = [CJ_ACCENT, CJ_GREEN, CJ_AMBER, CJ_RED];
+  const DASHES = [[0,0],[5,4],[2,4],[8,3]];
+
+  const datasets = exoList.map((name,i)=>{
+    const data = sorted.map(a=>{
+      const exo = (a.exercises||[]).find(e=>e.name===name);
+      if(!exo) return null;
+      const weights = (exo.sets||[]).map(s=>parseFloat(s.weight)).filter(w=>w>0);
+      return weights.length ? Math.max(...weights) : null;
+    });
+    return { label:name, data, borderColor:COLORS[i], backgroundColor:'transparent',
+      tension:0.3, pointRadius:4, borderWidth:2,
+      borderDash:DASHES[i], spanGaps:true };
+  });
+
+  const lg = document.getElementById('muscu-lift-legend');
+  if(lg){
+    lg.innerHTML = exoList.map((n,i)=>'<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:'+COLORS[i]+';display:inline-block"></span><span>'+n+'</span></span>').join('');
+  }
+
+  _mkChart('muscu-lift-chart', {
+    type:'line',
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales: _baseScales('lbs') }
+  });
+}
+
+// ════ MUSCU: VOLUME PAR MUSCLE ════
+const MUSCLE_MAP = {
+  'Goblet squat':'Quadriceps','Static lunges':'Quadriceps','Leg press':'Quadriceps',
+  'Standing calf raises':'Mollets',
+  'Romanian deadlift':'Ischio','Hamstring curl':'Ischio',
+  'Bench press':'Pectoraux','Incline bench press':'Pectoraux',
+  'Lateral raises':'Épaules','Face pull':'Épaules','Overhead press':'Épaules',
+  'Lat pulldown':'Dos','Single-arm dumbbell row':'Dos','Dumbbell row':'Dos',
+  'Cable curl':'Biceps','Hammer curl':'Biceps',
+  'Cable triceps pushdown':'Triceps','Triceps pushdown':'Triceps',
+  'Plank':'Gainage','Abs':'Gainage'
+};
+function renderMuscuVolChart(acts){
+  const now = new Date();
+  const cutoff = new Date(now); cutoff.setDate(now.getDate()-28);
+  const recent = acts.filter(a=>new Date(a.date)>=cutoff);
+
+  const muscleVol = {};
+  recent.forEach(a=>{
+    (a.exercises||[]).forEach(e=>{
+      const muscle = MUSCLE_MAP[e.name] || 'Autre';
+      if(!muscleVol[muscle]) muscleVol[muscle]=0;
+      muscleVol[muscle] += (e.sets||[]).length;
+    });
+  });
+
+  const sorted = Object.entries(muscleVol).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    _destroyChart('muscu-vol-chart');
+    return;
+  }
+  const labels = sorted.map(e=>e[0]);
+  const data = sorted.map(e=>e[1]);
+  const colors = sorted.map((_,i)=>{ const op=1-i*0.12; return CJ_ACCENT+Math.round(Math.max(op,0.35)*255).toString(16).padStart(2,'0'); });
+
+  _mkChart('muscu-vol-chart', {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}}, title:{display:true, text:'Séries', color:CJ_TICK, font:{size:10}} },
+        y:{ grid:{color:'transparent'}, ticks:{color:CJ_TICK, font:{size:10}} }
+      } }
+  });
+}
+
+// ════ MUSCU: INTENSITÉ ════
+function renderMuscuIntensityChart(acts){
+  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(-15);
+  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const hrData = sorted.map(a=>a.hr_avg||null);
+  const calData = sorted.map(a=>a.calories||null);
+
+  _mkChart('muscu-intensity-chart', {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'FC moy', data:hrData, backgroundColor:CJ_ACCENT+'cc', borderRadius:3, yAxisID:'y' },
+      { label:'Calories', data:calData, backgroundColor:CJ_AMBER+'55', borderRadius:3, yAxisID:'y2' }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:80 },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'kcal', color:CJ_TICK, font:{size:10}} }
+      }}
+  });
+}
+
+// ════ MUSCU: ALL CHARTS ════
+function renderMuscuCharts(acts){
+  _cachedMuscuActs = acts || [];
+  renderMuscuLiftChart(_cachedMuscuActs);
+  renderMuscuVolChart(_cachedMuscuActs);
+  renderMuscuIntensityChart(_cachedMuscuActs);
+}
+
+// ════ COURSE: ALLURE vs FC ════
+function renderCoursePaceChart(acts){
+  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const paceData = sorted.map(a=>a.pace_sec_km ? +(a.pace_sec_km/60).toFixed(2) : null);
+  const hrData   = sorted.map(a=>a.hr_avg||null);
+
+  _mkChart('course-pace-chart', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Allure', data:paceData, borderColor:CJ_GREEN, backgroundColor:'transparent', tension:0.3, pointRadius:4, borderWidth:2, yAxisID:'y', spanGaps:true },
+      { label:'FC moy', data:hrData, borderColor:CJ_RED, backgroundColor:'transparent', tension:0.3, pointRadius:4, borderWidth:2, borderDash:[5,4], yAxisID:'y2', spanGaps:true }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
+            title:{display:true, text:"min/km", color:CJ_TICK, font:{size:10}}, reverse:true },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:120, max:190 }
+      }}
+  });
+}
+
+// ════ COURSE: KM MENSUEL ════
+function renderCourseKmChart(acts){
+  const byMonth = {};
+  acts.forEach(a=>{
+    if(!a.distance_m) return;
+    const k = _monthKey(new Date(a.date));
+    byMonth[k] = (byMonth[k]||0) + a.distance_m/1000;
+  });
+  const keys = Object.keys(byMonth).slice(-6);
+  const data = keys.map(k=>+byMonth[k].toFixed(1));
+
+  _mkChart('course-km-chart', {
+    type:'bar',
+    data:{ labels:keys, datasets:[{ data, backgroundColor:CJ_GREEN+'bb', borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}},
+               y:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK, font:{size:10}}} } }
+  });
+}
+
+// ════ COURSE: SCATTER ════
+function renderCourseScatterChart(acts){
+  const ZONES = [{label:'Zone 2',maxHr:150,color:CJ_GREEN},{label:'Zone 3',maxHr:165,color:CJ_AMBER},{label:'Zone 4+',maxHr:999,color:CJ_RED}];
+  const datasets = ZONES.map(z=>({ label:z.label, data:[], backgroundColor:z.color+'cc', pointRadius:6, pointHoverRadius:8 }));
+
+  acts.forEach(a=>{
+    if(!a.pace_sec_km || !a.hr_avg) return;
+    const pace = +(a.pace_sec_km/60).toFixed(2);
+    const zone = ZONES.findIndex(z=>a.hr_avg<=z.maxHr);
+    if(zone>=0) datasets[zone].data.push({x:a.hr_avg, y:pace});
+  });
+
+  const lg = document.getElementById('course-scatter-legend');
+  if(lg){ lg.innerHTML = ZONES.map((z,i)=>'<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:'+datasets[i].backgroundColor+';display:inline-block"></span>'+z.label+'</span>').join(''); }
+
+  const allPaces = datasets.flatMap(d=>d.data.map(p=>p.y)).filter(Boolean);
+  const minP = allPaces.length ? Math.floor(Math.min(...allPaces)*10)/10-0.2 : 4.5;
+  const maxP = allPaces.length ? Math.ceil(Math.max(...allPaces)*10)/10+0.2 : 7;
+
+  _mkChart('course-scatter-chart', {
+    type:'scatter',
+    data:{ datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK, font:{size:10}}, min:120, max:185 },
+        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
+            title:{display:true, text:'Allure', color:CJ_TICK, font:{size:10}}, reverse:true, min:minP, max:maxP }
+      }}
+  });
+}
+
+// ════ VÉLO: VITESSE vs FC ════
+function renderVeloSpeedChart(acts){
+  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const speedData = sorted.map(a=>a.speed_kmh||null);
+  const hrData    = sorted.map(a=>a.hr_avg||null);
+
+  _mkChart('velo-speed-chart', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Vitesse', data:speedData, borderColor:CJ_AMBER, backgroundColor:'transparent', tension:0.3, pointRadius:4, borderWidth:2, yAxisID:'y', spanGaps:true },
+      { label:'FC moy', data:hrData, borderColor:CJ_RED, backgroundColor:'transparent', tension:0.3, pointRadius:4, borderWidth:2, borderDash:[5,4], yAxisID:'y2', spanGaps:true }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km/h', color:CJ_TICK, font:{size:10}} },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:100, max:185 }
+      }}
+  });
+}
+
+// ════ VÉLO: KM MENSUEL ════
+function renderVeloKmChart(acts){
+  const byMonth = {};
+  acts.forEach(a=>{
+    if(!a.distance_m) return;
+    const k = _monthKey(new Date(a.date));
+    byMonth[k] = (byMonth[k]||0) + a.distance_m/1000;
+  });
+  const keys = Object.keys(byMonth).slice(-6);
+  const data = keys.map(k=>+byMonth[k].toFixed(1));
+
+  _mkChart('velo-km-chart', {
+    type:'bar',
+    data:{ labels:keys, datasets:[{ data, backgroundColor:CJ_AMBER+'bb', borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}},
+               y:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK, font:{size:10}}} } }
+  });
+}
+
+// ════ VÉLO: SCATTER ════
+function renderVeloScatterChart(acts){
+  const ZONES = [{label:'Zone 2',maxHr:150,color:CJ_GREEN},{label:'Zone 3',maxHr:165,color:CJ_AMBER},{label:'Zone 4+',maxHr:999,color:CJ_RED}];
+  const datasets = ZONES.map(z=>({ label:z.label, data:[], backgroundColor:z.color+'cc', pointRadius:6, pointHoverRadius:8 }));
+
+  acts.forEach(a=>{
+    if(!a.speed_kmh || !a.hr_avg) return;
+    const zone = ZONES.findIndex(z=>a.hr_avg<=z.maxHr);
+    if(zone>=0) datasets[zone].data.push({x:a.hr_avg, y:a.speed_kmh});
+  });
+
+  const lg = document.getElementById('velo-scatter-legend');
+  if(lg){ lg.innerHTML = ZONES.map((z,i)=>'<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:'+datasets[i].backgroundColor+';display:inline-block"></span>'+z.label+'</span>').join(''); }
+
+  _mkChart('velo-scatter-chart', {
+    type:'scatter',
+    data:{ datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK, font:{size:10}}, min:100, max:185 },
+        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'Vitesse (km/h)', color:CJ_TICK, font:{size:10}} }
+      }}
+  });
+}
+
+// ════ HOOK INTO EXISTING FLOW ════
+
+// Patch showSportTab to trigger chart rendering for course + velo
+const _origShowSportTab = showSportTab;
+showSportTab = function(sport, tab, btn){
+  _origShowSportTab(sport, tab, btn);
+  if(sport==='course' && tab==='charts'){
+    dbLoad('course').then(acts=>{
+      renderCoursePaceChart(acts);
+      renderCourseKmChart(acts);
+      renderCourseScatterChart(acts);
+    });
+  } else if(sport==='velo' && tab==='charts'){
+    dbLoad('velo').then(acts=>{
+      renderVeloSpeedChart(acts);
+      renderVeloKmChart(acts);
+      renderVeloScatterChart(acts);
+    });
+  }
+};
+
+// Patch showMuscu to trigger chart rendering
+const _origShowMuscu = showMuscu;
+showMuscu = function(tab, btn){
+  _origShowMuscu(tab, btn);
+  if(tab==='charts'){
+    dbLoad('muscu').then(acts=>{ renderMuscuCharts(acts); });
+  }
+};
 </script>
 </body>
 </html>
