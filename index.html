@@ -2723,72 +2723,55 @@ function _filterActsByGroup(acts){
 
 let _cachedMuscuActs = [];
 
-// Group label → display name
-const GROUP_LABELS = {
-  all:'Tout', bras:'Bras', torse:'Torse', epaules:'Épaules', dos:'Dos', jambes:'Jambes'
-};
-
-// Map each exercise to the muscle group it belongs to (for avg-weight grouping)
-const EXO_TO_GROUP = {};
-Object.entries(MUSCLE_GROUP_MAP).forEach(([group, exos])=>{
-  exos.forEach(e=>{ EXO_TO_GROUP[e]=group; });
-});
-
 function renderMuscuLiftChart(acts){
-  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(!sorted.length){
+  const liftWrap = document.getElementById('muscu-lift-chart')?.parentElement;
+  const lg = document.getElementById('muscu-lift-legend');
+
+  // Option D: no chart in "Tout" mode — prompt user to pick a group
+  if(_activeMuscuGroup === 'all'){
     _destroyChart('muscu-lift-chart');
-    document.getElementById('muscu-lift-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée</div>';
+    if(lg) lg.innerHTML = '';
+    if(liftWrap) liftWrap.innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:10px;text-align:center;padding:0 20px">'+
+      '<div style="font-size:28px">🏋️</div>'+
+      '<div style="font-size:13px;font-weight:600;color:var(--text)">Sélectionne un groupe musculaire</div>'+
+      '<div style="font-size:12px;color:var(--text2);line-height:1.5;max-width:240px">La progression des charges s\'affiche exercice par exercice pour chaque groupe.</div>'+
+      '</div>';
     return;
   }
 
-  // Determine which groups to show: if a specific group is active, show its exercises as lines;
-  // if 'all', show one line per group (avg weight across all exercises of that group per session)
+  // Restore canvas if it was replaced by the empty state
+  if(!document.getElementById('muscu-lift-chart')){
+    if(liftWrap) liftWrap.innerHTML = '<canvas id="muscu-lift-chart"></canvas>';
+  }
+
+  const sorted = [...acts].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(!sorted.length){
+    _destroyChart('muscu-lift-chart');
+    if(lg) lg.innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée</div>';
+    return;
+  }
+
+  // One line per exercise within the active group
+  const exoNames = new Set();
+  sorted.forEach(a=>{ (a.exercises||[]).forEach(e=>{ if(e.name) exoNames.add(e.name); }); });
+  const seriesDefs = [...exoNames].map(n=>({ key:n, label:n }));
+
+  if(!seriesDefs.length){
+    _destroyChart('muscu-lift-chart');
+    if(lg) lg.innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée de charges</div>';
+    return;
+  }
+
   const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
   const COLORS = [CJ_ACCENT, CJ_GREEN, CJ_AMBER, CJ_RED, '#a855f7', '#f472b6'];
   const DASHES = [[0,0],[5,4],[2,4],[8,3],[4,2],[6,3]];
 
-  let seriesDefs; // [{key, label}]
-
-  if(_activeMuscuGroup === 'all'){
-    // One line per group that has data
-    const groupsWithData = new Set();
-    sorted.forEach(a=>{
-      (a.exercises||[]).forEach(e=>{
-        const g = EXO_TO_GROUP[e.name];
-        if(g) groupsWithData.add(g);
-      });
-    });
-    seriesDefs = [...groupsWithData].map(g=>({ key:g, label:GROUP_LABELS[g]||g }));
-  } else {
-    // One line per exercise within the active group
-    const exoNames = new Set();
-    sorted.forEach(a=>{ (a.exercises||[]).forEach(e=>{ if(e.name) exoNames.add(e.name); }); });
-    seriesDefs = [...exoNames].map(n=>({ key:n, label:n }));
-  }
-
-  if(!seriesDefs.length){
-    _destroyChart('muscu-lift-chart');
-    document.getElementById('muscu-lift-legend').innerHTML='<div style="font-size:11px;color:var(--text2)">Aucune donnée de charges</div>';
-    return;
-  }
-
   const datasets = seriesDefs.map(({key, label}, i)=>{
     const data = sorted.map(a=>{
-      let weights = [];
-      if(_activeMuscuGroup === 'all'){
-        // avg weight across all exercises of this group in this session
-        const groupExos = MUSCLE_GROUP_MAP[key] || [];
-        (a.exercises||[]).forEach(e=>{
-          if(groupExos.includes(e.name)){
-            (e.sets||[]).forEach(s=>{ const w=parseFloat(s.weight); if(w>0) weights.push(w); });
-          }
-        });
-      } else {
-        // avg weight for this specific exercise in this session
-        const exo = (a.exercises||[]).find(e=>e.name===key);
-        if(exo) (exo.sets||[]).forEach(s=>{ const w=parseFloat(s.weight); if(w>0) weights.push(w); });
-      }
+      const exo = (a.exercises||[]).find(e=>e.name===key);
+      if(!exo) return null;
+      const weights = (exo.sets||[]).map(s=>parseFloat(s.weight)).filter(w=>w>0);
       return weights.length ? Math.round(weights.reduce((s,v)=>s+v,0)/weights.length*10)/10 : null;
     });
     return { label, data, borderColor:COLORS[i%COLORS.length], backgroundColor:'transparent',
@@ -2796,7 +2779,6 @@ function renderMuscuLiftChart(acts){
       borderDash:DASHES[i%DASHES.length], spanGaps:true };
   });
 
-  const lg = document.getElementById('muscu-lift-legend');
   if(lg){
     lg.innerHTML = seriesDefs.map(({label},i)=>
       '<span style="display:flex;align-items:center;gap:4px;">'+
@@ -2810,7 +2792,7 @@ function renderMuscuLiftChart(acts){
     data:{ labels, datasets },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false},
-        tooltip:{ callbacks:{ title: ctx=>ctx[0].label, label: ctx=>ctx.dataset.label+' : '+ctx.parsed.y+' lbs (moy)' } } },
+        tooltip:{ callbacks:{ label: ctx=>ctx.dataset.label+' : '+ctx.parsed.y+' lbs (moy)' } } },
       scales: _baseScales('lbs moy') }
   });
 }
