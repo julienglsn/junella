@@ -223,7 +223,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .mc.full{grid-column:span 2}
 
 /* EDIT MODE */
-.edit-bar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.edit-bar{display:flex;justify-content:flex-start;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .edit-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .15s}
 .edit-btn:active{background:var(--accent2);color:var(--accent);border-color:var(--accent)}
 .edit-field{margin-bottom:12px}
@@ -916,6 +916,7 @@ async function renderActivities(sport){
       '<div class="act-metrics" style="display:none">'+
       [m1,m2,m3,m4,m5,m6].map(m=>'<div class="act-metric"><div class="act-metric-val">'+m.val+'</div><div class="act-metric-lbl">'+m.lbl+'</div></div>').join('')+
       '<div class="act-metric" style="cursor:pointer" onclick="editActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">✏️</div><div class="act-metric-lbl">Modifier</div></div>'+
+      '<div class="act-metric" style="cursor:pointer" onclick="deleteActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">🗑️</div><div class="act-metric-lbl" style="color:var(--red)">Supprimer</div></div>'+
       '</div>'+
       (a.feeling?'<div style="padding:6px 14px;font-size:18px;border-top:1px solid var(--border)">'+a.feeling+(a.note?' <span style="font-size:12px;color:var(--text2);font-style:italic">'+a.note+'</span>':'')+'</div>':'')+
       '</div>';
@@ -935,6 +936,14 @@ async function editActivity(id, sport){
 
   // Re-use showManualForm but pre-fill values
   await showManualForm(sport, null, act);
+}
+
+async function deleteActivity(id, sport){
+  if(!isUnlocked()){ requirePin(()=>deleteActivity(id, sport)); return; }
+  if(!confirm('Supprimer cette activité ? Cette action est irréversible.')) return;
+  await dbDelete(id);
+  renderActivities(sport);
+  renderHome();
 }
 
 // ════ MANUAL ENTRY FORMS ════
@@ -1410,6 +1419,7 @@ let cachedHist = null;
 let chartWeeks = []; // [{mon,sun,acts:[]}] populated by renderWeeklyChart
 let activeWeekIdx = null;
 let customSets = {}; // ei -> number of sets
+let bodyweightExos = {}; // ei -> boolean
 
 function todayKey(){ return new Date().toISOString().slice(0,10); }
 
@@ -1837,6 +1847,7 @@ async function renderHome(){
 function selLogProg(progId){
   curLogProg = progId;
   customSets = {};
+  bodyweightExos = {};
   curLog = PROGRAMS[progId].sessions[0]; // default to first session
   renderLogNav();
 }
@@ -1844,6 +1855,7 @@ function selLogProg(progId){
 function selLog(s){
   curLog = s;
   customSets = {};
+  bodyweightExos = {};
   renderLogNav();
 }
 
@@ -1904,13 +1916,13 @@ function renderLogModal(){
 }
 
 function selLMProg(progId){
-  curLogProg=progId; customSets={};
+  curLogProg=progId; customSets={}; bodyweightExos={};
   curLog=PROGRAMS[progId].sessions[0];
   renderLogModal();
 }
 
 function selLMSess(s){
-  curLog=s; customSets={};
+  curLog=s; customSets={}; bodyweightExos={};
   renderLogModal();
 }
 
@@ -1918,6 +1930,11 @@ function selLMSess(s){
 function getSets(ei){
   const def = flatExos(curLog)[ei]?.sets || 4;
   return customSets[ei] !== undefined ? customSets[ei] : def;
+}
+
+function toggleBodyweight(ei){
+  bodyweightExos[ei] = !bodyweightExos[ei];
+  _refreshExoRows(ei);
 }
 
 function addSet(ei){
@@ -1932,26 +1949,50 @@ function removeSet(ei){
   _refreshExoRows(ei);
 }
 
+function _getLogContainer(){
+  // Return the active logger container (modal takes priority)
+  const modal = document.getElementById('lm-form');
+  if(modal && modal.closest('#logger-modal')) return modal;
+  return document.getElementById('lform');
+}
+
 function _refreshExoRows(ei){
   const n = getSets(ei);
-  const countEl = document.getElementById('sets-count-'+ei);
+  // Find sets-count and exo-rows within the correct container
+  const ctx = _getLogContainer() || document;
+  const countEl = ctx.querySelector('#sets-count-'+ei);
   if(countEl) countEl.textContent = n+' série'+(n>1?'s':'');
-  const container = document.getElementById('exo-rows-'+ei);
+  const container = ctx.querySelector('#exo-rows-'+ei);
   if(!container) return;
   const isTimed = !!flatExos(curLog)[ei]?.timed;
+  const isBW = !!bodyweightExos[ei];
   // Snapshot existing values before rebuilding
   const prev = {};
   for(let s=1;s<=20;s++){
-    const w = document.getElementById('w_'+ei+'_'+s);
-    const r = document.getElementById('r_'+ei+'_'+s);
+    const w = ctx.querySelector('#w_'+ei+'_'+s);
+    const r = ctx.querySelector('#r_'+ei+'_'+s);
     if(!w && !r) break;
     prev[s] = {w:w?.value||'', r:r?.value||''};
   }
-  let t = '<table class="stbl"><tr><th>#</th><th>'+(isTimed?'—':'Poids (lbs)')+'</th><th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
+  let t = '<table class="stbl"><tr><th>#</th>';
+  if(!isTimed){
+    t += '<th style="display:flex;align-items:center;gap:6px;padding:8px 14px 6px">Poids';
+    t += '<button id="bw-toggle-'+ei+'" onclick="toggleBodyweight('+ei+')" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid '+(isBW?'var(--accent)':'var(--border)')+';background:'+(isBW?'var(--accent)':'var(--bg4)')+';color:'+(isBW?'#060a12':'var(--text2)')+';cursor:pointer;white-space:nowrap" title="Poids du corps">BW</button>';
+    t += '</th>';
+  } else {
+    t += '<th>—</th>';
+  }
+  t += '<th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
   for(let s=1;s<=n;s++){
     const pv = prev[s]||{};
     t += '<tr><td><span class="sn">'+s+'</span></td>';
-    t += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal" value="'+(pv.w||'')+'">')+'</td>';
+    if(isTimed){
+      t += '<td><span style="color:var(--text3);font-size:12px">—</span></td>';
+    } else if(isBW){
+      t += '<td><span style="color:var(--accent);font-size:12px;font-weight:700">BW</span><input type="hidden" id="w_'+ei+'_'+s+'" value="BW"></td>';
+    } else {
+      t += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal" value="'+(pv.w||'')+'">'+'</td>';
+    }
     t += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal" value="'+(pv.r||'')+'"></td></tr>';
   }
   t += '</table>';
@@ -2021,7 +2062,16 @@ function renderLog(container){
       h += '</div></div>';
       h += '<div id="exo-rows-'+ei+'">';
       const isTimed = !!exo.timed;
-      h += '<table class="stbl"><tr><th>#</th><th>'+(isTimed?'—':'Poids (lbs)')+'</th><th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
+      const isBodyweight = !!exo.bodyweight;
+      h += '<table class="stbl"><tr><th>#</th>';
+      if(!isTimed){
+        h += '<th style="display:flex;align-items:center;gap:6px;padding:8px 14px 6px">Poids';
+        h += '<button id="bw-toggle-'+ei+'" onclick="toggleBodyweight('+ei+')" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:var(--bg4);color:var(--text2);cursor:pointer;white-space:nowrap" title="Poids du corps">BW</button>';
+        h += '</th>';
+      } else {
+        h += '<th>—</th>';
+      }
+      h += '<th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
       for(let s=1;s<=n;s++){
         h += '<tr><td><span class="sn">'+s+'</span></td>';
         h += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal">')+'</td>';
@@ -2079,13 +2129,16 @@ async function saveSess(){
     hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
     hr_max:   parseInt(document.getElementById('l-hr-max')?.value)||null,
     calories: parseInt(document.getElementById('l-calories')?.value)||null,
-    exercises: flatExos(curLog).map((exo,ei)=>({
-      name: exo.name,
-      sets: Array.from({length:getSets(ei)},(_,si)=>({
-        weight: document.getElementById('w_'+ei+'_'+(si+1))?.value||'',
-        reps:   document.getElementById('r_'+ei+'_'+(si+1))?.value||''
-      }))
-    }))
+    exercises: flatExos(curLog).map((exo,ei)=>{
+      const ctx = _getLogContainer() || document;
+      return {
+        name: exo.name,
+        sets: Array.from({length:getSets(ei)},(_,si)=>({
+          weight: ctx.querySelector('#w_'+ei+'_'+(si+1))?.value||'',
+          reps:   ctx.querySelector('#r_'+ei+'_'+(si+1))?.value||''
+        }))
+      };
+    })
   };
 
   const btn = document.querySelector('.savebtn');
@@ -2327,6 +2380,7 @@ function _fillHistDetail(i){
   body.innerHTML =
     '<div class="edit-bar">'+
     '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
+    '<button class="edit-btn" style="color:var(--red);border-color:rgba(255,82,82,.3)" onclick="deleteMuscu('+i+',event)">🗑️ Supprimer</button>'+
     (e.strava_activity_id
       ? '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(252,76,2,.15);color:#fc4c02;border:1px solid rgba(252,76,2,.25)">🟠 Strava lié</span>'
       : '<button class="edit-btn" style="color:#fc4c02;border-color:rgba(252,76,2,.3)" onclick="openStravaLinkModal('+e.id+',&quot;'+new Date(e.date).toISOString().slice(0,10)+'&quot;)">🔗 Lier Strava</button>')+
@@ -2377,6 +2431,18 @@ async function loadCardioForEntry(entry){
   bloc.dataset.loaded = '1';
   const activity = await dbLoadLinkedActivity(entry.id);
   bloc.innerHTML = renderCardioBloc(activity, entry.id);
+}
+
+async function deleteMuscu(i, ev){
+  ev.stopPropagation();
+  if(!isUnlocked()){ requirePin(()=>deleteMuscu(i, ev)); return; }
+  const entry = cachedHist[i];
+  if(!entry) return;
+  if(!confirm('Supprimer cette séance ? Cette action est irréversible.')) return;
+  await dbDelete(entry.id);
+  cachedHist = null;
+  renderHist();
+  renderHome();
 }
 
 function startEdit(i, ev){
