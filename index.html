@@ -878,7 +878,7 @@ async function renderActivities(sport){
   if(!listEl) return;
   listEl.innerHTML = '<div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>';
 
-  const acts = await dbLoadActivities(sport);
+  const acts = await dbLoad(sport);
   const countEl = document.getElementById(sport+'-count');
   if(countEl) countEl.textContent = acts.length + ' sortie'+(acts.length!==1?'s':'');
   if(!acts.length){
