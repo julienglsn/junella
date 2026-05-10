@@ -138,8 +138,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .li:focus{border-color:var(--accent)}
 .sn{font-size:12px;font-weight:700;color:var(--text3);width:24px}
 .frow{display:flex;gap:7px;margin-bottom:14px}
-.fbtn{flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:18px;cursor:pointer;text-align:center;transition:all .18s}
+.fbtn{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;text-align:center;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px}
 .fbtn.active{border-color:var(--accent);background:var(--accent2)}
+.fbtn-num{font-size:20px;font-weight:700;line-height:1}
+.fbtn-lbl{font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);line-height:1}
 .flbl{font-size:9px;margin-top:3px;font-weight:600;letter-spacing:.04em}
 .ni{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--fb);font-size:14px;resize:none;height:76px;outline:none;margin-bottom:12px}
 .ni:focus{border-color:var(--accent)}
@@ -912,7 +914,7 @@ async function renderActivities(sport){
       '<div class="act-metric" style="cursor:pointer" onclick="editActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">✏️</div><div class="act-metric-lbl">Modifier</div></div>'+
       '<div class="act-metric" style="cursor:pointer" onclick="deleteActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">🗑️</div><div class="act-metric-lbl" style="color:var(--red)">Supprimer</div></div>'+
       '</div>'+
-      (a.feeling?'<div style="padding:6px 14px;font-size:18px;border-top:1px solid var(--border)">'+a.feeling+(a.note?' <span style="font-size:12px;color:var(--text2);font-style:italic">'+a.note+'</span>':'')+'</div>':'')+
+      (a.feeling?(a.feeling?'<div style="padding:6px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px">'+feelBadge(a.feeling)+(a.note?'<span style="font-size:12px;color:var(--text2);font-style:italic">'+_esc(a.note)+'</span>':'')+'</div>':''):'')+
       '</div>';
   }).join('');
 }
@@ -1028,7 +1030,7 @@ async function showManualForm(sport, linkedSessionId, existingActivity){
       const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
       const lbl = s.session_label||s.label||'';
       const sel = s.id===linkedSessionId?' selected':'';
-      return '<option value="'+s.id+'"'+sel+'>'+(s.feeling||'')+' '+lbl+' — '+ds+'</option>';
+      const fm=FEELING_META[s.feeling]; return '<option value="'+s.id+'"'+sel+'>'+(fm?fm.lbl+' · ':'')+lbl+' — '+ds+'</option>';
     }).join('');
     sessionPicker = '<div class="modal-field"><label>🏋️ Lier à une séance</label>'+
       '<select class="modal-input" id="mf-session"><option value="">— Ne pas lier —</option>'+opts+'</select></div>';
@@ -1064,7 +1066,7 @@ async function showManualForm(sport, linkedSessionId, existingActivity){
       fieldsHtml += '<textarea class="ni" id="mf-'+f.key+'" placeholder="—" style="margin-bottom:0;height:60px"></textarea>';
     } else if(f.type==='feeling'){
       fieldsHtml += '<div class="frow" id="mf-feeling-row" style="margin-bottom:0">'+
-        ['😴','😐','💪','🔥'].map(em=>'<button class="fbtn" onclick="pickModalFeel(this)" data-feel="'+em+'"><div>'+em+'</div></button>').join('')+
+        ['<button class="fbtn" onclick="pickModalFeel(this)" data-feel="1" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="2" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="3" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="4" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="5" title="PR, surpassement, tout passe facilement"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>'].join("")+
         '</div>';
     }
     fieldsHtml += '</div>';
@@ -1404,6 +1406,20 @@ const SESSIONS = {
 // Flatten exercises for logger (keeps ei indexing simple)
 function flatExos(sessKey){
   return SESSIONS[sessKey].supersets.flatMap(ss=>ss.exercises);
+}
+
+// ════ FEELING META ════
+const FEELING_META = {
+  '1':{lbl:'Épuisé',   color:'#A32D2D', bg:'rgba(162,45,45,.15)'},
+  '2':{lbl:'Difficile',color:'#854F0B', bg:'rgba(133,79,11,.15)'},
+  '3':{lbl:'Correct',  color:'#5F5E5A', bg:'rgba(95,94,90,.12)'},
+  '4':{lbl:'Solide',   color:'#3B6D11', bg:'rgba(59,109,17,.15)'},
+  '5':{lbl:'En feu',   color:'#27500A', bg:'rgba(39,80,10,.15)'},
+};
+function feelBadge(f){
+  const m=FEELING_META[f];
+  if(!m) return '';
+  return '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:'+m.bg+';color:'+m.color+'">'+m.lbl+'</span>';
 }
 
 // ════ HTML ESCAPE HELPER ════
@@ -1803,7 +1819,7 @@ function _renderWeekDetail(idx){
       h += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">';
       h += '<div style="width:30px;height:30px;border-radius:8px;background:'+color+'22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+ico+'</div>';
       h += '<div style="flex:1;min-width:0">';
-      h += '<div style="font-size:13px;font-weight:600;color:var(--text)">'+_esc(a.feeling?a.feeling+' ':'')+_esc(label)+'</div>';
+      h += '<div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">'+feelBadge(a.feeling)+_esc(label)+'</div>';
       h += '<div style="font-size:11px;color:var(--text2);margin-top:1px">'+ds+'</div>';
       if(chips.length){
         h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">';
@@ -2033,10 +2049,11 @@ function renderLog(container){
   h += '<input class="di" type="date" id="l-date" value="'+logDate+'" max="'+todayKey()+'" onchange="logDate=this.value"></div>';
 
   h += '<div class="slabel" style="margin-bottom:8px">Ressenti</div><div class="frow">';
-  h += '<button class="fbtn" onclick="setF(\'😴\',this)"><div>😴</div><div class="flbl">Fatigué</div></button>';
-  h += '<button class="fbtn" onclick="setF(\'😐\',this)"><div>😐</div><div class="flbl">Correct</div></button>';
-  h += '<button class="fbtn" onclick="setF(\'💪\',this)"><div>💪</div><div class="flbl">Bon</div></button>';
-  h += '<button class="fbtn" onclick="setF(\'🔥\',this)"><div>🔥</div><div class="flbl">En feu</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'1\',this)" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'2\',this)" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'3\',this)" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'4\',this)" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'5\',this)" title="PR, surpassement, tout passe facilement"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>';
   h += '</div>';
 
   let eiOffset = 0;
@@ -2115,7 +2132,7 @@ async function saveSess(){
     session_type: curLog,
     session_label: sess.label,
     date: new Date(logDate+'T12:00:00').toISOString(),
-    feeling: feeling||'😐',
+    feeling: feeling||'3',
     note: document.getElementById('lnote')?.value||'',
     duration_sec: (()=>{ const h=parseInt(document.getElementById('l-dur-h')?.value)||0; const m=parseInt(document.getElementById('l-dur-m')?.value)||0; const s=parseInt(document.getElementById('l-dur-s')?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
     hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
@@ -2322,7 +2339,7 @@ async function renderHist(){
     return '<div class="he" id="he-'+i+'">'+
       '<div class="heh" onclick="togHistEntry('+i+')">'+
       '<div>'+
-      '<div class="het">'+_esc(e.feeling||'')+' '+_esc(label)+'</div>'+
+      '<div class="het" style="display:flex;align-items:center;gap:7px">'+feelBadge(e.feeling)+_esc(label)+'</div>'+
       '<div class="hed">'+ds+
       (exos.length ? ' · <span style="font-size:11px;color:var(--text3)">'+exos.length+' exo</span>' : '')+
       '</div>'+metaStr+
@@ -2433,10 +2450,11 @@ function startEdit(i, ev){
   h += '<input class="di" type="date" id="edit-date-'+i+'" value="'+dateVal+'" max="'+todayKey()+'"></div>';
   // Feeling
   h += '<div class="edit-field"><label>Ressenti</label><div class="frow" style="margin-bottom:0">';
-  ['😴','😐','💪','🔥'].forEach(em=>{
-    const active = entry.feeling===em?' active':'';
-    h += '<button class="fbtn'+active+'" onclick="pickEditFeel(this)">'+em+'</button>';
-  });
+    h += '<button class="fbtn'+( entry.feeling==='1'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="1" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
+    h += '<button class="fbtn'+( entry.feeling==='2'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="2" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>';
+    h += '<button class="fbtn'+( entry.feeling==='3'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="3" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>';
+    h += '<button class="fbtn'+( entry.feeling==='4'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="4" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>';
+    h += '<button class="fbtn'+( entry.feeling==='5'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="5" title="PR, surpassement, tout passe facilement"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>';
   h += '</div></div>';
   // Exercises
   (entry.exercises||[]).forEach((exo,ei)=>{
@@ -2489,7 +2507,7 @@ async function saveEdit(i){
   const entry = cachedHist[i];
   const dateVal = document.getElementById('edit-date-'+i).value;
   const feelBtn = document.querySelector('#hd-edit-'+i+' .fbtn.active');
-  const feeling = feelBtn ? feelBtn.textContent.trim() : entry.feeling;
+  const feeling = feelBtn ? (feelBtn.dataset.feel||feelBtn.textContent.trim().charAt(0)) : entry.feeling;
   const note = document.getElementById('edit-note-'+i).value;
 
   const exercises = (entry.exercises||[]).map((exo,ei)=>({
