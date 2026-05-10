@@ -1066,7 +1066,7 @@ async function showManualForm(sport, linkedSessionId, existingActivity){
       fieldsHtml += '<textarea class="ni" id="mf-'+f.key+'" placeholder="—" style="margin-bottom:0;height:60px"></textarea>';
     } else if(f.type==='feeling'){
       fieldsHtml += '<div class="frow" id="mf-feeling-row" style="margin-bottom:0">'+
-        ['<button class="fbtn" onclick="pickModalFeel(this)" data-feel="1" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="2" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="3" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="4" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="5" title="PR, surpassement, tout passe facilement"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>'].join("")+
+        ['<button class="fbtn" onclick="pickModalFeel(this)" data-feel="1" title="Jambes lourdes, manque d&#39;énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="2" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="3" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="4" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>','<button class="fbtn" onclick="pickModalFeel(this)" data-feel="5" title="PR, surpassement, tout passe facilement"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>'].join("")+
         '</div>';
     }
     fieldsHtml += '</div>';
@@ -2049,7 +2049,7 @@ function renderLog(container){
   h += '<input class="di" type="date" id="l-date" value="'+logDate+'" max="'+todayKey()+'" onchange="logDate=this.value"></div>';
 
   h += '<div class="slabel" style="margin-bottom:8px">Ressenti</div><div class="frow">';
-  h += '<button class="fbtn" onclick="setF(\'1\',this)" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
+  h += '<button class="fbtn" onclick="setF(\'1\',this)" title="Jambes lourdes, manque d&#39;énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
   h += '<button class="fbtn" onclick="setF(\'2\',this)" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>';
   h += '<button class="fbtn" onclick="setF(\'3\',this)" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>';
   h += '<button class="fbtn" onclick="setF(\'4\',this)" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>';
@@ -2450,7 +2450,7 @@ function startEdit(i, ev){
   h += '<input class="di" type="date" id="edit-date-'+i+'" value="'+dateVal+'" max="'+todayKey()+'"></div>';
   // Feeling
   h += '<div class="edit-field"><label>Ressenti</label><div class="frow" style="margin-bottom:0">';
-    h += '<button class="fbtn'+( entry.feeling==='1'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="1" title="Jambes lourdes, manque d'énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
+    h += '<button class="fbtn'+( entry.feeling==='1'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="1" title="Jambes lourdes, manque d&#39;énergie total"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
     h += '<button class="fbtn'+( entry.feeling==='2'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="2" title="Séance forcée, motivation basse"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>';
     h += '<button class="fbtn'+( entry.feeling==='3'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="3" title="Séance standard, ni bonne ni mauvaise"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>';
     h += '<button class="fbtn'+( entry.feeling==='4'?' active':'')+'" onclick="pickEditFeel(this)" data-feel="4" title="Bonne énergie, charges au rendez-vous"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>';
