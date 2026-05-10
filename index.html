@@ -1568,7 +1568,7 @@ function showSportTab(sport, tab, btn){
   page.querySelectorAll('.stabs .stab').forEach(b=>b.classList.remove('active'));
   document.getElementById(sport+'-'+tab).classList.add('active');
   btn.classList.add('active');
-  if(tab==='hist') renderActivities(sport);
+  if(tab==='main') renderActivities(sport);
 }
 
 function selectProg(progId, card){
