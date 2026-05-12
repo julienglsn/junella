@@ -53,15 +53,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .cal-dot-velo{background:#ffb347}
 
 /* HOME FEED */
-.feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin-bottom:9px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.feed-card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;gap:10px}
 .feed-card:active{border-color:var(--accent)}
+.feed-ico{font-size:20px;flex-shrink:0;line-height:1}
 .feed-left{flex:1;min-width:0}
-.feed-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:3px}
-.feed-meta{font-size:12px;color:var(--text2)}
-.feed-metrics{display:flex;gap:12px;flex-wrap:wrap;margin-top:5px}
-.feed-metric{font-size:12px;color:var(--text2)}
-.feed-metric strong{color:var(--text);font-weight:600}
-.feed-day{font-size:11px;font-weight:700;color:var(--text3);text-align:right;white-space:nowrap}
+.feed-row1{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.feed-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-date{font-size:11px;color:var(--text3);flex-shrink:0}
+.feed-metrics{font-size:11px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-metrics span+span::before{content:' · ';color:var(--text3)}
+.feed-day{font-size:14px;color:var(--text3);flex-shrink:0}
 
 /* SUBNAV */
 .subnav{position:fixed;bottom:calc(58px + var(--safe-bottom));left:0;right:0;z-index:99;background:rgba(6,10,18,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;padding:8px 16px;gap:8px;overflow-x:auto;scrollbar-width:none}
@@ -1648,7 +1649,7 @@ function renderRecentActivities(activities){
 
   el.innerHTML = recent.map(a=>{
     const d = new Date(a.date);
-    const ds = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'short'});
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
     const ico   = SPORT_ICO2[a.type] || '🏅';
     const color = SPORT_CLR[a.type]  || 'var(--text2)';
     const label = a.session_label || a.label || a.strava_name ||
@@ -1667,12 +1668,12 @@ function renderRecentActivities(activities){
       : "showSection('sports');showSport('"+sport+"',document.getElementById('snav-"+sport+"'))";
 
     return '<div class="feed-card" onclick="'+nav+'" style="border-left:3px solid '+color+'">'+
+      '<span class="feed-ico">'+ico+'</span>'+
       '<div class="feed-left">'+
-      '<div class="feed-title"><span style="font-size:18px">'+ico+'</span>'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</div>'+
-      '<div class="feed-meta">'+ds+'</div>'+
-      (chips.length ? '<div class="feed-metrics">'+chips.map(c=>'<span class="feed-metric">'+c+'</span>').join('')+'</div>' : '')+
+      '<div class="feed-row1"><span class="feed-title">'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</span><span class="feed-date">'+ds+'</span></div>'+
+      (chips.length ? '<div class="feed-metrics">'+chips.map(c=>'<span>'+c+'</span>').join('')+'</div>' : '')+
       '</div>'+
-      '<div class="feed-day" style="color:'+color+'">›</div>'+
+      '<div class="feed-day">›</div>'+
       '</div>';
   }).join('');
 }
@@ -1891,7 +1892,7 @@ function _renderWeekDetail(idx){
 
   el.innerHTML = sorted.map(a=>{
     const d = new Date(a.date);
-    const ds = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
     const ico   = SPORT_ICO2[a.type]||'🏅';
     const color = SPORT_CLR[a.type]||'var(--text2)';
     const label = a.session_label||a.label||a.strava_name||(a.type==='muscu'?'Musculation':a.type==='course'?'Course à pied':'Vélo de route');
@@ -1905,12 +1906,12 @@ function _renderWeekDetail(idx){
     const sport = a.type;
     const nav = "showSection('sports');showSport('"+sport+"',document.getElementById('snav-"+sport+"'))";
     return '<div class="feed-card" onclick="'+nav+'" style="border-left:3px solid '+color+'">'+
+      '<span class="feed-ico">'+ico+'</span>'+
       '<div class="feed-left">'+
-      '<div class="feed-title"><span style="font-size:18px">'+ico+'</span>'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</div>'+
-      '<div class="feed-meta">'+ds+'</div>'+
-      (chips.length?'<div class="feed-metrics">'+chips.map(c=>'<span class="feed-metric">'+c+'</span>').join('')+'</div>':'')+
+      '<div class="feed-row1"><span class="feed-title">'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</span><span class="feed-date">'+ds+'</span></div>'+
+      (chips.length?'<div class="feed-metrics">'+chips.map(c=>'<span>'+c+'</span>').join('')+'</div>':'')+
       '</div>'+
-      '<div class="feed-day" style="color:'+color+'">›</div>'+
+      '<div class="feed-day">›</div>'+
       '</div>';
   }).join('');
 
@@ -2213,7 +2214,7 @@ async function saveSess(){
     program: curLogProg,
     session_type: curLog,
     session_label: sess.label,
-    date: new Date(logDate+'T12:00:00').toISOString(),
+    date: (()=>{ const now = new Date(); const today = now.toISOString().slice(0,10); return (logDate === today) ? now.toISOString() : new Date(logDate+'T12:00:00').toISOString(); })(),
     feeling: feeling||'3',
     note: document.getElementById('lnote')?.value||'',
     duration_sec: (()=>{ const h=parseInt(document.getElementById('l-dur-h')?.value)||0; const m=parseInt(document.getElementById('l-dur-m')?.value)||0; const s=parseInt(document.getElementById('l-dur-s')?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
@@ -2344,6 +2345,7 @@ async function linkStravaActivity(muscuId, stravaId, rowEl){
   const patch = {
     source: 'strava',
     strava_activity_id: stravaEntry.id,
+    date:         stravaEntry.date,
     duration_sec: stravaEntry.duration_sec || muscuEntry.duration_sec || null,
     hr_avg:       stravaEntry.hr_avg       || muscuEntry.hr_avg       || null,
     hr_max:       stravaEntry.hr_max       || muscuEntry.hr_max       || null,
@@ -2479,6 +2481,7 @@ async function mergeStravaIntoManual(stravaId, manualId, rowEl){
   const patch = {
     source: 'strava',
     strava_activity_id: stravaEntry.id,
+    date:         stravaEntry.date,
     duration_sec: stravaEntry.duration_sec || manualEntry.duration_sec || null,
     hr_avg:       stravaEntry.hr_avg       || manualEntry.hr_avg       || null,
     hr_max:       stravaEntry.hr_max       || manualEntry.hr_max       || null,
@@ -2753,7 +2756,7 @@ async function saveEdit(i){
   const ds2 = parseInt(document.getElementById('edit-dur-s-'+i)?.value)||0;
   const duration_sec = (dh||dm||ds2) ? dh*3600+dm*60+ds2 : null;
   const patch = {
-    date: new Date(dateVal+'T12:00:00').toISOString(),
+    date: (()=>{ const existingDate = new Date(entry.date); const existingDay = existingDate.toISOString().slice(0,10); return (dateVal === existingDay) ? entry.date : new Date(dateVal+'T12:00:00').toISOString(); })(),
     feeling, note, exercises, hr_avg, hr_max, calories, duration_sec
   };
 
