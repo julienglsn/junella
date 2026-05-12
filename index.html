@@ -847,7 +847,8 @@ function _cacheUpdate(id, patch){
 }
 function _cacheDelete(id){
   const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
-  localStorage.setItem('cju_acts', JSON.stringify(local.filter(e=>e.id!==id)));
+  // eslint-disable-next-line eqeqeq
+  localStorage.setItem('cju_acts', JSON.stringify(local.filter(e=>e.id!=id)));
 }
 
 
@@ -2248,8 +2249,10 @@ async function linkStravaActivity(muscuId, stravaId, rowEl){
 
   // Load both entries to get Strava data
   const allActs = await dbLoad(null);
-  const stravaEntry = allActs.find(a=>a.id===stravaId);
-  const muscuEntry  = allActs.find(a=>a.id===muscuId);
+  // eslint-disable-next-line eqeqeq
+  const stravaEntry = allActs.find(a=>a.id==stravaId);
+  // eslint-disable-next-line eqeqeq
+  const muscuEntry  = allActs.find(a=>a.id==muscuId);
 
   if(!stravaEntry || !muscuEntry){
     alert('Erreur : entrée introuvable'); return;
@@ -2259,7 +2262,7 @@ async function linkStravaActivity(muscuId, stravaId, rowEl){
   // Only overwrite cardio fields if muscu entry doesn't already have them
   const patch = {
     source: 'strava',
-    strava_activity_id: stravaId,
+    strava_activity_id: stravaEntry.id,
     duration_sec: stravaEntry.duration_sec || muscuEntry.duration_sec || null,
     hr_avg:       stravaEntry.hr_avg       || muscuEntry.hr_avg       || null,
     hr_max:       stravaEntry.hr_max       || muscuEntry.hr_max       || null,
@@ -2267,9 +2270,9 @@ async function linkStravaActivity(muscuId, stravaId, rowEl){
   };
 
   // Patch the muscu entry (exercises untouched — PATCH only updates specified fields)
-  await dbUpdate(muscuId, patch);
-  // Delete the Strava-only entry
-  await dbDelete(stravaId);
+  await dbUpdate(muscuEntry.id, patch);
+  // Delete the Strava-only entry using its actual DB id
+  await dbDelete(stravaEntry.id);
 
   cachedHist = null;
 
@@ -2380,8 +2383,11 @@ async function mergeStravaIntoManual(stravaId, manualId, rowEl){
   rowEl.style.pointerEvents = 'none';
 
   const allActs = await dbLoad('muscu');
-  const stravaEntry = allActs.find(a=>a.id===stravaId);
-  const manualEntry = allActs.find(a=>a.id===manualId);
+  // Comparaison loose pour éviter les problèmes string/number
+  // eslint-disable-next-line eqeqeq
+  const stravaEntry = allActs.find(a=>a.id==stravaId);
+  // eslint-disable-next-line eqeqeq
+  const manualEntry = allActs.find(a=>a.id==manualId);
 
   if(!stravaEntry || !manualEntry){
     alert('Erreur : entrée introuvable'); return;
@@ -2391,15 +2397,16 @@ async function mergeStravaIntoManual(stravaId, manualId, rowEl){
   // Les données Strava écrasent seulement si la séance manuelle n'a pas déjà ces infos
   const patch = {
     source: 'strava',
-    strava_activity_id: stravaId,
+    strava_activity_id: stravaEntry.id,
     duration_sec: stravaEntry.duration_sec || manualEntry.duration_sec || null,
     hr_avg:       stravaEntry.hr_avg       || manualEntry.hr_avg       || null,
     hr_max:       stravaEntry.hr_max       || manualEntry.hr_max       || null,
     calories:     stravaEntry.calories     || manualEntry.calories     || null,
   };
 
-  await dbUpdate(manualId, patch);
-  await dbDelete(stravaId);
+  await dbUpdate(manualEntry.id, patch);
+  // Utilise l'ID exact tel que retourné par Supabase pour la suppression
+  await dbDelete(stravaEntry.id);
 
   cachedHist = null;
 
