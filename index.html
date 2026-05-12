@@ -165,6 +165,15 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .hen{color:var(--text2)}
 .hev{font-weight:700;font-size:12px}
 .hno{font-size:12px;color:var(--text2);margin-top:8px;font-style:italic}
+.hmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.hmcell{background:var(--bg2);padding:11px 8px;text-align:center}
+.hmcell-val{font-family:var(--fd);font-size:20px;letter-spacing:.04em;color:var(--text);line-height:1}
+.hmcell-lbl{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.exo-pills-row{display:flex;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid var(--border)}
+.exo-pills-row:last-child{border-bottom:none}
+.exo-pills-name{font-size:13px;color:var(--text2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exo-pills-list{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.exo-pill{font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px;background:rgba(77,158,255,.06);border:1px solid rgba(77,158,255,.15);color:var(--accent);white-space:nowrap}
 .empty{text-align:center;padding:48px 20px;color:var(--text3)}
 .empty .ico{font-size:38px;margin-bottom:10px}
 .empty p{font-size:14px;line-height:1.5}
@@ -439,8 +448,8 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
   </div>
   <div class="stabs" id="muscu-nav">
-    <button class="stab active" onclick="showMuscu('hist',this)">📈 Historique</button>
-    <button class="stab" onclick="showMuscu('charts',this)">📊 Graphiques</button>
+    <button class="stab active" onclick="showMuscu('charts',this)">📊 Graphiques</button>
+    <button class="stab" onclick="showMuscu('hist',this)">📈 Historique</button>
     <button class="stab" onclick="showMuscu('prog',this)">📋 Programme</button>
   </div>
 
@@ -536,7 +545,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
   <!-- Graphiques -->
-  <div class="sc" id="muscu-charts">
+  <div class="sc active" id="muscu-charts">
     <div class="sec" style="padding-top:14px">
 
       <!-- Filtre groupe musculaire global -->
@@ -577,7 +586,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   </div>
 
   <!-- Historique -->
-  <div class="sc active" id="muscu-hist">
+  <div class="sc" id="muscu-hist">
     <div class="import-bar" style="padding:0 0 14px 0">
       <button class="imp-btn" onclick="openLoggerModal()">✏️ Logger une séance</button>
     </div>
@@ -594,10 +603,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <p>Coros Pace 4 · Zone 2 · Progression</p>
   </div>
   <div class="stabs" id="course-nav">
-    <button class="stab active" onclick="showSportTab('course','main',this)">📈 Historique</button>
-    <button class="stab" onclick="showSportTab('course','charts',this)">📊 Graphiques</button>
+    <button class="stab active" onclick="showSportTab('course','charts',this)">📊 Graphiques</button>
+    <button class="stab" onclick="showSportTab('course','main',this)">📈 Historique</button>
   </div>
-  <div class="sc active" id="course-main">
+  <div class="sc" id="course-main">
   <div class="import-bar" style="padding:14px 20px 0">
     <button class="imp-btn" onclick="showManualForm('course',null)">+ Ajouter une sortie</button>
   </div>
@@ -608,7 +617,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
   </div>
   </div><!-- end course-main -->
-  <div class="sc" id="course-charts">
+  <div class="sc active" id="course-charts">
     <div class="sec" style="padding-top:14px">
 
       <!-- Allure vs FC -->
@@ -647,10 +656,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
   </div>
   <div class="stabs" id="velo-nav">
-    <button class="stab active" onclick="showSportTab('velo','main',this)">📈 Historique</button>
-    <button class="stab" onclick="showSportTab('velo','charts',this)">📊 Graphiques</button>
+    <button class="stab active" onclick="showSportTab('velo','charts',this)">📊 Graphiques</button>
+    <button class="stab" onclick="showSportTab('velo','main',this)">📈 Historique</button>
   </div>
-  <div class="sc active" id="velo-main">
+  <div class="sc" id="velo-main">
   <div class="import-bar" style="padding:14px 20px 0">
     <button class="imp-btn" onclick="showManualForm('velo',null)">+ Ajouter une sortie</button>
   </div>
@@ -661,7 +670,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
   </div>
   </div><!-- end velo-main -->
-  <div class="sc" id="velo-charts">
+  <div class="sc active" id="velo-charts">
     <div class="sec" style="padding-top:14px">
 
       <!-- Vitesse vs FC -->
@@ -2601,17 +2610,34 @@ function _fillHistDetail(i){
 
   const exos = e.exercises || [];
   const isStravaOnly = e.source === 'strava' && !exos.length;
+
+  // Metric grid (same pattern as course/velo)
+  const hasCardio = e.duration_sec||e.hr_avg||e.hr_max||e.calories;
+  const metricGrid = hasCardio
+    ? '<div class="hmgrid">'+
+      (e.duration_sec?'<div class="hmcell"><div class="hmcell-val">'+fmtDuration(e.duration_sec)+'</div><div class="hmcell-lbl">Durée</div></div>':'')+
+      (e.hr_avg?'<div class="hmcell"><div class="hmcell-val">'+e.hr_avg+'</div><div class="hmcell-lbl">FC moy</div></div>':'')+
+      (e.calories?'<div class="hmcell"><div class="hmcell-val">'+e.calories+'</div><div class="hmcell-lbl">Kcal</div></div>':'')+
+      (e.hr_max?'<div class="hmcell"><div class="hmcell-val">'+e.hr_max+'</div><div class="hmcell-lbl">FC max</div></div>':'')+
+      '</div>'
+    : '';
+
+  // Exo rows with pills per set (option 1)
   const rows = exos.map(exo=>{
     const isTimed = exo.name.toLowerCase().includes('plank');
-    let sv;
+    const validSets = (exo.sets||[]).filter(s=>s.weight||s.reps);
+    if(!validSets.length) return '';
+    let pills;
     if(isTimed){
-      const setsWithReps = (exo.sets||[]).filter(s=>s.reps);
-      if(setsWithReps.length) sv = setsWithReps.length+'×'+setsWithReps[0].reps+'sec';
+      pills = validSets.map(s=>'<span class="exo-pill">'+_esc(s.reps)+'sec</span>').join('');
     } else {
-      sv = (exo.sets||[]).filter(s=>s.weight||s.reps)
-        .map(s=>(s.weight?s.weight+'lbs':'—')+'×'+(s.reps||'?')).join(' · ');
+      pills = validSets.map(s=>{
+        const w = s.weight ? s.weight+'lbs' : '';
+        const r = s.reps   ? '×'+s.reps    : '';
+        return '<span class="exo-pill">'+_esc(w+r)+'</span>';
+      }).join('');
     }
-    return sv?'<div class="her"><span class="hen">'+_esc(exo.name)+'</span><span class="hev">'+_esc(sv)+'</span></div>':"";
+    return '<div class="exo-pills-row"><span class="exo-pills-name">'+_esc(exo.name)+'</span><div class="exo-pills-list">'+pills+'</div></div>';
   }).filter(Boolean).join('');
 
   body.innerHTML =
@@ -2628,23 +2654,12 @@ function _fillHistDetail(i){
     (isStravaOnly
       ? '<div style="background:rgba(252,76,2,.06);border:1px solid rgba(252,76,2,.15);border-radius:10px;padding:12px 14px;margin-bottom:8px">'+
         '<div style="font-size:11px;color:#fc4c02;font-weight:700;margin-bottom:8px">🟠 Activité Strava — données cardio uniquement</div>'+
-        '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
-        (e.duration_sec?'⏱ Durée : <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong><br>':'')+
-        (e.hr_avg?'♥ FC moy : <strong style="color:var(--text)">'+e.hr_avg+' bpm</strong><br>':'')+
-        (e.hr_max?'♥ FC max : <strong style="color:var(--text)">'+e.hr_max+' bpm</strong><br>':'')+
-        (e.calories?'🔥 Calories : <strong style="color:var(--text)">'+e.calories+' kcal</strong><br>':'')+
-        '</div>'+
-        '<div style="font-size:11px;color:var(--text3);margin-top:8px">Fusionne avec ta séance loggée pour avoir toutes les données ensemble.</div>'+
+        metricGrid+
+        '<div style="font-size:11px;color:var(--text3);margin-top:8px;padding:0 2px">Fusionne avec ta séance loggée pour avoir toutes les données ensemble.</div>'+
         '</div>'
-      : (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
-        (e.note?'<div class="hno">💬 '+_esc(e.note)+'</div>':'')+
-        ((e.duration_sec||e.hr_avg||e.hr_max||e.calories)?
-          '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
-          (e.duration_sec?'<span style="font-size:12px;color:var(--text2)">⏱ <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong></span>':'')+
-          (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
-          (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
-          (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
-          '</div>':'')
+      : metricGrid+
+        (rows||'<div style="color:var(--text3);font-size:13px;padding:12px 16px">Aucune donnée</div>')+
+        (e.note?'<div class="hno" style="padding:0 16px 10px">💬 '+_esc(e.note)+'</div>':'')
     )+
     '</div>'+
     '<div id="hd-edit-'+i+'" style="display:none"></div>';
