@@ -366,7 +366,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="hrs" id="home-date">Chargement...</div>
   </div>
 
-  <div class="sec" style="padding-top:0">
+  <div class="sec" style="padding-top:18px">
     <div class="slabel">Heures de sport · 10 dernières semaines</div>
     <div id="home-weekly-chart" class="cal-grid-wrap" style="padding:12px 12px 8px;">
       <div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>
@@ -1536,9 +1536,18 @@ function showSport(sport, btn){
   document.querySelectorAll('#subnav-sports .subnav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  if(sport==='course') renderActivities('course');
-  if(sport==='velo')   renderActivities('velo');
-  if(sport==='muscu') renderHist();
+  if(sport==='course'){
+    renderActivities('course');
+    dbLoad('course').then(acts=>{ renderCoursePaceChart(acts); renderCourseKmChart(acts); renderCourseScatterChart(acts); });
+  }
+  if(sport==='velo'){
+    renderActivities('velo');
+    dbLoad('velo').then(acts=>{ renderVeloSpeedChart(acts); renderVeloKmChart(acts); renderVeloScatterChart(acts); });
+  }
+  if(sport==='muscu'){
+    renderHist();
+    dbLoad('muscu').then(acts=>{ renderMuscuCharts(acts); });
+  }
 }
 
 function showNutrition(tab, btn){
