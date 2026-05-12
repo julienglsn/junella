@@ -1450,6 +1450,31 @@ const SESSIONS = {
   ]}
 };
 
+
+// ════ EXERCISE BANK (for free sessions) ════
+const EXERCISE_BANK = [
+  // Jambes
+  'Goblet squat','Static lunges','Romanian deadlift','Leg press',
+  'Standing calf raises','Bulgarian split squat','Leg extension','Leg curl',
+  'Hip thrust','Step-ups','Sumo squat','Box jump',
+  // Push
+  'Bench press','Incline bench press','Dumbbell press','Dumbbell flyes',
+  'Cable flyes','Push-ups','Dips','Overhead press','Arnold press',
+  'Lateral raises','Front raises','Cable lateral raises',
+  // Pull
+  'Lat pulldown','Dumbbell row','Barbell row','Cable row','Pull-ups',
+  'Face pull','Rear delt flyes','Shrugs','Deadlift',
+  // Bras
+  'Cable curl','Hammer curl','Barbell curl','Preacher curl',
+  'Cable triceps pushdown','Skull crushers','Triceps dips','Overhead triceps extension',
+  // Gainage / Core
+  'Plank','Side plank','Ab wheel','Crunches','Leg raises','Russian twists',
+  'Cable crunch','Hyperextensions',
+];
+
+// State for free session
+let freeExos = []; // [{name, sets, timed}]
+
 // Flatten exercises for logger (keeps ei indexing simple)
 function flatExos(sessKey){
   return SESSIONS[sessKey].supersets.flatMap(ss=>ss.exercises);
@@ -1981,7 +2006,13 @@ function _openLoggerModalInner(){
     '<div style="font-family:var(--fd);font-size:26px;letter-spacing:.04em">LOGGER UNE SÉANCE</div>'+
     '<button onclick="closeLoggerModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;flex-shrink:0">✕</button>'+
     '</div>'+
-    '<div id="lm-step-prog"><div class="log-step-label">Programme</div><div class="selbts" id="lm-prog-btns"></div></div>'+
+    '<div id="lm-step-mode">'+
+    '<div class="log-step-label">Type de séance</div>'+
+    '<div class="selbts">'+
+    '<button class="selbt active" id="lm-mode-defined" onclick="selLMMode(\'defined\')">📋 Séance définie</button>'+
+    '<button class="selbt" id="lm-mode-free" onclick="selLMMode(\'free\')">✏️ Séance libre</button>'+
+    '</div></div>'+
+    '<div id="lm-step-prog" style="margin-top:14px"><div class="log-step-label">Programme</div><div class="selbts" id="lm-prog-btns"></div></div>'+
     '<div id="lm-step-sess" style="display:none"><div class="log-step-label" id="lm-sess-label">Séance</div><div class="selbts" id="lm-sess-btns"></div></div>'+
     '<div id="lm-form"></div>'+
     '</div>';
@@ -1992,8 +2023,29 @@ function _openLoggerModalInner(){
 function closeLoggerModal(){
   const m = document.getElementById('logger-modal');
   if(m) m.remove();
+  lmMode='defined'; freeExos=[];
   cachedHist=null;
   renderHist();
+}
+
+let lmMode = 'defined'; // 'defined' | 'free'
+
+function selLMMode(mode){
+  lmMode = mode;
+  document.getElementById('lm-mode-defined')?.classList.toggle('active', mode==='defined');
+  document.getElementById('lm-mode-free')?.classList.toggle('active', mode==='free');
+  const progStep = document.getElementById('lm-step-prog');
+  const sessStep = document.getElementById('lm-step-sess');
+  if(mode==='defined'){
+    if(progStep) progStep.style.display='';
+    renderLogModal();
+  } else {
+    if(progStep) progStep.style.display='none';
+    if(sessStep) sessStep.style.display='none';
+    freeExos = [];
+    customSets = {}; bodyweightExos = {};
+    renderFreeLog();
+  }
 }
 
 function renderLogModal(){
@@ -2019,7 +2071,6 @@ function renderLogModal(){
         '<span style="font-size:9px;font-weight:500;color:inherit;opacity:.7">'+sub+'</span></button>';
     }).join('');
   }
-  // Render form into lm-form
   const target = document.getElementById('lm-form');
   if(target) renderLog(target);
 }
@@ -2033,6 +2084,248 @@ function selLMProg(progId){
 function selLMSess(s){
   curLog=s; customSets={}; bodyweightExos={};
   renderLogModal();
+}
+
+// ════ FREE SESSION LOGGER ════
+function renderFreeLog(){
+  const target = document.getElementById('lm-form');
+  if(!target) return;
+  feeling = null;
+  let h = '';
+
+  // Date
+  h += '<div class="dpr" style="margin-top:14px"><label>📅 Date</label>';
+  h += '<input class="di" type="date" id="l-date" value="'+logDate+'" max="'+todayKey()+'" onchange="logDate=this.value"></div>';
+
+  // Feeling
+  h += '<div class="slabel" style="margin-bottom:8px">Ressenti</div><div class="frow">';
+  h += '<button class="fbtn" onclick="setF('1',this)"><div class="fbtn-num">1</div><div class="fbtn-lbl">Épuisé</div></button>';
+  h += '<button class="fbtn" onclick="setF('2',this)"><div class="fbtn-num">2</div><div class="fbtn-lbl">Difficile</div></button>';
+  h += '<button class="fbtn" onclick="setF('3',this)"><div class="fbtn-num">3</div><div class="fbtn-lbl">Correct</div></button>';
+  h += '<button class="fbtn" onclick="setF('4',this)"><div class="fbtn-num">4</div><div class="fbtn-lbl">Solide</div></button>';
+  h += '<button class="fbtn" onclick="setF('5',this)"><div class="fbtn-num">5</div><div class="fbtn-lbl">En feu</div></button>';
+  h += '</div>';
+
+  // Exercise list
+  h += '<div class="slabel" style="margin:14px 0 8px">Exercices</div>';
+  h += '<div id="free-exo-list">';
+  freeExos.forEach((exo, ei)=>{ h += _renderFreeExoBlock(exo, ei); });
+  h += '</div>';
+
+  // Add exercise input
+  h += '<div id="free-add-zone" style="margin-bottom:14px">';
+  h += '<div style="position:relative">';
+  h += '<input class="di" id="free-exo-input" type="text" placeholder="Rechercher un exercice…" oninput="filterExoSuggestions()" autocomplete="off" style="width:100%">';
+  h += '<div id="free-exo-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;margin-top:4px;max-height:200px;overflow-y:auto"></div>';
+  h += '</div>';
+  h += '<button onclick="addFreeExoFromInput()" style="width:100%;margin-top:8px;padding:11px;border-radius:10px;border:1px dashed var(--border2);background:transparent;color:var(--text2);font-family:var(--fb);font-size:13px;font-weight:600;cursor:pointer">+ Ajouter l'exercice</button>';
+  h += '</div>';
+
+  // Cardio
+  h += '<div class="slabel" style="margin:14px 0 8px">Durée · Cardio · Calories</div>';
+  h += '<div class="card" style="margin-bottom:12px">';
+  h += '<div style="padding:12px 14px;border-bottom:1px solid var(--border)">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Durée</div>';
+  h += '<div style="display:flex;gap:6px;align-items:center">';
+  h += '<input class="li" type="number" id="l-dur-h" inputmode="numeric" placeholder="hh" min="0" style="width:60px;text-align:center">';
+  h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+  h += '<input class="li" type="number" id="l-dur-m" inputmode="numeric" placeholder="mm" min="0" max="59" style="width:60px;text-align:center">';
+  h += '<span style="color:var(--text2);font-size:16px;font-weight:700">:</span>';
+  h += '<input class="li" type="number" id="l-dur-s" inputmode="numeric" placeholder="ss" min="0" max="59" style="width:60px;text-align:center">';
+  h += '</div></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)">';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC moy</div><input class="li" type="number" id="l-hr-avg" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div></div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">FC max</div><input class="li" type="number" id="l-hr-max" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">bpm</div></div>';
+  h += '<div style="background:var(--bg2);padding:12px 10px;text-align:center"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Calories</div><input class="li" type="number" id="l-calories" inputmode="decimal" placeholder="—" style="width:100%;text-align:center"><div style="font-size:10px;color:var(--text3);margin-top:4px">kcal</div></div>';
+  h += '</div></div>';
+
+  // Note + save
+  h += '<div class="slabel" style="margin:14px 0 8px">Note</div>';
+  h += '<textarea class="ni" id="lnote" placeholder="Notes sur la séance…"></textarea>';
+  h += '<button class="savebtn" onclick="saveSessLibre()">ENREGISTRER</button>';
+
+  target.innerHTML = h;
+}
+
+function _renderFreeExoBlock(exo, ei){
+  const n = customSets[ei] !== undefined ? customSets[ei] : (exo.sets||3);
+  const isTimed = !!exo.timed;
+  let h = '<div class="elb" id="free-exo-'+ei+'" style="margin-bottom:10px">';
+  h += '<div class="elh">'+_esc(exo.name);
+  h += '<div style="display:flex;align-items:center;gap:6px">';
+  h += '<div class="sets-ctrl">';
+  h += '<button class="sc-btn" onclick="removeFreeSet('+ei+')">−</button>';
+  h += '<span id="sets-count-'+ei+'">'+n+' série'+(n>1?'s':'')+'</span>';
+  h += '<button class="sc-btn" onclick="addFreeSet('+ei+')">+</button>';
+  h += '</div>';
+  h += '<button onclick="removeFreeExo('+ei+')" style="background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.25);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer">✕</button>';
+  h += '</div></div>';
+  h += '<div id="exo-rows-'+ei+'">';
+  h += '<table class="stbl"><tr><th>#</th>';
+  if(!isTimed){
+    h += '<th style="display:flex;align-items:center;gap:6px;padding:8px 14px 6px">Poids';
+    h += '<button id="bw-toggle-'+ei+'" onclick="toggleBodyweight('+ei+')" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:var(--bg4);color:var(--text2);cursor:pointer">BW</button>';
+    h += '</th>';
+  } else { h += '<th>—</th>'; }
+  h += '<th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
+  for(let s=1;s<=n;s++){
+    h += '<tr><td><span class="sn">'+s+'</span></td>';
+    h += '<td>'+(isTimed?'<span style="color:var(--text3);font-size:12px">—</span>':'<input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal">')+'</td>';
+    h += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal"></td></tr>';
+  }
+  h += '</table></div></div>';
+  return h;
+}
+
+function filterExoSuggestions(){
+  const q = (document.getElementById('free-exo-input')?.value||'').toLowerCase().trim();
+  const box = document.getElementById('free-exo-suggestions');
+  if(!box) return;
+  if(!q){ box.style.display='none'; return; }
+  const used = new Set(freeExos.map(e=>e.name.toLowerCase()));
+  const matches = EXERCISE_BANK.filter(n=>n.toLowerCase().includes(q) && !used.has(n.toLowerCase())).slice(0,8);
+  // Also offer custom entry if not in bank
+  const exactMatch = EXERCISE_BANK.some(n=>n.toLowerCase()===q);
+  if(!exactMatch && q.length>1) matches.push('✚ Ajouter "'+q+'"');
+  if(!matches.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  box.innerHTML = matches.map(m=>'<div onclick="pickExoSuggestion(this)" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);color:var(--text2)" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background=''">'+_esc(m)+'</div>').join('');
+}
+
+function pickExoSuggestion(el){
+  let name = el.textContent.trim();
+  if(name.startsWith('✚ Ajouter "')) name = name.slice(11, -1);
+  document.getElementById('free-exo-input').value = name;
+  document.getElementById('free-exo-suggestions').style.display='none';
+  addFreeExoFromInput();
+}
+
+function addFreeExoFromInput(){
+  const inp = document.getElementById('free-exo-input');
+  const name = inp?.value?.trim();
+  if(!name) return;
+  const isTimed = name.toLowerCase().includes('plank') || name.toLowerCase().includes('gainage');
+  freeExos.push({name, sets:3, timed:isTimed});
+  const ei = freeExos.length - 1;
+  inp.value = '';
+  document.getElementById('free-exo-suggestions').style.display='none';
+  const listEl = document.getElementById('free-exo-list');
+  if(listEl){
+    const div = document.createElement('div');
+    div.innerHTML = _renderFreeExoBlock(freeExos[ei], ei);
+    listEl.appendChild(div.firstChild);
+  }
+}
+
+function removeFreeExo(ei){
+  const el = document.getElementById('free-exo-'+ei);
+  if(el) el.remove();
+  freeExos[ei] = null; // mark as removed (keep indices stable)
+}
+
+function addFreeSet(ei){
+  const cur = customSets[ei] !== undefined ? customSets[ei] : (freeExos[ei]?.sets||3);
+  customSets[ei] = cur + 1;
+  _refreshFreeExoRows(ei);
+}
+
+function removeFreeSet(ei){
+  const cur = customSets[ei] !== undefined ? customSets[ei] : (freeExos[ei]?.sets||3);
+  if(cur <= 1) return;
+  customSets[ei] = cur - 1;
+  _refreshFreeExoRows(ei);
+}
+
+function _refreshFreeExoRows(ei){
+  const n = customSets[ei] !== undefined ? customSets[ei] : (freeExos[ei]?.sets||3);
+  const countEl = document.getElementById('sets-count-'+ei);
+  if(countEl) countEl.textContent = n+' série'+(n>1?'s':'');
+  const container = document.getElementById('exo-rows-'+ei);
+  if(!container) return;
+  const isTimed = !!freeExos[ei]?.timed;
+  const isBW = !!bodyweightExos[ei];
+  const prev = {};
+  for(let s=1;s<=20;s++){
+    const w = document.getElementById('w_'+ei+'_'+s); if(w) prev[s]={w:w.value};
+    const r = document.getElementById('r_'+ei+'_'+s); if(r) prev[s]={...prev[s],r:r.value};
+  }
+  let t = '<table class="stbl"><tr><th>#</th>';
+  if(!isTimed){
+    t += '<th style="display:flex;align-items:center;gap:6px;padding:8px 14px 6px">Poids<button id="bw-toggle-'+ei+'" onclick="toggleBodyweight('+ei+')" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:var(--bg4);color:var(--text2);cursor:pointer">BW</button></th>';
+  } else { t += '<th>—</th>'; }
+  t += '<th>'+(isTimed?'Sec':'Reps')+'</th></tr>';
+  for(let s=1;s<=n;s++){
+    const pv = prev[s]||{};
+    t += '<tr><td><span class="sn">'+s+'</span></td>';
+    if(isTimed){ t += '<td><span style="color:var(--text3);font-size:12px">—</span></td>'; }
+    else if(isBW){ t += '<td><span style="color:var(--accent);font-size:12px;font-weight:700">BW</span><input type="hidden" id="w_'+ei+'_'+s+'" value="BW"></td>'; }
+    else { t += '<td><input class="li" type="number" id="w_'+ei+'_'+s+'" placeholder="—" step="1" inputmode="decimal" value="'+(pv.w||'')+'"></td>'; }
+    t += '<td><input class="li" type="number" id="r_'+ei+'_'+s+'" placeholder="—" inputmode="decimal" value="'+(pv.r||'')+'"></td></tr>';
+  }
+  t += '</table>';
+  container.innerHTML = t;
+}
+
+async function saveSessLibre(){
+  const activeExos = freeExos.filter(Boolean);
+  if(!activeExos.length){ alert('Ajoute au moins un exercice.'); return; }
+  const ctx = document.getElementById('lm-form') || document;
+  // Rebuild ei mapping: only non-null entries, preserving original indices
+  const exercises = freeExos.map((exo, ei)=>{
+    if(!exo) return null;
+    const n = customSets[ei] !== undefined ? customSets[ei] : (exo.sets||3);
+    return {
+      name: exo.name,
+      sets: Array.from({length:n},(_,si)=>({
+        weight: ctx.querySelector('#w_'+ei+'_'+(si+1))?.value||'',
+        reps:   ctx.querySelector('#r_'+ei+'_'+(si+1))?.value||''
+      }))
+    };
+  }).filter(Boolean);
+
+  const data = {
+    id: Date.now(),
+    type: 'muscu',
+    source: 'manual',
+    program: 'libre',
+    session_type: 'libre',
+    session_label: 'Séance libre',
+    date: (()=>{ const now=new Date(); const today=now.toISOString().slice(0,10); return (logDate===today)?now.toISOString():new Date(logDate+'T12:00:00').toISOString(); })(),
+    feeling: feeling||'3',
+    note: document.getElementById('lnote')?.value||'',
+    duration_sec: (()=>{ const h=parseInt(document.getElementById('l-dur-h')?.value)||0; const m=parseInt(document.getElementById('l-dur-m')?.value)||0; const s=parseInt(document.getElementById('l-dur-s')?.value)||0; return (h||m||s)?h*3600+m*60+s:null; })(),
+    hr_avg:   parseInt(document.getElementById('l-hr-avg')?.value)||null,
+    hr_max:   parseInt(document.getElementById('l-hr-max')?.value)||null,
+    calories: parseInt(document.getElementById('l-calories')?.value)||null,
+    exercises,
+  };
+
+  const btn = document.querySelector('.savebtn');
+  if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
+  await dbSave(data);
+  cachedHist = null;
+
+  const reloaded = await dbLoad('muscu');
+  const savedId = (reloaded[0] && Math.abs(new Date(reloaded[0].date)-new Date(data.date))<5000) ? reloaded[0].id : data.id;
+
+  const successHtml =
+    '<div style="text-align:center;padding:40px 20px 24px">'+
+    '<div style="font-size:52px;margin-bottom:14px">✅</div>'+
+    '<div style="font-family:var(--fd);font-size:30px;color:var(--accent);letter-spacing:.06em">SÉANCE SAUVEGARDÉE</div>'+
+    '<div style="color:var(--text2);font-size:13px;margin-top:8px;margin-bottom:24px">Séance libre · '+activeExos.length+' exercice'+(activeExos.length>1?'s':'')+'</div>'+
+    '<div id="strava-link-area">'+
+    '<button onclick="openStravaLinkModal('+savedId+',&quot;'+logDate+'&quot;)" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;border:1px solid rgba(252,76,2,.35);background:rgba(252,76,2,.1);color:#fc4c02;font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer">'+
+    '<span style="font-size:18px">🔗</span> Lier à une activité Strava</button>'+
+    '<div style="margin-top:10px;font-size:11px;color:var(--text3)">Optionnel · disponible aussi dans l'historique</div>'+
+    '</div>'+
+    '<div style="margin-top:20px">'+
+    '<button onclick="closeLoggerOrReset()" style="font-size:13px;color:var(--text2);background:transparent;border:1px solid var(--border);border-radius:10px;padding:8px 18px;cursor:pointer">Fermer</button>'+
+    '</div></div>';
+
+  const lmForm = document.getElementById('lm-form');
+  if(lmForm) lmForm.innerHTML = successHtml;
+  logDate = todayKey();
+  freeExos = [];
 }
 
 // ════ LOGGER HELPERS ════
