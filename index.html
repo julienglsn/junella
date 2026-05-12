@@ -2037,7 +2037,7 @@ function renderHomeStats(all){
   // ── Heures · 7j vs 7j préc. ──
   const w0s=daysAgo(7), w1s=daysAgo(14);
   const hoursInRange = (s,e) => all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e; })
-    .reduce((acc,a)=>acc+(a.duration_min||0),0)/60;
+    .reduce((acc,a)=>acc+(a.duration_sec||0),0)/3600;
   const h7=hoursInRange(w0s,now), hp7=hoursInRange(w1s,w0s);
   const fmtH = h => { const hh=Math.floor(h); const mm=Math.round((h-hh)*60); return hh+'h'+(mm>0?mm.toString().padStart(2,'0'):''); };
   document.getElementById('hstat-hours').textContent = fmtH(h7);
@@ -2073,7 +2073,11 @@ function renderHomeStats(all){
     let vol=0;
     all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e&&a.type==='muscu'; }).forEach(a=>{
       if(a.exercises) a.exercises.forEach(ex=>{
-        if(ex.sets) ex.sets.forEach(st=>{ vol+=(st.reps||0)*(st.weight_kg||0); });
+        if(ex.sets) ex.sets.forEach(st=>{
+          const w=parseFloat(st.weight)||0;
+          const r=parseInt(st.reps)||0;
+          vol+=w*r;
+        });
       });
     });
     return vol;
@@ -2132,7 +2136,9 @@ async function renderHomeSuggestions(all){
     });
     const data = await resp.json();
     const text = data.content.map(i=>i.text||'').join('');
-    const parsed = JSON.parse(text);
+    const match = text.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('No JSON found: '+text);
+    const parsed = JSON.parse(match[0]);
 
     msgEl.textContent = parsed.message || 'Bonne journée — continue comme ça.';
     sugEl.innerHTML = [
