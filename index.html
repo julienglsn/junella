@@ -832,10 +832,13 @@ async function dbUpdate(id, patch){
 // Delete one activity
 async function dbDelete(id){
   try {
+    console.log('[dbDelete] deleting id:', id, 'type:', typeof id);
     const r = await fetch(SB_URL+ACT_TABLE+'?id=eq.'+id, {
-      method:'DELETE', headers: SB_HDR
+      method:'DELETE', headers:{...SB_HDR, 'Prefer':'return=representation'}
     });
-    if(!r.ok) throw new Error('delete failed');
+    const body = await r.json().catch(()=>[]);
+    console.log('[dbDelete] status:', r.status, 'rows deleted:', body.length, 'body:', body);
+    if(!r.ok) throw new Error('delete failed: '+r.status);
     _cacheDelete(id);
   } catch(e){
     console.warn('Supabase delete error', e);
@@ -948,12 +951,32 @@ async function editActivity(id, sport){
 async function deleteActivity(id, sport, ev){
   if(ev) ev.stopPropagation();
   if(!isUnlocked()){ requirePin(()=>deleteActivity(id, sport, null)); return; }
-  if(!confirm('Supprimer cette séance ? Cette action est irréversible.')) return;
-  await dbDelete(id);
-  cachedHist = null;
-  if(sport === 'muscu') renderHist();
-  else renderActivities(sport);
-  renderHome();
+  _confirmDelete(async ()=>{
+    await dbDelete(id);
+    cachedHist = null;
+    if(sport === 'muscu') renderHist();
+    else renderActivities(sport);
+    renderHome();
+  });
+}
+
+function _confirmDelete(onConfirm){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'confirm-modal';
+  overlay.innerHTML =
+    '<div class="modal" style="padding-bottom:calc(20px + var(--safe-bottom));max-height:auto">'+
+    '<div style="font-family:var(--fd);font-size:24px;letter-spacing:.04em;margin-bottom:8px">🗑️ SUPPRIMER</div>'+
+    '<div style="font-size:14px;color:var(--text2);margin-bottom:24px">Cette action est irréversible.</div>'+
+    '<div style="display:flex;gap:10px">'+
+    '<button onclick="document.getElementById(\'confirm-modal\').remove()" style="flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer">Annuler</button>'+
+    '<button id="confirm-delete-btn" style="flex:1;padding:14px;border-radius:12px;border:none;background:var(--red);color:#fff;font-family:var(--fd);font-size:20px;letter-spacing:.06em;cursor:pointer">SUPPRIMER</button>'+
+    '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('confirm-delete-btn').onclick = ()=>{
+    overlay.remove();
+    onConfirm();
+  };
 }
 
 // ════ MANUAL ENTRY FORMS ════
