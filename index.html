@@ -366,6 +366,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#34d399;display:inline-block"></span>Course</div>
       <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:10px;height:10px;border-radius:3px;background:#ffb347;display:inline-block"></span>Vélo</div>
     </div>
+  </div>
+
+  <div class="sec" style="padding-top:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="slabel" style="margin-bottom:0" id="recent-acts-label">Dernières activités</div>
+      <button id="recent-acts-reset" onclick="resetWeekFilter()" style="display:none;font-size:11px;font-weight:600;padding:3px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer">✕ Toutes</button>
+    </div>
+    <div id="home-recent-acts">
+      <div class="empty"><div class="ico"><div class="spin"></div></div><p>Chargement...</p></div>
+    </div>
     <div id="week-detail" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px"></div>
   </div>
 
@@ -913,7 +923,7 @@ async function renderActivities(sport){
       '<div class="act-metrics" style="display:none">'+
       [m1,m2,m3,m4,m5,m6].map(m=>'<div class="act-metric"><div class="act-metric-val">'+m.val+'</div><div class="act-metric-lbl">'+m.lbl+'</div></div>').join('')+
       '<div class="act-metric" style="cursor:pointer" onclick="editActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">✏️</div><div class="act-metric-lbl">Modifier</div></div>'+
-      '<div class="act-metric" style="cursor:pointer" onclick="deleteActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;)"><div class="act-metric-val" style="font-size:18px">🗑️</div><div class="act-metric-lbl" style="color:var(--red)">Supprimer</div></div>'+
+      '<div class="act-metric" style="cursor:pointer" onclick="deleteActivity(&quot;'+a.id+'&quot;,&quot;'+sport+'&quot;,event)"><div class="act-metric-val" style="font-size:18px">🗑️</div><div class="act-metric-lbl" style="color:var(--red)">Supprimer</div></div>'+
       '</div>'+
       (a.feeling?(a.feeling?'<div style="padding:6px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px">'+feelBadge(a.feeling)+(a.note?'<span style="font-size:12px;color:var(--text2);font-style:italic">'+_esc(a.note)+'</span>':'')+'</div>':''):'')+
       '</div>';
@@ -935,11 +945,14 @@ async function editActivity(id, sport){
   await showManualForm(sport, null, act);
 }
 
-async function deleteActivity(id, sport){
-  if(!isUnlocked()){ requirePin(()=>deleteActivity(id, sport)); return; }
-  if(!confirm('Supprimer cette activité ? Cette action est irréversible.')) return;
+async function deleteActivity(id, sport, ev){
+  if(ev) ev.stopPropagation();
+  if(!isUnlocked()){ requirePin(()=>deleteActivity(id, sport, null)); return; }
+  if(!confirm('Supprimer cette séance ? Cette action est irréversible.')) return;
   await dbDelete(id);
-  renderActivities(sport);
+  cachedHist = null;
+  if(sport === 'muscu') renderHist();
+  else renderActivities(sport);
   renderHome();
 }
 
@@ -1599,7 +1612,47 @@ function showSession(id, btn){
   });
 }
 
-// ════ HOME ════
+// ════ HOME: RECENT ACTIVITIES ════
+function renderRecentActivities(activities){
+  const el = document.getElementById('home-recent-acts');
+  if(!el) return;
+
+  const recent = activities.slice(0, 5);
+  if(!recent.length){
+    el.innerHTML = '<div class="empty"><div class="ico">🏅</div><p>Aucune activité enregistrée.</p></div>';
+    return;
+  }
+
+  el.innerHTML = recent.map(a=>{
+    const d = new Date(a.date);
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'short'});
+    const ico   = SPORT_ICO2[a.type] || '🏅';
+    const color = SPORT_CLR[a.type]  || 'var(--text2)';
+    const label = a.session_label || a.label || a.strava_name ||
+      (a.type==='muscu' ? 'Musculation' : a.type==='course' ? 'Course à pied' : 'Vélo de route');
+
+    const chips = [];
+    if(a.duration_sec) chips.push('⏱ '+fmtDuration(a.duration_sec));
+    if(a.type==='course' && a.distance_m) chips.push('📍 '+fmtDist(a.distance_m));
+    if(a.type==='velo'   && a.distance_m) chips.push('📍 '+fmtDist(a.distance_m));
+    if(a.hr_avg)    chips.push('♥ '+a.hr_avg+' bpm');
+    if(a.calories)  chips.push('🔥 '+a.calories+' kcal');
+
+    const sport = a.type;
+    const nav = sport==='muscu'
+      ? "showSection('sports');showSport('muscu',document.getElementById('snav-muscu'))"
+      : "showSection('sports');showSport('"+sport+"',document.getElementById('snav-"+sport+"'))";
+
+    return '<div class="feed-card" onclick="'+nav+'" style="border-left:3px solid '+color+'">'+
+      '<div class="feed-left">'+
+      '<div class="feed-title"><span style="font-size:18px">'+ico+'</span>'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</div>'+
+      '<div class="feed-meta">'+ds+'</div>'+
+      (chips.length ? '<div class="feed-metrics">'+chips.map(c=>'<span class="feed-metric">'+c+'</span>').join('')+'</div>' : '')+
+      '</div>'+
+      '<div class="feed-day" style="color:'+color+'">›</div>'+
+      '</div>';
+  }).join('');
+}
 function renderWeeklyChart(activities){
   const el = document.getElementById('home-weekly-chart');
   if(!el) return;
@@ -1750,20 +1803,31 @@ const SPORT_ICO2 = {muscu:'💪', course:'🏃', velo:'🚴'};
 const SPORT_CLR  = {muscu:'#4d9eff', course:'#34d399', velo:'#ffb347'};
 
 function toggleWeekDetail(idx){
-  const panel = document.getElementById('week-detail');
-  if(!panel) return;
   if(activeWeekIdx === idx){
-    // toggle off
+    // toggle off → retour aux 5 dernières activités
     activeWeekIdx = null;
-    panel.style.display = 'none';
-    panel.innerHTML = '';
-    // reset bar highlights
     _highlightWeekBar(null);
+    resetWeekFilter();
     return;
   }
   activeWeekIdx = idx;
   _highlightWeekBar(idx);
   _renderWeekDetail(idx);
+}
+
+function resetWeekFilter(){
+  activeWeekIdx = null;
+  _highlightWeekBar(null);
+  // Restore label and hide reset button
+  const label = document.getElementById('recent-acts-label');
+  const btn   = document.getElementById('recent-acts-reset');
+  if(label) label.textContent = 'Dernières activités';
+  if(btn)   btn.style.display = 'none';
+  // Re-render with all activities
+  renderRecentActivities(_lastChartActivities);
+  // Hide old week-detail panel if still visible
+  const panel = document.getElementById('week-detail');
+  if(panel){ panel.style.display='none'; panel.innerHTML=''; }
 }
 
 function _highlightWeekBar(idx){
@@ -1776,65 +1840,58 @@ function _highlightWeekBar(idx){
 let _lastChartActivities = [];
 
 function _renderWeekDetail(idx){
-  const panel = document.getElementById('week-detail');
-  if(!panel) return;
   const w = chartWeeks[idx];
-  if(!w){ panel.style.display='none'; return; }
+  if(!w) return;
 
-  const isCur = w.mon <= new Date() && new Date() <= w.sun;
+  const isCur  = w.mon <= new Date() && new Date() <= w.sun;
   const monStr = w.mon.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
   const sunStr = w.sun.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
-  const totalSec = w.muscu+w.course+w.velo;
-  const totalLbl = totalSec>=3600 ? (totalSec/3600).toFixed(1)+'h' : Math.round(totalSec/60)+'min';
+  const weekLabel = isCur ? 'Cette semaine' : monStr+' – '+sunStr;
 
-  let h = '';
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
-  h += '<div>';
-  h += '<div style="font-size:12px;font-weight:700;color:var(--text)">'+(isCur?'Cette semaine':monStr+' – '+sunStr)+'</div>';
-  h += '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+w.acts.length+' séance'+(w.acts.length>1?'s':'')+' · '+totalLbl+' au total</div>';
-  h += '</div>';
-  h += '<button onclick="toggleWeekDetail('+idx+')" style="background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer;line-height:1;padding:4px">✕</button>';
-  h += '</div>';
+  // Update section label and show reset button
+  const label = document.getElementById('recent-acts-label');
+  const btn   = document.getElementById('recent-acts-reset');
+  if(label) label.textContent = weekLabel;
+  if(btn)   btn.style.display = 'inline-block';
 
-  if(!w.acts.length){
-    h += '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:12px 0">Aucune séance cette semaine</div>';
-  } else {
-    // Sort by date desc
-    const sorted = [...w.acts].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    sorted.forEach(a=>{
-      const d = new Date(a.date);
-      const ds = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});
-      const color = SPORT_CLR[a.type]||'var(--text2)';
-      const ico   = SPORT_ICO2[a.type]||'🏅';
-      const label = a.session_label||a.label||(a.type==='muscu'?'Musculation':a.type==='course'?'Course à pied':'Vélo de route');
+  // Render week's activities into recent-acts section
+  const el = document.getElementById('home-recent-acts');
+  if(!el) return;
 
-      // Metrics chips
-      const chips=[];
-      if(a.duration_sec) chips.push('⏱ '+fmtDuration(a.duration_sec));
-      if(a.distance_m)   chips.push('📍 '+fmtDist(a.distance_m));
-      if(a.type==='course'&&a.pace_sec_km) chips.push(fmtPace(a.pace_sec_km)+'/km');
-      if(a.type==='velo'&&a.speed_kmh)    chips.push(a.speed_kmh+' km/h');
-      if(a.hr_avg)       chips.push('♥ '+a.hr_avg+' bpm');
-      if(a.calories)     chips.push('🔥 '+a.calories+' kcal');
+  const sorted = [...w.acts].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-      h += '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">';
-      h += '<div style="width:30px;height:30px;border-radius:8px;background:'+color+'22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+ico+'</div>';
-      h += '<div style="flex:1;min-width:0">';
-      h += '<div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">'+feelBadge(a.feeling)+_esc(label)+'</div>';
-      h += '<div style="font-size:11px;color:var(--text2);margin-top:1px">'+ds+'</div>';
-      if(chips.length){
-        h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px">';
-        chips.forEach(c=>{ h+='<span style="font-size:11px;color:var(--text2);background:var(--bg3);border-radius:6px;padding:2px 7px">'+c+'</span>'; });
-        h += '</div>';
-      }
-      h += '</div></div>';
-    });
+  if(!sorted.length){
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:20px 0">Aucune séance cette semaine</div>';
+    setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+    return;
   }
 
-  panel.innerHTML = h;
-  panel.style.display = 'block';
-  // Smooth scroll to panel
-  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  el.innerHTML = sorted.map(a=>{
+    const d = new Date(a.date);
+    const ds = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'});
+    const ico   = SPORT_ICO2[a.type]||'🏅';
+    const color = SPORT_CLR[a.type]||'var(--text2)';
+    const label = a.session_label||a.label||a.strava_name||(a.type==='muscu'?'Musculation':a.type==='course'?'Course à pied':'Vélo de route');
+    const chips=[];
+    if(a.duration_sec) chips.push('⏱ '+fmtDuration(a.duration_sec));
+    if(a.distance_m)   chips.push('📍 '+fmtDist(a.distance_m));
+    if(a.type==='course'&&a.pace_sec_km) chips.push(fmtPace(a.pace_sec_km)+'/km');
+    if(a.type==='velo'&&a.speed_kmh)    chips.push(a.speed_kmh+' km/h');
+    if(a.hr_avg)       chips.push('♥ '+a.hr_avg+' bpm');
+    if(a.calories)     chips.push('🔥 '+a.calories+' kcal');
+    const sport = a.type;
+    const nav = "showSection('sports');showSport('"+sport+"',document.getElementById('snav-"+sport+"'))";
+    return '<div class="feed-card" onclick="'+nav+'" style="border-left:3px solid '+color+'">'+
+      '<div class="feed-left">'+
+      '<div class="feed-title"><span style="font-size:18px">'+ico+'</span>'+_esc(label)+(a.feeling?'&nbsp;'+feelBadge(a.feeling):'')+'</div>'+
+      '<div class="feed-meta">'+ds+'</div>'+
+      (chips.length?'<div class="feed-metrics">'+chips.map(c=>'<span class="feed-metric">'+c+'</span>').join('')+'</div>':'')+
+      '</div>'+
+      '<div class="feed-day" style="color:'+color+'">›</div>'+
+      '</div>';
+  }).join('');
+
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
 
 async function renderHome(){
@@ -1850,6 +1907,7 @@ async function renderHome(){
   // Home charts (donut + heatmap) — rendered after Chart.js is loaded
   if(typeof renderHomeDonut === 'function') renderHomeDonut(all);
   if(typeof renderHomeHeatmap === 'function') renderHomeHeatmap(all);
+  renderRecentActivities(all);
 }
 
 // ════ LOGGER ════
@@ -2533,7 +2591,7 @@ function _fillHistDetail(i){
   body.innerHTML =
     '<div class="edit-bar">'+
     '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
-    '<button class="edit-btn" style="color:var(--red);border-color:rgba(255,82,82,.3)" onclick="deleteMuscu('+i+',event)">🗑️ Supprimer</button>'+
+    '<button class="edit-btn" style="color:var(--red);border-color:rgba(255,82,82,.3)" onclick="deleteActivity('+e.id+',\'muscu\',event)">🗑️ Supprimer</button>'+
     (isStravaOnly
       ? '<button class="edit-btn" style="color:#fc4c02;border-color:rgba(252,76,2,.3)" onclick="openMergeToManualModal('+e.id+')">⚡ Fusionner avec séance manuelle</button>'
       : e.strava_activity_id
@@ -2567,20 +2625,8 @@ function _fillHistDetail(i){
 }
 
 
-async function deleteMuscu(i, ev){
-  ev.stopPropagation();
-  if(!isUnlocked()){ requirePin(()=>deleteMuscu(i, ev)); return; }
-  const entry = cachedHist[i];
-  if(!entry) return;
-  if(!confirm('Supprimer cette séance ? Cette action est irréversible.')) return;
-  await dbDelete(entry.id);
-  cachedHist = null;
-  renderHist();
-  renderHome();
-}
-
 function startEdit(i, ev){
-  if(!isUnlocked()){ requirePin(()=>startEdit(i, ev)); return; }
+  if(!isUnlocked()){ requirePin(()=>startEdit(i, null)); return; }
   // Ensure lazy content is rendered first
   _fillHistDetail(i);
   const entry = cachedHist[i];
