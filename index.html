@@ -85,12 +85,28 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* HEADER */
-.ph{padding:calc(var(--safe-top) + 24px) 20px 18px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
-.ph::before{content:'';position:absolute;top:-80px;right:-80px;width:240px;height:240px;background:radial-gradient(circle,rgba(77,158,255,.08) 0%,transparent 65%);pointer-events:none}
-.ph .ey{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-.ph h1{font-family:var(--fd);font-size:44px;letter-spacing:.04em;line-height:1}
-.ph h1 span{color:var(--accent)}
-.ph p{color:var(--text2);font-size:13px;margin-top:5px}
+.ph{padding:calc(var(--safe-top) + 20px) 20px 18px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(77,158,255,.06) 0%,transparent 60%)}
+.ph::before{content:'';position:absolute;top:-80px;right:-80px;width:240px;height:240px;background:radial-gradient(circle,rgba(77,158,255,.06) 0%,transparent 65%);pointer-events:none}
+.ph .ey{font-family:var(--fd);font-size:38px;letter-spacing:.06em;line-height:1;color:var(--text);margin-bottom:0}
+.ph .ey-slogan{font-size:11px;font-style:italic;font-weight:600;letter-spacing:.1em;color:var(--accent);margin-top:4px;margin-bottom:0}
+.ph-divider{height:1px;background:rgba(255,255,255,0.07);margin:14px 0}
+.ph h1{font-family:var(--fd);font-size:22px;font-weight:400;letter-spacing:.05em;line-height:1;color:var(--text)}
+.ph h1 span{color:var(--text)}
+.ph p{color:var(--text2);font-size:12px;margin-top:8px}
+
+/* HOME STATS */
+.hstat-box{background:rgba(255,255,255,0.04);border-radius:8px;padding:7px 9px}
+.hstat-val{font-family:var(--fd);font-size:15px;color:var(--text);letter-spacing:.03em;line-height:1.1}
+.hstat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-top:2px}
+.hstat-delta{font-size:9px;font-weight:600;margin-top:2px;line-height:1.3}
+.hsugg{display:flex;align-items:flex-start;gap:6px}
+.hsugg-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.hsugg-txt{font-size:11px;color:var(--text2);line-height:1.4}
+
+/* MANIFESTE */
+.manifeste{margin:0 20px;padding:20px 0 24px;border-top:1px solid rgba(255,255,255,0.05);text-align:center}
+.manifeste p{font-size:11px;font-style:italic;color:#2a3a55;line-height:1.7;letter-spacing:.01em}
+.manifeste .manifeste-sig{font-family:var(--fd);font-size:13px;letter-spacing:.1em;color:#1e2e45;margin-top:10px}
 
 /* SECTIONS */
 .sec{padding:18px 20px}
@@ -182,12 +198,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .empty p{font-size:14px;line-height:1.5}
 
 /* HOME */
-.hero{padding:calc(var(--safe-top) + 28px) 20px 24px;background:linear-gradient(160deg,rgba(77,158,255,.07) 0%,transparent 60%);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;bottom:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 65%);pointer-events:none}
-.hrey{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.hrt{font-family:var(--fd);font-size:52px;letter-spacing:.04em;line-height:.95;color:var(--text)}
-.hrt span{color:var(--accent)}
-.hrs{color:var(--text2);font-size:13px;margin-top:8px}
+.hero{padding:calc(var(--safe-top) + 20px) 20px 18px;background:linear-gradient(160deg,rgba(77,158,255,.06) 0%,transparent 60%);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(139,92,246,.06) 0%,transparent 65%);pointer-events:none}
+.hrey{font-family:var(--fd);font-size:38px;letter-spacing:.06em;line-height:1;color:var(--text);margin-bottom:0}
+.hrey-slogan{font-size:11px;font-style:italic;font-weight:600;letter-spacing:.1em;color:var(--accent);margin-top:4px}
+.hero-divider{height:1px;background:rgba(255,255,255,0.07);margin:14px 0}
+.hrt{font-family:var(--fd);font-size:22px;letter-spacing:.05em;line-height:1;color:var(--text)}
+.hrt span{color:var(--text)}
+.hrs{color:var(--text2);font-size:12px;margin-top:8px}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sc2{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .18s}
 .sc2:active{border-color:var(--accent)}
@@ -355,7 +373,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   }
 
   #home-weekly-chart svg{max-width:480px;display:block;margin:0 auto}
-  .ph h1{font-size:42px}
+  .ph h1{font-size:22px}
   .ph p{font-size:14px}
 }
 </style>
@@ -364,9 +382,21 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ ACCUEIL ════ -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hrey">Jovita</div>
-    <div class="hrt">BON<span>JOUR</span></div>
-    <div class="hrs" id="home-date">Chargement...</div>
+    <div class="hrey">JOVITA</div>
+    <div class="hrey-slogan">La vie en mouvement</div>
+    <div class="hero-divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
+      <div>
+        <div id="home-ctx-msg" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3;">Chargement...</div>
+        <div id="home-suggestions" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div class="hstat-box"><div class="hstat-val" id="hstat-hours">—</div><div class="hstat-lbl">Heures · 7j</div><div class="hstat-delta" id="hstat-hours-d">—</div></div>
+        <div class="hstat-box"><div class="hstat-val" id="hstat-days">—</div><div class="hstat-lbl">Jours actifs · 30j</div><div class="hstat-delta" id="hstat-days-d">—</div></div>
+        <div class="hstat-box"><div class="hstat-val" id="hstat-km">—</div><div class="hstat-lbl">Km · mois</div><div class="hstat-delta" id="hstat-km-d">—</div></div>
+        <div class="hstat-box"><div class="hstat-val" id="hstat-vol">—</div><div class="hstat-lbl">Volume muscu · mois</div><div class="hstat-delta" id="hstat-vol-d">—</div></div>
+      </div>
+    </div>
   </div>
 
   <div class="sec" style="padding-top:18px">
@@ -407,12 +437,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
   </div>
 
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
+
 </div>
 
 <!-- ════ SPORTS HUB ════ -->
 <div class="page" id="page-sports-hub">
   <div class="hero">
-    <div class="hrey">Jovita</div>
+    <div class="hrey">JOVITA</div>
+    <div class="hrey-slogan">La vie en mouvement</div>
+    <div class="hero-divider"></div>
     <div class="hrt">SPORTS</div>
     <div class="hrs">Sélectionne une activité</div>
   </div>
@@ -432,22 +466,28 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       </div>
     </div>
   </div>
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
 </div>
 
 <!-- ════ NUTRITION HUB ════ -->
 <div class="page" id="page-nutrition-hub">
   <div class="hero">
-    <div class="hrey">Jovita</div>
-    <div class="hrt">NUTRI<span>TION</span></div>
+    <div class="hrey">JOVITA</div>
+    <div class="hrey-slogan">La vie en mouvement</div>
+    <div class="hero-divider"></div>
+    <div class="hrt">NUTRITION</div>
     <div class="hrs">Recettes · Macros · À venir</div>
   </div>
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
 </div>
 
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
   <div class="ph">
-    <div class="ey">Jovita</div>
-    <h1>MUSCU<span>LATION</span></h1>
+    <div class="ey">JOVITA</div>
+    <div class="ey-slogan">La vie en mouvement</div>
+    <div class="ph-divider"></div>
+    <h1>MUSCULATION</h1>
     <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
   </div>
   <div class="stabs" id="muscu-nav">
@@ -595,14 +635,17 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     </div>
     <div style="margin-bottom:10px;color:var(--text2);font-size:13px" id="hcount">—</div>
     <div id="hlist"></div>
+    <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
   </div>
 </div>
 
 <!-- ════ COURSE ════ -->
 <div class="page" id="page-course">
   <div class="ph">
-    <div class="ey">Jovita</div>
-    <h1>COURSE <span>À PIED</span></h1>
+    <div class="ey">JOVITA</div>
+    <div class="ey-slogan">La vie en mouvement</div>
+    <div class="ph-divider"></div>
+    <h1>COURSE À PIED</h1>
     <p>Coros Pace 4 · Zone 2 · Progression</p>
   </div>
   <div class="stabs" id="course-nav">
@@ -649,13 +692,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
     </div>
   </div>
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
 </div>
 
 <!-- ════ VÉLO ════ -->
 <div class="page" id="page-velo">
   <div class="ph">
-    <div class="ey">Jovita</div>
-    <h1>VÉLO <span>DE ROUTE</span></h1>
+    <div class="ey">JOVITA</div>
+    <div class="ey-slogan">La vie en mouvement</div>
+    <div class="ph-divider"></div>
+    <h1>VÉLO DE ROUTE</h1>
     <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
   </div>
   <div class="stabs" id="velo-nav">
@@ -703,13 +749,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
     </div>
   </div>
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
 </div>
 
 <!-- ════ RECETTES ════ -->
 <div class="page" id="page-recettes">
   <div class="ph">
-    <div class="ey">Nutrition</div>
-    <h1>MES <span>RECETTES</span></h1>
+    <div class="ey">JOVITA</div>
+    <div class="ey-slogan">La vie en mouvement</div>
+    <div class="ph-divider"></div>
+    <h1>MES RECETTES</h1>
     <p>RC · PD · D · RF</p>
   </div>
   <div class="stabs" id="recettes-nav">
@@ -761,6 +810,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
       <button class="savebtn" onclick="saveRecipe()">AJOUTER LA RECETTE</button>
     </div>
   </div>
+  <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
 </div>
 
 <!-- ════ NAV ════ -->
@@ -1613,7 +1663,7 @@ function _renderAppsPage(){
   const order = [];
   apps.forEach(a=>{ if(!sections[a.sec]){sections[a.sec]=[];order.push(a.sec);} sections[a.sec].push(a); });
 
-  let h = '<div class="ph"><div class="ey">Jovita</div><h1>MES <span>APPS</span></h1><p>Raccourcis vers tes applications sportives</p></div>';
+  let h = '<div class="ph"><div class="ey">JOVITA</div><div class="ey-slogan">La vie en mouvement</div><div class="ph-divider"></div><h1>MES APPS</h1><p>Raccourcis vers tes applications sportives</p></div>';
   h += '<div class="sec">';
   order.forEach((sec,si)=>{
     h += '<div class="slabel"'+(si>0?' style="margin-top:18px"':'')+'>'+sec+'</div>';
@@ -1632,6 +1682,7 @@ function _renderAppsPage(){
     h += '</div>';
   });
   h += '</div>';
+  h += '<div class="manifeste"><p>Vita — la vie. Jovis — l\'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l\'art de se dépasser, de se nourrir, de s\'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>';
   pg.innerHTML = h;
 
   _activatePage('page-apps');
@@ -1965,19 +2016,134 @@ function _renderWeekDetail(idx){
 }
 
 async function renderHome(){
-  const now = new Date();
-  const ds = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('home-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
-
-  // Load all activities sorted by date
   const all = await dbLoad(null);
   cachedHist = all.filter(a=>a.type==='muscu');
 
   renderWeeklyChart(all);
-  // Home charts (donut + heatmap) — rendered after Chart.js is loaded
   if(typeof renderHomeDonut === 'function') renderHomeDonut(all);
   if(typeof renderHomeHeatmap === 'function') renderHomeHeatmap(all);
   renderRecentActivities(all);
+  renderHomeStats(all);
+  renderHomeSuggestions(all);
+}
+
+function renderHomeStats(all){
+  const now = new Date();
+
+  // ── Helpers ──
+  const dayStart = d => { const x=new Date(d); x.setHours(0,0,0,0); return x; };
+  const daysAgo  = n => { const x=new Date(now); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; };
+
+  // ── Heures · 7j vs 7j préc. ──
+  const w0s=daysAgo(7), w1s=daysAgo(14);
+  const hoursInRange = (s,e) => all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e; })
+    .reduce((acc,a)=>acc+(a.duration_min||0),0)/60;
+  const h7=hoursInRange(w0s,now), hp7=hoursInRange(w1s,w0s);
+  const fmtH = h => { const hh=Math.floor(h); const mm=Math.round((h-hh)*60); return hh+'h'+(mm>0?mm.toString().padStart(2,'0'):''); };
+  document.getElementById('hstat-hours').textContent = fmtH(h7);
+  const dh = h7-hp7;
+  const dhEl = document.getElementById('hstat-hours-d');
+  dhEl.textContent = (dh>=0?'↑ +':'↓ ')+fmtH(Math.abs(dh))+' vs 7j préc.';
+  dhEl.style.color = dh>=0?'var(--green)':'var(--red)';
+
+  // ── Jours actifs · 30j vs 30j préc. ──
+  const m0s=daysAgo(30), m1s=daysAgo(60);
+  const activeDays = (s,e) => new Set(all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e; }).map(a=>a.date.slice(0,10))).size;
+  const d30=activeDays(m0s,now), dp30=activeDays(m1s,m0s);
+  document.getElementById('hstat-days').textContent = d30;
+  const dd=d30-dp30;
+  const ddEl=document.getElementById('hstat-days-d');
+  ddEl.textContent = (dd>=0?'↑ +':'↓ ')+Math.abs(dd)+'j vs 30j préc.';
+  ddEl.style.color = dd>=0?'var(--green)':'var(--red)';
+
+  // ── Km · mois vs mois préc. ──
+  const thisM1 = new Date(now.getFullYear(), now.getMonth(), 1);
+  const prevM1 = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const kmInRange = (s,e) => all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e&&(a.type==='course'||a.type==='velo'); })
+    .reduce((acc,a)=>acc+(a.distance_m||0)/1000,0);
+  const km=kmInRange(thisM1,now), kmp=kmInRange(prevM1,thisM1);
+  document.getElementById('hstat-km').textContent = Math.round(km)+'km';
+  const dkm=km-kmp;
+  const dkmEl=document.getElementById('hstat-km-d');
+  dkmEl.textContent = (dkm>=0?'↑ +':'↓ ')+Math.round(Math.abs(dkm))+'km vs mois préc.';
+  dkmEl.style.color = dkm>=0?'var(--green)':'var(--red)';
+
+  // ── Volume muscu · mois vs mois préc. ──
+  const volInRange = (s,e) => {
+    let vol=0;
+    all.filter(a=>{ const d=new Date(a.date); return d>=s&&d<e&&a.type==='muscu'; }).forEach(a=>{
+      if(a.exercises) a.exercises.forEach(ex=>{
+        if(ex.sets) ex.sets.forEach(st=>{ vol+=(st.reps||0)*(st.weight_kg||0); });
+      });
+    });
+    return vol;
+  };
+  const vkg=volInRange(thisM1,now), vpkg=volInRange(prevM1,thisM1);
+  const vlbs=Math.round(vkg*2.20462), vplbs=Math.round(vpkg*2.20462);
+  const vkgR=Math.round(vkg), vpkgR=Math.round(vpkg);
+  const fmtNum = n => n.toLocaleString('en-US');
+  document.getElementById('hstat-vol').innerHTML =
+    '<span style="font-size:13px">'+fmtNum(vlbs)+'<span style="font-size:9px;color:var(--text2);font-family:var(--fb);font-weight:600"> lbs</span> · '+fmtNum(vkgR)+'<span style="font-size:9px;color:var(--text2);font-family:var(--fb);font-weight:600"> kg</span></span>';
+  const dvol=vlbs-vplbs;
+  const dvolEl=document.getElementById('hstat-vol-d');
+  dvolEl.textContent = (dvol>=0?'↑ +':'↓ ')+fmtNum(Math.abs(dvol))+' lbs vs mois préc.';
+  dvolEl.style.color = dvol>=0?'var(--green)':'var(--red)';
+}
+
+async function renderHomeSuggestions(all){
+  const msgEl = document.getElementById('home-ctx-msg');
+  const sugEl = document.getElementById('home-suggestions');
+
+  // Build context summary for Claude
+  const now = new Date();
+  const daysAgo = n => { const x=new Date(now); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; };
+  const d7=daysAgo(7), d30=daysAgo(30);
+
+  const recent = all.filter(a=>new Date(a.date)>=d7);
+  const last = all[0];
+  const lastMuscu = all.find(a=>a.type==='muscu');
+  const lastCourse = all.find(a=>a.type==='course');
+  const lastVelo = all.find(a=>a.type==='velo');
+
+  const daysSince = a => a ? Math.floor((now-new Date(a.date))/(1000*60*60*24)) : null;
+  const totalHours7 = recent.reduce((acc,a)=>acc+(a.duration_min||0),0)/60;
+
+  const ctx = {
+    today: now.toISOString().slice(0,10),
+    totalHours7j: Math.round(totalHours7*10)/10,
+    activitiesLast7j: recent.length,
+    lastMuscu: lastMuscu ? { date: lastMuscu.date, daysAgo: daysSince(lastMuscu), session: lastMuscu.session } : null,
+    lastCourse: lastCourse ? { date: lastCourse.date, daysAgo: daysSince(lastCourse), distance_km: lastCourse.distance_m ? Math.round(lastCourse.distance_m/100)/10 : null, hr_avg: lastCourse.hr_avg } : null,
+    lastVelo: lastVelo ? { date: lastVelo.date, daysAgo: daysSince(lastVelo), distance_km: lastVelo.distance_m ? Math.round(lastVelo.distance_m/100)/10 : null } : null,
+    muscu_program: '3x/semaine Push/Pull/Full body supersets',
+  };
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: `Tu es le coach personnel de l'app Jovita. À partir des données d'entraînement, génère un message contextuel court (1-2 lignes max, percutant, en français) et 3 suggestions — une par sport (muscu 💪, course 🏃, vélo 🚴). Chaque suggestion = 1 phrase courte et concrète. Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:
+{"message":"...","muscu":"...","course":"...","velo":"..."}`,
+        messages:[{ role:'user', content: 'Données: '+JSON.stringify(ctx) }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content.map(i=>i.text||'').join('');
+    const parsed = JSON.parse(text);
+
+    msgEl.textContent = parsed.message || 'Bonne journée — continue comme ça.';
+    sugEl.innerHTML = [
+      { txt: parsed.muscu, color:'#4d9eff' },
+      { txt: parsed.course, color:'#34d399' },
+      { txt: parsed.velo,   color:'#ffb347' },
+    ].map(s=>`<div class="hsugg"><span class="hsugg-dot" style="background:${s.color}"></span><span class="hsugg-txt">${s.txt}</span></div>`).join('');
+  } catch(e) {
+    msgEl.textContent = 'Continue comme ça — chaque séance compte.';
+    sugEl.innerHTML = '';
+  }
 }
 
 // ════ LOGGER ════
