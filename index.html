@@ -2291,6 +2291,129 @@ function closeStravaLinkModal(){
   document.getElementById('strava-link-modal')?.remove();
 }
 
+// ════ FUSION STRAVA → MANUELLE ════
+// Ouvre un modal pour fusionner une entrée Strava (source:'strava', type:'muscu')
+// avec une séance manuelle existante.
+async function openMergeToManualModal(stravaId){
+  requirePin(async ()=>{
+    const allActs = await dbLoad('muscu');
+    const stravaEntry = allActs.find(a=>a.id===stravaId);
+    if(!stravaEntry){ alert('Activité introuvable'); return; }
+
+    const targetDate = new Date(stravaEntry.date);
+    // Séances manuelles sans strava_activity_id déjà lié, à ±2 jours
+    const manualActs = allActs.filter(a=>{
+      if(a.source !== 'manual') return false;
+      if(a.strava_activity_id) return false; // déjà fusionnée
+      const diffDays = Math.abs(new Date(a.date) - targetDate) / (1000*60*60*24);
+      return diffDays <= 2;
+    });
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'merge-modal';
+
+    const stravaName = stravaEntry.strava_name || stravaEntry.session_label || 'Weight Training';
+    const stravaDur  = stravaEntry.duration_sec ? fmtDuration(stravaEntry.duration_sec) : '—';
+    const stravaDate = new Date(stravaEntry.date).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+
+    let body = '';
+
+    // Card de l'entrée Strava source
+    body += '<div style="background:rgba(252,76,2,.08);border:1px solid rgba(252,76,2,.25);border-radius:12px;padding:12px 14px;margin-bottom:18px">';
+    body += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fc4c02;margin-bottom:6px">🟠 Activité Strava à fusionner</div>';
+    body += '<div style="font-size:14px;font-weight:600;color:var(--text)">'+_esc(stravaName)+'</div>';
+    body += '<div style="font-size:12px;color:var(--text2);margin-top:3px">'+stravaDate+' · '+stravaDur;
+    if(stravaEntry.hr_avg)   body += ' · ♥ '+stravaEntry.hr_avg+' bpm';
+    if(stravaEntry.calories) body += ' · 🔥 '+stravaEntry.calories+' kcal';
+    body += '</div></div>';
+
+    body += '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Choisir la séance manuelle</div>';
+
+    if(!manualActs.length){
+      body += '<div style="text-align:center;padding:24px 0">';
+      body += '<div style="font-size:32px;margin-bottom:10px">📋</div>';
+      body += '<div style="font-size:13px;color:var(--text2);line-height:1.6">Aucune séance manuelle trouvée<br>à ±2 jours de cette activité.<br><br>';
+      body += '<span style="font-size:11px;color:var(--text3)">La séance doit être loggée avant<br>de pouvoir être fusionnée.</span></div>';
+      body += '</div>';
+    } else {
+      body += '<div style="margin-bottom:16px">';
+      manualActs.forEach(a=>{
+        const d = new Date(a.date);
+        const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+        const lbl = a.session_label||a.label||'Séance manuelle';
+        const exoCount = (a.exercises||[]).length;
+        body +=
+          '<div onclick="mergeStravaIntoManual('+stravaId+','+a.id+',this)" '+
+          'style="padding:13px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px" class="merge-pick-row">'+
+          '<div style="width:36px;height:36px;border-radius:10px;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💪</div>'+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:14px;font-weight:600;color:var(--text)">'+_esc(lbl)+'</div>'+
+          '<div style="font-size:12px;color:var(--text2);margin-top:2px">'+ds+(exoCount?' · '+exoCount+' exercice'+(exoCount>1?'s':''):'')+'</div>'+
+          '</div>'+
+          '<div style="font-size:20px;color:var(--text3)">›</div>'+
+          '</div>';
+      });
+      body += '</div>';
+    }
+
+    overlay.innerHTML =
+      '<div class="modal" style="padding-bottom:calc(20px + var(--safe-bottom))">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
+      '<div style="font-family:var(--fd);font-size:24px;letter-spacing:.04em">⚡ FUSIONNER</div>'+
+      '<button onclick="closeMergeModal()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer">✕</button>'+
+      '</div>'+
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:18px">Intègre les données Strava dans ta séance loggée</div>'+
+      body+
+      '<button onclick="closeMergeModal()" style="width:100%;padding:13px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer;margin-top:4px">Fermer sans fusionner</button>'+
+      '</div>';
+
+    document.body.appendChild(overlay);
+  });
+}
+
+async function mergeStravaIntoManual(stravaId, manualId, rowEl){
+  // Feedback visuel
+  document.querySelectorAll('.merge-pick-row').forEach(r=>{ r.style.borderColor='var(--border)'; r.style.background=''; });
+  rowEl.style.borderColor = 'var(--accent)';
+  rowEl.style.background = 'var(--accent2)';
+  rowEl.style.pointerEvents = 'none';
+
+  const allActs = await dbLoad('muscu');
+  const stravaEntry = allActs.find(a=>a.id===stravaId);
+  const manualEntry = allActs.find(a=>a.id===manualId);
+
+  if(!stravaEntry || !manualEntry){
+    alert('Erreur : entrée introuvable'); return;
+  }
+
+  // Patch la séance manuelle avec les données cardio Strava
+  // Les données Strava écrasent seulement si la séance manuelle n'a pas déjà ces infos
+  const patch = {
+    source: 'strava',
+    strava_activity_id: stravaId,
+    duration_sec: stravaEntry.duration_sec || manualEntry.duration_sec || null,
+    hr_avg:       stravaEntry.hr_avg       || manualEntry.hr_avg       || null,
+    hr_max:       stravaEntry.hr_max       || manualEntry.hr_max       || null,
+    calories:     stravaEntry.calories     || manualEntry.calories     || null,
+  };
+
+  await dbUpdate(manualId, patch);
+  await dbDelete(stravaId);
+
+  cachedHist = null;
+
+  setTimeout(()=>{
+    document.getElementById('merge-modal')?.remove();
+    renderHist();
+    renderHome();
+  }, 600);
+}
+
+function closeMergeModal(){
+  document.getElementById('merge-modal')?.remove();
+}
+
 function closeLoggerOrReset(){
   logDate = todayKey();
   if(document.getElementById('logger-modal')){
@@ -2324,19 +2447,34 @@ async function renderHist(){
     const d = new Date(e.date);
     const ds = d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
     const exos = e.exercises || [];
+    const isStravaOnly = e.source === 'strava' && !(e.exercises && e.exercises.length);
+    const isMerged     = !!e.strava_activity_id;
 
     // Only render exercise summary (no expanded details until user taps)
-    const label = e.session_label || e.label || '';
+    const label = e.session_label || e.label || (isStravaOnly ? (e.strava_name || 'Séance Strava') : '');
     const stype = e.session_type || e.type || '';
     const progLabel = e.program ? e.program.toUpperCase() : '';
-    const progBadge = progLabel ? '<span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border);padding:2px 6px;border-radius:5px;margin-right:4px">'+progLabel+'</span>' : '';
     const metaChips = [];
     if(e.duration_sec) metaChips.push('⏱ '+fmtDuration(e.duration_sec));
     if(e.calories)     metaChips.push('🔥 '+e.calories+' kcal');
     if(e.hr_avg)       metaChips.push('♥ '+e.hr_avg+' bpm');
     const metaStr = metaChips.length ? '<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">'+metaChips.map(c=>'<span style="font-size:11px;color:var(--text2)">'+c+'</span>').join('')+'</div>' : '';
 
-    return '<div class="he" id="he-'+i+'">'+
+    // Badges droite
+    let rightBadges = '';
+    if(isMerged){
+      rightBadges += '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(252,76,2,.15);color:#fc4c02;border:1px solid rgba(252,76,2,.25)">🟠 STRAVA</span>';
+    } else if(isStravaOnly){
+      rightBadges += '<button onclick="event.stopPropagation();openMergeToManualModal('+e.id+')" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:rgba(252,76,2,.12);color:#fc4c02;border:1px solid rgba(252,76,2,.3);cursor:pointer;white-space:nowrap">⚡ Fusionner</button>';
+    }
+    if(progLabel) rightBadges += '<span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border);padding:2px 7px;border-radius:5px">'+progLabel+'</span>';
+    if(isStravaOnly){
+      rightBadges += '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(252,76,2,.08);color:#fc4c02;">STRAVA</span>';
+    } else {
+      rightBadges += '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span>';
+    }
+
+    return '<div class="he" id="he-'+i+'"'+(isStravaOnly?' style="border-color:rgba(252,76,2,.2)"':'')+'>'+
       '<div class="heh" onclick="togHistEntry('+i+')">'+
       '<div>'+
       '<div class="het" style="display:flex;align-items:center;gap:7px">'+feelBadge(e.feeling)+_esc(label)+'</div>'+
@@ -2345,9 +2483,7 @@ async function renderHist(){
       '</div>'+metaStr+
       '</div>'+
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">'+
-      (e.strava_activity_id ? '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(252,76,2,.15);color:#fc4c02;border:1px solid rgba(252,76,2,.25)">🟠 STRAVA</span>' : '')+
-      (progLabel ? '<span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border);padding:2px 7px;border-radius:5px">'+progLabel+'</span>' : '')+
-      '<span class="hbg b'+stype+'">'+stype.toUpperCase()+'</span>'+
+      rightBadges+
       '</div>'+
       '</div>'+
       '<div class="hdt" id="hd-'+i+'">'+
@@ -2373,6 +2509,7 @@ function _fillHistDetail(i){
   if(!e) return;
 
   const exos = e.exercises || [];
+  const isStravaOnly = e.source === 'strava' && !exos.length;
   const rows = exos.map(exo=>{
     const isTimed = exo.name.toLowerCase().includes('plank');
     let sv;
@@ -2390,20 +2527,34 @@ function _fillHistDetail(i){
     '<div class="edit-bar">'+
     '<button class="edit-btn" onclick="startEdit('+i+',event)">✏️ Modifier</button>'+
     '<button class="edit-btn" style="color:var(--red);border-color:rgba(255,82,82,.3)" onclick="deleteMuscu('+i+',event)">🗑️ Supprimer</button>'+
-    (e.strava_activity_id
-      ? '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(252,76,2,.15);color:#fc4c02;border:1px solid rgba(252,76,2,.25)">🟠 Strava lié</span>'
-      : '<button class="edit-btn" style="color:#fc4c02;border-color:rgba(252,76,2,.3)" onclick="openStravaLinkModal('+e.id+',&quot;'+new Date(e.date).toISOString().slice(0,10)+'&quot;)">🔗 Lier Strava</button>')+
+    (isStravaOnly
+      ? '<button class="edit-btn" style="color:#fc4c02;border-color:rgba(252,76,2,.3)" onclick="openMergeToManualModal('+e.id+')">⚡ Fusionner avec séance manuelle</button>'
+      : e.strava_activity_id
+        ? '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(252,76,2,.15);color:#fc4c02;border:1px solid rgba(252,76,2,.25)">🟠 Strava lié</span>'
+        : '<button class="edit-btn" style="color:#fc4c02;border-color:rgba(252,76,2,.3)" onclick="openStravaLinkModal('+e.id+',&quot;'+new Date(e.date).toISOString().slice(0,10)+'&quot;)">🔗 Lier Strava</button>')+
     '</div>'+
     '<div id="hd-view-'+i+'">'+
-    (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
-    (e.note?'<div class="hno">💬 '+_esc(e.note)+'</div>':'')+
-    ((e.duration_sec||e.hr_avg||e.hr_max||e.calories)?
-      '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
-      (e.duration_sec?'<span style="font-size:12px;color:var(--text2)">⏱ <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong></span>':'')+
-      (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
-      (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
-      (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
-      '</div>':'')+
+    (isStravaOnly
+      ? '<div style="background:rgba(252,76,2,.06);border:1px solid rgba(252,76,2,.15);border-radius:10px;padding:12px 14px;margin-bottom:8px">'+
+        '<div style="font-size:11px;color:#fc4c02;font-weight:700;margin-bottom:8px">🟠 Activité Strava — données cardio uniquement</div>'+
+        '<div style="font-size:12px;color:var(--text2);line-height:1.7">'+
+        (e.duration_sec?'⏱ Durée : <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong><br>':'')+
+        (e.hr_avg?'♥ FC moy : <strong style="color:var(--text)">'+e.hr_avg+' bpm</strong><br>':'')+
+        (e.hr_max?'♥ FC max : <strong style="color:var(--text)">'+e.hr_max+' bpm</strong><br>':'')+
+        (e.calories?'🔥 Calories : <strong style="color:var(--text)">'+e.calories+' kcal</strong><br>':'')+
+        '</div>'+
+        '<div style="font-size:11px;color:var(--text3);margin-top:8px">Fusionne avec ta séance loggée pour avoir toutes les données ensemble.</div>'+
+        '</div>'
+      : (rows||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>')+
+        (e.note?'<div class="hno">💬 '+_esc(e.note)+'</div>':'')+
+        ((e.duration_sec||e.hr_avg||e.hr_max||e.calories)?
+          '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">'+
+          (e.duration_sec?'<span style="font-size:12px;color:var(--text2)">⏱ <strong style="color:var(--text)">'+fmtDuration(e.duration_sec)+'</strong></span>':'')+
+          (e.hr_avg?'<span style="font-size:12px;color:var(--text2)">♥ avg <strong style="color:var(--text)">'+e.hr_avg+'</strong> bpm</span>':'')+
+          (e.hr_max?'<span style="font-size:12px;color:var(--text2)">♥ max <strong style="color:var(--text)">'+e.hr_max+'</strong> bpm</span>':'')+
+          (e.calories?'<span style="font-size:12px;color:var(--text2)">🔥 <strong style="color:var(--text)">'+e.calories+'</strong> kcal</span>':'')+
+          '</div>':'')
+    )+
     '</div>'+
     '<div id="hd-edit-'+i+'" style="display:none"></div>';
 }
