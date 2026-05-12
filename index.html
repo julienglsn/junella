@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Coaching Ju</title>
+<title>Jovita</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coaching Ju">
+<meta name="apple-mobile-web-app-title" content="Jovita">
 <meta name="theme-color" content="#060a12">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060a12'/%3E%3Ctext x='90' y='56' font-size='18' font-weight='700' fill='%234d9eff' text-anchor='middle' font-family='system-ui' letter-spacing='1'%3ECOACHING%3C/text%3E%3Ctext x='90' y='110' font-size='48' font-weight='900' fill='white' text-anchor='middle' font-family='system-ui'%3EJU%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060a12'/%3E%3Ctext x='90' y='56' font-size='18' font-weight='700' fill='%234d9eff' text-anchor='middle' font-family='system-ui' letter-spacing='1'%3EJOVITA%3C/text%3E%3Ctext x='90' y='130' font-size='22' font-weight='400' fill='%234d9eff' text-anchor='middle' font-family='system-ui'%3ELa vie en mouvement%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -361,7 +361,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ ACCUEIL ════ -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hrey">Coaching Ju</div>
+    <div class="hrey">Jovita</div>
     <div class="hrt">BON<span>JOUR</span></div>
     <div class="hrs" id="home-date">Chargement...</div>
   </div>
@@ -409,7 +409,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ SPORTS HUB ════ -->
 <div class="page" id="page-sports-hub">
   <div class="hero">
-    <div class="hrey">Coaching Ju</div>
+    <div class="hrey">Jovita</div>
     <div class="hrt">SPORTS</div>
     <div class="hrs">Sélectionne une activité</div>
   </div>
@@ -434,7 +434,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ NUTRITION HUB ════ -->
 <div class="page" id="page-nutrition-hub">
   <div class="hero">
-    <div class="hrey">Coaching Ju</div>
+    <div class="hrey">Jovita</div>
     <div class="hrt">NUTRI<span>TION</span></div>
     <div class="hrs">Recettes · Macros · À venir</div>
   </div>
@@ -443,7 +443,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
   <div class="ph">
-    <div class="ey">Coaching Ju</div>
+    <div class="ey">Jovita</div>
     <h1>MUSCU<span>LATION</span></h1>
     <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
   </div>
@@ -598,7 +598,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ COURSE ════ -->
 <div class="page" id="page-course">
   <div class="ph">
-    <div class="ey">Coaching Ju</div>
+    <div class="ey">Jovita</div>
     <h1>COURSE <span>À PIED</span></h1>
     <p>Coros Pace 4 · Zone 2 · Progression</p>
   </div>
@@ -651,7 +651,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ VÉLO ════ -->
 <div class="page" id="page-velo">
   <div class="ph">
-    <div class="ey">Coaching Ju</div>
+    <div class="ey">Jovita</div>
     <h1>VÉLO <span>DE ROUTE</span></h1>
     <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
   </div>
@@ -799,7 +799,7 @@ async function dbLoad(type){
   } catch(e){
     console.warn('Supabase load error', e);
     // Fallback: localStorage filtered by type
-    const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
+    const local = JSON.parse(localStorage.getItem('jovita_acts')||'[]');
     return type ? local.filter(a=>a.type===type) : local;
   }
 }
@@ -858,20 +858,20 @@ async function dbDelete(id){
 
 // Local cache helpers
 function _cacheAdd(data){
-  const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
+  const local = JSON.parse(localStorage.getItem('jovita_acts')||'[]');
   local.unshift(data);
   local.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  localStorage.setItem('cju_acts', JSON.stringify(local));
+  localStorage.setItem('jovita_acts', JSON.stringify(local));
 }
 function _cacheUpdate(id, patch){
-  const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
+  const local = JSON.parse(localStorage.getItem('jovita_acts')||'[]');
   const idx = local.findIndex(e=>e.id===id);
-  if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('cju_acts',JSON.stringify(local)); }
+  if(idx>-1){ Object.assign(local[idx], patch); localStorage.setItem('jovita_acts',JSON.stringify(local)); }
 }
 function _cacheDelete(id){
-  const local = JSON.parse(localStorage.getItem('cju_acts')||'[]');
+  const local = JSON.parse(localStorage.getItem('jovita_acts')||'[]');
   // eslint-disable-next-line eqeqeq
-  localStorage.setItem('cju_acts', JSON.stringify(local.filter(e=>e.id!=id)));
+  localStorage.setItem('jovita_acts', JSON.stringify(local.filter(e=>e.id!=id)));
 }
 
 
@@ -1610,7 +1610,7 @@ function _renderAppsPage(){
   const order = [];
   apps.forEach(a=>{ if(!sections[a.sec]){sections[a.sec]=[];order.push(a.sec);} sections[a.sec].push(a); });
 
-  let h = '<div class="ph"><div class="ey">Coaching Ju</div><h1>MES <span>APPS</span></h1><p>Raccourcis vers tes applications sportives</p></div>';
+  let h = '<div class="ph"><div class="ey">Jovita</div><h1>MES <span>APPS</span></h1><p>Raccourcis vers tes applications sportives</p></div>';
   h += '<div class="sec">';
   order.forEach((sec,si)=>{
     h += '<div class="slabel"'+(si>0?' style="margin-top:18px"':'')+'>'+sec+'</div>';
@@ -3091,7 +3091,7 @@ async function saveEdit(i){
 }
 
 // ════ PIN GUARD ════
-const PIN_SESSION_KEY = 'cju_unlocked';
+const PIN_SESSION_KEY = 'jovita_unlocked';
 const PIN_CORRECT = '3507';
 
 function isUnlocked(){
