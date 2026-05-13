@@ -352,6 +352,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .slc-row-val{font-weight:600;font-size:12px}
 .slc-empty{font-size:12px;color:var(--text3);font-style:italic}
 
+/* TOAST */
+.toast{position:fixed;top:calc(var(--safe-top) + 14px);left:50%;transform:translateX(-50%);z-index:600;background:#1a1a2e;border:1px solid rgba(255,82,82,.35);border-radius:12px;padding:11px 16px;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 40px);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:toastIn .22s ease;pointer-events:auto;cursor:pointer}
+.toast-ico{font-size:16px;flex-shrink:0}
+.toast-msg{font-size:13px;font-weight:500;color:#ffb0b0;line-height:1.4}
+.toast-close{font-size:16px;color:rgba(255,255,255,.3);flex-shrink:0;margin-left:4px}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-8px)}}
+
 /* ════ DESKTOP (≥640px) — Clean centered layout ════ */
 @media (min-width:640px){
   :root{--safe-bottom:0px;--safe-top:0px}
@@ -427,6 +435,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     <div class="cal-grid-wrap" style="padding:12px;" id="home-donut-wrap">
       <div style="position:relative;width:100%;height:160px;"><canvas id="home-donut-canvas"></canvas></div>
       <div id="home-donut-legend" style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;"></div>
+    </div>
+  </div>
+
+  <div class="sec" style="padding-top:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="slabel" style="margin-bottom:0">Forme au fil du temps</div>
+      <div style="display:flex;gap:6px;" id="home-feeling-filters">
+        <button class="subnav-item active" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('all',this)">Tout</button>
+        <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('muscu',this)">💪</button>
+        <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('course',this)">🏃</button>
+        <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('velo',this)">🚴</button>
+      </div>
+    </div>
+    <div class="cal-grid-wrap" style="padding:12px;">
+      <div style="position:relative;width:100%;height:190px;"><canvas id="home-feeling-chart"></canvas></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une activité · 1 épuisé → 5 en feu</div>
     </div>
   </div>
 
@@ -625,6 +649,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div style="position:relative;width:100%;height:190px;"><canvas id="muscu-intensity-chart"></canvas></div>
       </div>
 
+      <!-- Forme au fil du temps -->
+      <div class="slabel" style="margin-bottom:10px">Forme au fil du temps</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="position:relative;width:100%;height:190px;"><canvas id="muscu-feeling-chart"></canvas></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une séance · 1 épuisé → 5 en feu</div>
+      </div>
+
     </div>
   </div>
 
@@ -690,6 +721,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Allure min/km (y)</div>
       </div>
 
+      <!-- Forme au fil du temps -->
+      <div class="slabel" style="margin-bottom:10px">Forme au fil du temps</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="position:relative;width:100%;height:190px;"><canvas id="course-feeling-chart"></canvas></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie · 1 épuisé → 5 en feu</div>
+      </div>
+
     </div>
   </div>
   <div class="manifeste"><p>Vita — la vie. Jovis — l'énergie de Jupiter. Ensemble, ils forment Jovita :<br>l'art de se dépasser, de se nourrir, de s'épanouir. Chaque jour. Pleinement.</p><div class="manifeste-sig">JOVITA</div></div>
@@ -745,6 +783,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="velo-scatter-legend"></div>
         <div style="position:relative;width:100%;height:200px;"><canvas id="velo-scatter-chart"></canvas></div>
         <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Vitesse km/h (y)</div>
+      </div>
+
+      <!-- Forme au fil du temps -->
+      <div class="slabel" style="margin-bottom:10px">Forme au fil du temps</div>
+      <div class="cal-grid-wrap" style="padding:14px;margin-bottom:16px;">
+        <div style="position:relative;width:100%;height:190px;"><canvas id="velo-feeling-chart"></canvas></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie · 1 épuisé → 5 en feu</div>
       </div>
 
     </div>
@@ -851,9 +896,11 @@ async function dbLoad(type){
     return await r.json();
   } catch(e){
     console.warn('Supabase load error', e);
-    // Fallback: localStorage filtered by type
     const local = JSON.parse(localStorage.getItem('jovita_acts')||'[]');
-    return type ? local.filter(a=>a.type===type) : local;
+    const result = type ? local.filter(a=>a.type===type) : local;
+    if(!result.length) _showToast('Connexion impossible — données indisponibles.');
+    else _showToast('Mode hors-ligne — données locales affichées.');
+    return result;
   }
 }
 
@@ -927,6 +974,25 @@ function _cacheDelete(id){
   localStorage.setItem('jovita_acts', JSON.stringify(local.filter(e=>e.id!=id)));
 }
 
+
+// ════ TOAST ════
+let _toastTimer = null;
+function _showToast(msg){
+  const existing = document.getElementById('jovita-toast');
+  if(existing) existing.remove();
+  if(_toastTimer) clearTimeout(_toastTimer);
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.id = 'jovita-toast';
+  el.innerHTML = '<span class="toast-ico">⚠️</span><span class="toast-msg">'+_esc(msg)+'</span><span class="toast-close">✕</span>';
+  const dismiss = ()=>{
+    el.style.animation='toastOut .2s ease forwards';
+    setTimeout(()=>el.remove(), 200);
+  };
+  el.onclick = dismiss;
+  document.body.appendChild(el);
+  _toastTimer = setTimeout(dismiss, 4500);
+}
 
 function showImportLoading(sport, msg){
   const listEl = document.getElementById('act-list-'+sport);
@@ -1014,7 +1080,8 @@ async function editActivity(id, sport){
 async function deleteActivity(id, sport, ev){
   if(ev) ev.stopPropagation();
   if(!isUnlocked()){ requirePin(()=>deleteActivity(id, sport, null)); return; }
-  _confirmDelete(async ()=>{
+  const sportLabel = {muscu:'séance muscu', course:'sortie course', velo:'sortie vélo'}[sport] || 'activité';
+  _confirmDelete('Supprimer cette '+sportLabel+' ?', async ()=>{
     await dbDelete(id);
     cachedHist = null;
     if(sport === 'muscu') renderHist();
@@ -1023,23 +1090,26 @@ async function deleteActivity(id, sport, ev){
   });
 }
 
-function _confirmDelete(onConfirm){
+function _confirmDelete(label, onConfirm){
+  const existing = document.getElementById('confirm-modal');
+  if(existing) existing.remove();
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.id = 'confirm-modal';
   overlay.innerHTML =
-    '<div class="modal" style="padding-bottom:calc(20px + var(--safe-bottom));max-height:auto">'+
+    '<div class="modal" style="padding-bottom:calc(20px + var(--safe-bottom))">'+
     '<div style="font-family:var(--fd);font-size:24px;letter-spacing:.04em;margin-bottom:8px">🗑️ SUPPRIMER</div>'+
-    '<div style="font-size:14px;color:var(--text2);margin-bottom:24px">Cette action est irréversible.</div>'+
+    '<div style="font-size:14px;color:var(--text2);margin-bottom:6px">'+_esc(label)+'</div>'+
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:24px">Cette action est irréversible.</div>'+
     '<div style="display:flex;gap:10px">'+
-    '<button onclick="document.getElementById(\'confirm-modal\').remove()" style="flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer">Annuler</button>'+
+    '<button id="confirm-cancel-btn" style="flex:1;padding:14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer">Annuler</button>'+
     '<button id="confirm-delete-btn" style="flex:1;padding:14px;border-radius:12px;border:none;background:var(--red);color:#fff;font-family:var(--fd);font-size:20px;letter-spacing:.06em;cursor:pointer">SUPPRIMER</button>'+
     '</div></div>';
   document.body.appendChild(overlay);
-  document.getElementById('confirm-delete-btn').onclick = ()=>{
-    overlay.remove();
-    onConfirm();
-  };
+  const close = ()=> overlay.remove();
+  document.getElementById('confirm-cancel-btn').onclick = close;
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+  document.getElementById('confirm-delete-btn').onclick = ()=>{ close(); onConfirm(); };
 }
 
 // ════ MANUAL ENTRY FORMS ════
@@ -1281,7 +1351,11 @@ async function dbLoadRecipes(){
     if(!r.ok) throw new Error('load failed');
     cachedRecipes = await r.json();
     return cachedRecipes;
-  } catch(e){ console.warn('recipes load error',e); return []; }
+  } catch(e){
+    console.warn('recipes load error', e);
+    _showToast('Connexion impossible — recettes indisponibles.');
+    return [];
+  }
 }
 
 async function dbSaveRecipe(recipe){
@@ -1305,6 +1379,18 @@ async function dbDeleteRecipe(id){
   } catch(e){ console.warn('recipe delete error',e); }
 }
 
+async function dbUpdateRecipe(id, patch){
+  try {
+    const r = await fetch(SB_URL+'/rest/v1/recipes?id=eq.'+encodeURIComponent(id), {
+      method:'PATCH',
+      headers:{...SB_HDR,'Prefer':'return=minimal'},
+      body: JSON.stringify(patch)
+    });
+    if(!r.ok) throw new Error(await r.text());
+    cachedRecipes = null;
+  } catch(e){ console.warn('recipe update error',e); throw e; }
+}
+
 async function renderRecettes(){
   const listEl = document.getElementById('recettes-content');
   if(!listEl) return;
@@ -1322,12 +1408,13 @@ async function renderRecettes(){
       .sort((a,b)=>a.name.localeCompare(b.name,'fr'));
     if(!catRecipes.length) return;
     html += '<div class="slabel" style="margin:16px 0 10px">'+CAT_LABELS[cat]+'</div>';
-    catRecipes.forEach(r=>{
+    catRecipes.forEach((r, idx)=>{
+      const badge = r.cat + (idx + 1);
       html += '<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="toggleRecipe(&quot;'+r.id+'&quot;)">'+
         '<div class="crow" style="border-bottom:none">'+
         '<div>'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'+
-        '<span class="a-badge" style="font-size:10px">'+r.id+'</span>'+
+        '<span class="a-badge" style="font-size:10px">'+badge+'</span>'+
         '<span style="font-size:14px;font-weight:600">'+r.name+'</span>'+
         '</div>'+
         '<div style="font-size:12px;color:var(--text2)">'+r.portions+(r.goal?' · '+{perf:'Performance',cut:'Perte de gras',muscle:'Muscle',general:'Général'}[r.goal]:'')+' </div>'+
@@ -1344,6 +1431,7 @@ async function renderRecettes(){
         (r.steps||[]).map((s,i)=>'<div style="font-size:13px;color:var(--text2);padding:3px 0"><span style="color:var(--accent);font-weight:700">'+(i+1)+'.</span> '+s+'</div>').join('')+
         '</div>'+
         (r.notes?'<div style="font-size:12px;color:var(--text2);font-style:italic;background:var(--bg3);border-radius:8px;padding:8px 10px">💡 '+r.notes+'</div>':'')+
+        '<button onclick="editRecipe(&quot;'+r.id+'&quot;,event)" style="margin-top:12px;margin-right:8px;font-size:12px;color:var(--accent);background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer">✏️ Modifier</button>'+
         '<button onclick="deleteRecipeConfirm(&quot;'+r.id+'&quot;,event)" style="margin-top:12px;font-size:12px;color:var(--red);background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer">Supprimer</button>'+
         '</div>'+
         '</div>';
@@ -1364,8 +1452,46 @@ function toggleRecipe(id){
 async function deleteRecipeConfirm(id, ev){
   ev.stopPropagation();
   if(!isUnlocked()){ requirePin(()=>deleteRecipeConfirm(id, ev)); return; }
-  await dbDeleteRecipe(id);
-  renderRecettes();
+  const recipes = cachedRecipes || await dbLoadRecipes();
+  const recipe = recipes.find(r=>String(r.id)===String(id));
+  const label = recipe ? 'Supprimer "'+recipe.name+'" ?' : 'Supprimer cette recette ?';
+  _confirmDelete(label, async ()=>{
+    await dbDeleteRecipe(id);
+    renderRecettes();
+  });
+}
+
+// ════ RECIPE EDIT STATE ════
+let _editingRecipeId = null;
+
+function editRecipe(id, ev){
+  if(ev) ev.stopPropagation();
+  if(!isUnlocked()){ requirePin(()=>editRecipe(id, null)); return; }
+  const recipes = cachedRecipes || [];
+  const r = recipes.find(r=>String(r.id)===String(id));
+  if(!r){ _showToast('Recette introuvable.'); return; }
+
+  _editingRecipeId = id;
+
+  // Pré-remplir le formulaire
+  const set = (elId, val) => { const el=document.getElementById(elId); if(el) el.value=val||''; };
+  set('r-name',        r.name);
+  set('r-portions',    r.portions);
+  set('r-ingredients', (r.ingredients||[]).join('\n'));
+  set('r-steps',       (r.steps||[]).join('\n'));
+  set('r-notes',       r.notes);
+  const catEl = document.getElementById('r-cat');
+  if(catEl) catEl.value = r.cat;
+  const goalEl = document.getElementById('r-goal');
+  if(goalEl) goalEl.value = r.goal||'general';
+
+  // Mettre à jour le bouton
+  const btn = document.querySelector('#recettes-add .savebtn');
+  if(btn) btn.textContent = 'MODIFIER LA RECETTE';
+
+  // Basculer sur l'onglet Ajouter
+  const addBtn = document.querySelector('#recettes-nav .stab:nth-child(2)');
+  if(addBtn) showRecettesTab('add', addBtn);
 }
 
 async function saveRecipe(){
@@ -1375,14 +1501,9 @@ async function saveRecipe(){
   const cat = document.getElementById('r-cat')?.value;
   if(!cat){ alert('Catégorie requise'); return; }
 
-  const recipes = cachedRecipes !== null ? cachedRecipes : await dbLoadRecipes();
-  // ID based on count — will be renumbered alphabetically in display
-  const existing = recipes.filter(r=>r.cat===cat);
-  const num = existing.length + 1;
-  const id  = cat + num;
+  const btn = document.querySelector('#recettes-add .savebtn');
 
-  const recipe = {
-    id,
+  const patch = {
     cat,
     name,
     portions: document.getElementById('r-portions').value.trim() || null,
@@ -1392,21 +1513,27 @@ async function saveRecipe(){
     notes:    document.getElementById('r-notes').value.trim() || null,
   };
 
-  const btn = document.querySelector('#recettes-add .savebtn');
   if(btn){ btn.disabled=true; btn.textContent='SAUVEGARDE...'; }
 
   try {
-    await dbSaveRecipe(recipe);
+    if(_editingRecipeId){
+      await dbUpdateRecipe(_editingRecipeId, patch);
+      _editingRecipeId = null;
+    } else {
+      const id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+      await dbSaveRecipe({ id, ...patch });
+    }
     // Reset form
-    ['r-name','r-portions','r-ingredients','r-steps','r-notes'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.value='';
+    ['r-name','r-portions','r-ingredients','r-steps','r-notes'].forEach(fid=>{
+      const el=document.getElementById(fid); if(el) el.value='';
     });
     if(btn){ btn.disabled=false; btn.textContent='AJOUTER LA RECETTE'; }
-    // Switch to list
     const listBtn = document.querySelector('#recettes-nav .stab');
     if(listBtn) showRecettesTab('list', listBtn);
   } catch(e){
-    if(btn){ btn.disabled=false; btn.textContent='AJOUTER LA RECETTE'; }
+    if(btn){ btn.disabled=false; btn.textContent=_editingRecipeId?'MODIFIER LA RECETTE':'AJOUTER LA RECETTE'; }
     alert('Erreur sauvegarde: '+e.message);
   }
 }
@@ -1417,6 +1544,11 @@ function showRecettesTab(tab, btn){
   document.getElementById('recettes-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='list') renderRecettes();
+  if(tab==='add' && !_editingRecipeId){
+    // Mode création : reset bouton au cas où
+    const savebtn = document.querySelector('#recettes-add .savebtn');
+    if(savebtn) savebtn.textContent = 'AJOUTER LA RECETTE';
+  }
 }
 
 // Seed initial recipes if DB is empty
@@ -2025,6 +2157,12 @@ async function renderHome(){
   renderRecentActivities(all);
   renderHomeStats(all);
   renderHomeSuggestions(all);
+
+  // Feeling chart home
+  _homeFeelingActs = all;
+  _homeFeelingFilter = 'all';
+  document.querySelectorAll('#home-feeling-filters .subnav-item').forEach((b,i)=>b.classList.toggle('active',i===0));
+  _renderHomeFeelingChart();
 }
 
 function renderHomeStats(all){
@@ -2094,62 +2232,208 @@ function renderHomeStats(all){
   dvolEl.style.color = dvol>=0?'var(--green)':'var(--red)';
 }
 
-async function renderHomeSuggestions(all){
+function renderHomeSuggestions(all){
   const msgEl = document.getElementById('home-ctx-msg');
   const sugEl = document.getElementById('home-suggestions');
+  if(!msgEl || !sugEl) return;
 
-  // Build context summary for Claude
-  const now = new Date();
+  const now   = new Date();
+  const hour  = now.getHours();
+  const dow   = now.getDay(); // 0=dim
   const daysAgo = n => { const x=new Date(now); x.setDate(x.getDate()-n); x.setHours(0,0,0,0); return x; };
-  const d7=daysAgo(7), d30=daysAgo(30);
+  const daysSince = a => a ? Math.floor((now - new Date(a.date)) / 86400000) : null;
 
-  const recent = all.filter(a=>new Date(a.date)>=d7);
-  const last = all[0];
-  const lastMuscu = all.find(a=>a.type==='muscu');
-  const lastCourse = all.find(a=>a.type==='course');
-  const lastVelo = all.find(a=>a.type==='velo');
+  // ── Fenêtres temporelles ──
+  const d7  = daysAgo(7);
+  const d14 = daysAgo(14);
+  const d30 = daysAgo(30);
+  const thisMonday = daysAgo(dow===0 ? 6 : dow-1);
+  const lastMonday = daysAgo(dow===0 ? 13 : dow+6);
 
-  const daysSince = a => a ? Math.floor((now-new Date(a.date))/(1000*60*60*24)) : null;
-  const totalHours7 = recent.reduce((acc,a)=>acc+(a.duration_min||0),0)/60;
+  const inRange = (a, from, to) => { const d=new Date(a.date); return d>=from && d<(to||now); };
 
-  const ctx = {
-    today: now.toISOString().slice(0,10),
-    totalHours7j: Math.round(totalHours7*10)/10,
-    activitiesLast7j: recent.length,
-    lastMuscu: lastMuscu ? { date: lastMuscu.date, daysAgo: daysSince(lastMuscu), session: lastMuscu.session } : null,
-    lastCourse: lastCourse ? { date: lastCourse.date, daysAgo: daysSince(lastCourse), distance_km: lastCourse.distance_m ? Math.round(lastCourse.distance_m/100)/10 : null, hr_avg: lastCourse.hr_avg } : null,
-    lastVelo: lastVelo ? { date: lastVelo.date, daysAgo: daysSince(lastVelo), distance_km: lastVelo.distance_m ? Math.round(lastVelo.distance_m/100)/10 : null } : null,
-    muscu_program: '3x/semaine Push/Pull/Full body supersets',
+  const recent7  = all.filter(a=>inRange(a, d7));
+  const recent14 = all.filter(a=>inRange(a, d14, d7));
+
+  // ── Par sport ──
+  const byType = t => all.filter(a=>a.type===t);
+  const lastMuscu  = byType('muscu')[0];
+  const lastCourse = byType('course')[0];
+  const lastVelo   = byType('velo')[0];
+
+  const muscu7  = recent7.filter(a=>a.type==='muscu');
+  const course7 = recent7.filter(a=>a.type==='course');
+  const velo7   = recent7.filter(a=>a.type==='velo');
+
+  // ── Feeling moyen récent ──
+  const avgFeeling = acts => {
+    const f = acts.filter(a=>a.feeling).map(a=>parseInt(a.feeling));
+    return f.length ? f.reduce((s,v)=>s+v,0)/f.length : null;
   };
+  const feelMuscu = avgFeeling(byType('muscu').slice(0,5));
 
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system: `Tu es le coach personnel de l'app Jovita. À partir des données d'entraînement, génère un message contextuel court (1-2 lignes max, percutant, en français) et 3 suggestions — une par sport (muscu 💪, course 🏃, vélo 🚴). Chaque suggestion = 1 phrase courte et concrète. Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks:
-{"message":"...","muscu":"...","course":"...","velo":"..."}`,
-        messages:[{ role:'user', content: 'Données: '+JSON.stringify(ctx) }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content.map(i=>i.text||'').join('');
-    const match = text.match(/\{[\s\S]*\}/);
-    if(!match) throw new Error('No JSON found: '+text);
-    const parsed = JSON.parse(match[0]);
+  // ── Km ──
+  const kmSum = acts => acts.reduce((s,a)=>s+(a.distance_m||0)/1000, 0);
+  const courseKmMonth = kmSum(all.filter(a=>a.type==='course' && inRange(a, d30)));
+  const veloKmWeek    = kmSum(velo7);
+  const veloKmPrevWeek= kmSum(all.filter(a=>a.type==='velo' && inRange(a, lastMonday, thisMonday)));
 
-    msgEl.textContent = parsed.message || 'Bonne journée — continue comme ça.';
-    sugEl.innerHTML = [
-      { txt: parsed.muscu, color:'#4d9eff' },
-      { txt: parsed.course, color:'#34d399' },
-      { txt: parsed.velo,   color:'#ffb347' },
-    ].map(s=>`<div class="hsugg"><span class="hsugg-dot" style="background:${s.color}"></span><span class="hsugg-txt">${s.txt}</span></div>`).join('');
-  } catch(e) {
-    msgEl.textContent = 'Continue comme ça — chaque séance compte.';
-    sugEl.innerHTML = '';
+  // ── Meilleure allure course du mois vs moyenne ──
+  const coursePaces = all.filter(a=>a.type==='course' && a.pace_sec_km && inRange(a, d30));
+  const bestPace    = coursePaces.length ? Math.min(...coursePaces.map(a=>a.pace_sec_km)) : null;
+  const avgPace     = coursePaces.length ? coursePaces.reduce((s,a)=>s+a.pace_sec_km,0)/coursePaces.length : null;
+
+  // ── Dénivelé vélo du mois ──
+  const veloElev = all.filter(a=>a.type==='velo' && inRange(a, d30)).reduce((s,a)=>s+(a.elevation_m||0),0);
+
+  // ── Durée moyenne sorties vélo ──
+  const veloDurations = velo7.filter(a=>a.duration_sec).map(a=>a.duration_sec/60);
+  const avgVeloDur = veloDurations.length ? veloDurations.reduce((s,v)=>s+v,0)/veloDurations.length : null;
+
+  // ── Streak muscu (semaines consécutives avec ≥1 séance) ──
+  let muscuStreak = 0;
+  for(let w=0; w<12; w++){
+    const wStart = daysAgo(w*7+6);
+    const wEnd   = daysAgo(w*7);
+    if(all.filter(a=>a.type==='muscu' && inRange(a, wStart, wEnd)).length > 0) muscuStreak++;
+    else break;
   }
+
+  // ── Prochaine séance muscu (rotation A→B→C) ──
+  const SESSION_ROTATION = ['a','b','c'];
+  const lastSessKey = lastMuscu?.session;
+  const nextSessIdx = lastSessKey ? (SESSION_ROTATION.indexOf(lastSessKey)+1) % 3 : 0;
+  const nextSess    = SESSION_ROTATION[nextSessIdx];
+  const nextSessLabel = {a:'A — Jambes/Push', b:'B — Pull', c:'C — Full body'}[nextSess];
+
+  // ── Exercice clé par séance ──
+  const keyExo = {a:'Goblet squat', b:'Romanian deadlift', c:'Leg press'};
+
+  // ── Dernier poids loggé sur l'exercice clé ──
+  const lastKeyWeight = (sessKey) => {
+    const exo = keyExo[sessKey];
+    for(const a of byType('muscu')){
+      if(!a.exercises) continue;
+      for(const ex of a.exercises){
+        if(ex.name===exo && ex.sets && ex.sets.length){
+          const w = ex.sets.map(s=>parseFloat(s.weight)||0).filter(v=>v>0);
+          if(w.length) return Math.max(...w);
+        }
+      }
+    }
+    return null;
+  };
+  const nextKeyWeight = lastKeyWeight(nextSess);
+
+  // ══════════════════════════════════════
+  // MESSAGE PRINCIPAL
+  // ══════════════════════════════════════
+  let message = '';
+  const n7 = recent7.length;
+  const dsLast = daysSince(all[0]);
+
+  if(!all.length){
+    message = 'Bienvenue sur Jovita — commence à logger tes premières séances.';
+  } else if(dsLast === 0){
+    const greet = hour < 12 ? 'Belle matinée' : hour < 18 ? 'Bonne journée' : 'Belle soirée';
+    message = greet+' — séance loggée aujourd\'hui. Continue sur cette lancée.';
+  } else if(dsLast === 1){
+    message = n7 >= 3 ? 'Excellent rythme cette semaine — '+n7+' séances en 7 jours.' : 'Hier c\'était bien. Le corps récupère, la progression continue.';
+  } else if(n7 >= 5){
+    message = n7+' activités en 7 jours — pense à récupérer activement.';
+  } else if(n7 >= 3){
+    const dowLabels = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    message = dowLabels[dow]+' — '+n7+' séances cette semaine. Dans le rythme.';
+  } else if(dsLast !== null && dsLast >= 5){
+    message = dsLast+'j sans activité — le corps est rechargé. C\'est le moment.';
+  } else if(dsLast !== null && dsLast >= 3){
+    message = 'Quelques jours de repos — une séance légère aujourd\'hui ?';
+  } else {
+    message = 'Chaque séance compte — continue à construire.';
+  }
+
+  // ══════════════════════════════════════
+  // SUGGESTION MUSCU
+  // ══════════════════════════════════════
+  let muscuTxt = '';
+  const dsMus = daysSince(lastMuscu);
+
+  if(!lastMuscu){
+    muscuTxt = '💪 Programme Supersets Full Body — commence par la séance A';
+  } else if(feelMuscu !== null && feelMuscu <= 2 && dsMus !== null && dsMus < 2){
+    muscuTxt = '💪 Feeling difficile lors de la dernière séance — charge légère aujourd\'hui';
+  } else if(muscuStreak >= 4){
+    muscuTxt = '💪 '+muscuStreak+' semaines de suite sans manquer — streak solide 🔥';
+  } else if(dsMus !== null && dsMus >= 4){
+    muscuTxt = '💪 '+dsMus+'j sans muscu — reprends avec la séance '+nextSessLabel.split('—')[0].trim();
+  } else if(nextKeyWeight){
+    muscuTxt = '💪 Séance '+nextSessLabel+' — '+keyExo[nextSess]+' à '+nextKeyWeight+'kg la dernière fois';
+  } else {
+    muscuTxt = '💪 Prochaine : séance '+nextSessLabel;
+  }
+
+  // ══════════════════════════════════════
+  // SUGGESTION COURSE
+  // ══════════════════════════════════════
+  let courseTxt = '';
+  const dsCrs = daysSince(lastCourse);
+  const fmtPaceLocal = sec => { if(!sec) return ''; const m=Math.floor(sec/60); const s=Math.round(sec%60); return m+"'"+String(s).padStart(2,'0')+'"'; };
+
+  if(!lastCourse){
+    courseTxt = '🏃 Ajoute ta première sortie course pour suivre ta progression';
+  } else if(dsCrs === 0){
+    courseTxt = '🏃 Sortie aujourd\'hui — bonne récupération pour demain';
+  } else if(lastCourse.hr_avg && lastCourse.hr_avg > 165 && dsCrs !== null && dsCrs < 3){
+    courseTxt = '🏃 FC élevée sur la dernière sortie ('+lastCourse.hr_avg+' bpm) — zone 2 aujourd\'hui ?';
+  } else if(bestPace && avgPace && bestPace < avgPace * 0.95){
+    courseTxt = '🏃 Meilleure allure du mois : '+fmtPaceLocal(bestPace)+'/km — record en vue';
+  } else if(courseKmMonth >= 80){
+    courseTxt = '🏃 '+Math.round(courseKmMonth)+'km ce mois — objectif 100km à portée';
+  } else if(courseKmMonth > 0 && courseKmMonth < 20){
+    courseTxt = '🏃 '+Math.round(courseKmMonth)+'km ce mois — encore '+Math.round(100-courseKmMonth)+'km pour les 100km';
+  } else if(dsCrs !== null && dsCrs >= 7){
+    courseTxt = '🏃 '+dsCrs+'j sans course — une sortie de 30 min pour relancer';
+  } else if(dsCrs !== null && dsCrs >= 3){
+    courseTxt = '🏃 Dernière course il y a '+dsCrs+'j — zone 2 aujourd\'hui ?';
+  } else {
+    courseTxt = '🏃 '+Math.round(courseKmMonth)+'km ce mois — bonne progression';
+  }
+
+  // ══════════════════════════════════════
+  // SUGGESTION VÉLO
+  // ══════════════════════════════════════
+  let veloTxt = '';
+  const dsVel = daysSince(lastVelo);
+  const veloKmDiff = Math.round(veloKmWeek - veloKmPrevWeek);
+
+  if(!lastVelo){
+    veloTxt = '🚴 Connecte ton Wahoo ou ajoute une sortie manuellement';
+  } else if(dsVel === 0){
+    veloTxt = '🚴 Sortie vélo aujourd\'hui — les jambes méritent du repos demain';
+  } else if(avgVeloDur !== null && avgVeloDur < 45 && velo7.length >= 2){
+    veloTxt = '🚴 Sorties courtes cette semaine (moy. '+Math.round(avgVeloDur)+'min) — une longue sortie ce week-end ?';
+  } else if(veloElev >= 1000){
+    veloTxt = '🚴 '+Math.round(veloElev)+'m de dénivelé ce mois — belle endurance';
+  } else if(veloKmDiff > 10){
+    veloTxt = '🚴 +'+veloKmDiff+'km vs semaine passée — belle progression vélo';
+  } else if(veloKmDiff < -15 && veloKmPrevWeek > 0){
+    veloTxt = '🚴 Moins de km cette semaine — une sortie pour rattraper ?';
+  } else if(dsVel !== null && dsVel >= 10){
+    veloTxt = '🚴 '+dsVel+'j sans vélo — une sortie courte pour relancer les jambes';
+  } else if(dsVel !== null && dsVel >= 4){
+    veloTxt = '🚴 Dernière sortie il y a '+dsVel+'j — les routes t\'attendent';
+  } else {
+    const km = Math.round(veloKmWeek);
+    veloTxt = km > 0 ? '🚴 '+km+'km cette semaine — continue' : '🚴 Ajoute une sortie vélo cette semaine';
+  }
+
+  // ── Rendu ──
+  msgEl.textContent = message;
+  sugEl.innerHTML = [
+    { txt: muscuTxt,  color:'#4d9eff' },
+    { txt: courseTxt, color:'#34d399' },
+    { txt: veloTxt,   color:'#ffb347' },
+  ].map(s=>'<div class="hsugg"><span class="hsugg-dot" style="background:'+s.color+'"></span><span class="hsugg-txt">'+s.txt+'</span></div>').join('');
 }
 
 // ════ LOGGER ════
@@ -3956,6 +4240,107 @@ function renderVeloScatterChart(acts){
   });
 }
 
+// ════ FEELING CHARTS ════
+
+const FL_LABELS = {1:'Épuisé',2:'Difficile',3:'Correct',4:'Solide',5:'En feu'};
+const FL_COLORS = {1:'#ff5252',2:'#ffb347',3:'#7a8eb0',4:'#34d399',5:'#4d9eff'};
+const FL_SPORT_COLOR = {muscu:'#4d9eff', course:'#34d399', velo:'#ffb347'};
+const FL_SPORT_BORDER = {muscu:'rgba(77,158,255,0.15)', course:'rgba(52,211,153,0.15)', velo:'rgba(255,179,71,0.15)'};
+
+function renderFeelingChart(canvasId, acts, sport){
+  const withFeeling = acts
+    .filter(a=>a.feeling && parseInt(a.feeling)>=1)
+    .sort((a,b)=>new Date(a.date)-new Date(b.date))
+    .slice(-40);
+  if(!withFeeling.length){ return; }
+
+  const labels = withFeeling.map(a=>{
+    const d=new Date(a.date);
+    return d.getDate()+'/'+(d.getMonth()+1);
+  });
+  const data    = withFeeling.map(a=>parseInt(a.feeling));
+  const ptColor = data.map(f=>FL_COLORS[f]||'#7a8eb0');
+  const lineCol = FL_SPORT_COLOR[sport]||'#4d9eff';
+
+  _mkChart(canvasId,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data,
+      borderColor: lineCol,
+      backgroundColor: FL_SPORT_BORDER[sport]||'rgba(77,158,255,0.08)',
+      borderWidth:2, tension:0.35, fill:true,
+      pointBackgroundColor: ptColor,
+      pointBorderColor: ptColor,
+      pointRadius:6, pointHoverRadius:8,
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{
+          title: ctx=>{ const a=withFeeling[ctx[0].dataIndex]; const d=new Date(a.date); return (a.session_label||a.label||sport)+' · '+d.getDate()+'/'+(d.getMonth()+1); },
+          label: ctx=>FL_LABELS[ctx.raw]+' ('+ctx.raw+'/5)'
+        }, backgroundColor:'#0d1420', titleColor:'#e8f0ff', bodyColor:'#7a8eb0', borderColor:'rgba(255,255,255,0.1)', borderWidth:1 }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#3a4a66',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
+        y:{ min:0.5, max:5.5, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7a8eb0',font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
+      }
+    }
+  });
+}
+
+// ════ HOME FEELING CHART (combiné) ════
+let _homeFeelingActs = [];
+let _homeFeelingFilter = 'all';
+
+function setHomeFeelingFilter(sport, btn){
+  _homeFeelingFilter = sport;
+  document.querySelectorAll('#home-feeling-filters .subnav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _renderHomeFeelingChart();
+}
+
+function _renderHomeFeelingChart(){
+  const all = _homeFeelingActs;
+  const filtered = _homeFeelingFilter==='all' ? all : all.filter(a=>a.type===_homeFeelingFilter);
+  const withFeeling = filtered
+    .filter(a=>a.feeling && parseInt(a.feeling)>=1)
+    .sort((a,b)=>new Date(a.date)-new Date(b.date))
+    .slice(-50);
+  if(!withFeeling.length){ return; }
+
+  const labels   = withFeeling.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
+  const data     = withFeeling.map(a=>parseInt(a.feeling));
+  const ptColor  = withFeeling.map(a=>FL_SPORT_COLOR[a.type]||'#7a8eb0');
+  const ptBorder = ptColor;
+
+  _mkChart('home-feeling-chart',{
+    type:'line',
+    data:{ labels, datasets:[{
+      data,
+      borderColor:'rgba(255,255,255,0.15)',
+      backgroundColor:'transparent',
+      borderWidth:1.5, tension:0.35, fill:false,
+      pointBackgroundColor: ptColor,
+      pointBorderColor: ptBorder,
+      pointRadius:6, pointHoverRadius:8,
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{
+          title: ctx=>{ const a=withFeeling[ctx[0].dataIndex]; const d=new Date(a.date); const sportLbl={muscu:'💪',course:'🏃',velo:'🚴'}[a.type]||''; return sportLbl+' '+(a.session_label||a.label||a.type)+' · '+d.getDate()+'/'+(d.getMonth()+1); },
+          label: ctx=>FL_LABELS[ctx.raw]+' ('+ctx.raw+'/5)'
+        }, backgroundColor:'#0d1420', titleColor:'#e8f0ff', bodyColor:'#7a8eb0', borderColor:'rgba(255,255,255,0.1)', borderWidth:1 }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#3a4a66',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
+        y:{ min:0.5, max:5.5, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7a8eb0',font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
+      }
+    }
+  });
+}
+
 // ════ HOOK INTO EXISTING FLOW ════
 
 // Patch showSportTab to trigger chart rendering for course + velo
@@ -3967,12 +4352,14 @@ showSportTab = function(sport, tab, btn){
       renderCoursePaceChart(acts);
       renderCourseKmChart(acts);
       renderCourseScatterChart(acts);
+      renderFeelingChart('course-feeling-chart', acts, 'course');
     });
   } else if(sport==='velo' && tab==='charts'){
     dbLoad('velo').then(acts=>{
       renderVeloSpeedChart(acts);
       renderVeloKmChart(acts);
       renderVeloScatterChart(acts);
+      renderFeelingChart('velo-feeling-chart', acts, 'velo');
     });
   }
 };
@@ -3982,7 +4369,10 @@ const _origShowMuscu = showMuscu;
 showMuscu = function(tab, btn){
   _origShowMuscu(tab, btn);
   if(tab==='charts'){
-    dbLoad('muscu').then(acts=>{ renderMuscuCharts(acts); });
+    dbLoad('muscu').then(acts=>{
+      renderMuscuCharts(acts);
+      renderFeelingChart('muscu-feeling-chart', acts, 'muscu');
+    });
   }
 };
 </script>
