@@ -68,7 +68,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .feed-day{font-size:14px;color:var(--text3);flex-shrink:0}
 
 /* SUBNAV */
-.subnav{position:fixed;bottom:calc(58px + var(--safe-bottom));left:0;right:0;z-index:99;background:rgba(6,10,18,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;padding:8px 16px;gap:8px;overflow-x:auto;scrollbar-width:none}
+.subnav{position:fixed;bottom:calc(58px + var(--safe-bottom));left:0;right:0;z-index:99;background:rgba(6,10,18,.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:1px solid var(--border);display:flex;padding:8px 16px;gap:8px;overflow-x:auto;scrollbar-width:none}
 .subnav::-webkit-scrollbar{display:none}
 .subnav-item{flex-shrink:0;padding:7px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--fb);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .18s}
 .subnav-item.active{background:var(--accent);color:#060a12;border-color:var(--accent)}
@@ -99,6 +99,8 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .hstat-val{font-family:var(--fd);font-size:15px;color:var(--text);letter-spacing:.03em;line-height:1.1}
 .hstat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-top:2px}
 .hstat-delta{font-size:9px;font-weight:600;margin-top:2px;line-height:1.3}
+/* Sidebar sub-menu: mobile only — hidden via media query */
+@media (max-width:999px){#sidebar-sports-sub{display:none !important}}
 /* Mobile: hero-content-row = reco left, stats 2x2 right */
 .hero-content-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
 .hero-content-row .hero-reco{grid-column:1}
@@ -132,9 +134,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .chart-inner{
   position:relative;
   width:100%;
-  min-height:260px;
-  flex:1;
+  height:260px;
   overflow:hidden;
+}
+/* Canvas charts: grow to fill card height, keeping 260px minimum */
+.chart-inner:has(canvas){
+  min-height:260px;
+  height:auto;
+  flex:1;
 }
 .chart-inner canvas{
   position:absolute;top:0;left:0;
@@ -468,22 +475,42 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   }
   .nav-icon{font-size:18px;flex-shrink:0}
 
-  /* ── Subnav → horizontal bar below top-bar ── */
-  .subnav{
-    position:fixed;
-    top:0;
-    left:220px;
-    right:0;
-    bottom:auto;
-    border-top:none;
+  /* ── Subnav horizontal → hidden on desktop (replaced by sidebar sub-menu) ── */
+  #subnav-sports{ display:none !important; }
+  #subnav-nutrition{ display:none !important; }
+
+  /* ── Sidebar sub-menu ── */
+  .sidebar-sub{
+    display:flex;
+    flex-direction:column;
+    background:rgba(0,0,0,0.15);
     border-bottom:1px solid var(--border);
-    border-left:none;
-    transform:none;
-    padding:10px 28px;
-    background:rgba(6,10,18,.97);
-    z-index:99;
-    height:52px;
+    overflow:hidden;
+  }
+  .sidebar-sub-item{
+    display:flex;
     align-items:center;
+    padding:11px 24px 11px 44px;
+    font-family:var(--fb);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.06em;
+    color:var(--text2);
+    background:none;
+    border:none;
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    text-align:left;
+    width:100%;
+    transition:color .15s, background .15s;
+  }
+  .sidebar-sub-item:last-child{ border-bottom:none; }
+  .sidebar-sub-item:hover{ color:var(--text); background:rgba(255,255,255,0.03); }
+  .sidebar-sub-item.active{
+    color:var(--accent);
+    background:var(--accent3);
+    border-left:2px solid var(--accent);
+    padding-left:42px;
   }
 
   /* ── Pages area ── */
@@ -495,12 +522,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     /* when no subnav visible: no top padding needed */
   }
 
-  /* Pages with subnav get top padding */
-  #page-muscu,
-  #page-course,
-  #page-velo{
-    padding-top:52px;
-  }
+  /* No top padding needed — subnav moved into sidebar */
 
   /* ── Page headers ── */
   .ph{
@@ -561,18 +583,18 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     display:contents;
   }
   #page-home .hero-content-row .hstat-box{
-    padding:12px 14px;
+    padding:14px 18px;
   }
   #page-home .hero-content-row .hstat-val{
-    font-size:20px;
+    font-size:26px;
   }
   #page-home .hero-content-row .hstat-lbl{
-    font-size:10px;
-    margin-top:4px;
+    font-size:11px;
+    margin-top:5px;
   }
   #page-home .hero-content-row .hstat-delta{
-    font-size:10px;
-    margin-top:4px;
+    font-size:11px;
+    margin-top:5px;
   }
 
   /* Dashboard 2-col grid for home sections */
@@ -648,22 +670,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   /* weekly chart uses chart-inner for sizing */
 }
 
-/* Force subnav visible on desktop when section is active (overrides inline style) */
-@media (min-width:1000px){
-  /* The subnav is always rendered; JS hides it via inline style=display:none.
-     When subnav-active class is present we override that inline style. */
-  #subnav-sports.subnav-active{
-    display:flex !important;
-  }
-  #subnav-nutrition.subnav-active{
-    display:flex !important;
-  }
-  /* When not active on desktop, truly hide */
-  #subnav-sports:not(.subnav-active),
-  #subnav-nutrition:not(.subnav-active){
-    display:none !important;
-  }
-}
+/* Subnav sports/nutrition fully hidden on desktop — handled by sidebar sub-menu */
 </style>
 </head>
 <body>
@@ -1190,6 +1197,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <nav class="nav-bar">
   <button class="nav-item active" id="nav-home" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Accueil</button>
   <button class="nav-item" id="nav-sports" onclick="showSection('sports')"><span class="nav-icon">🏋️</span>Sports</button>
+  <div id="sidebar-sports-sub" class="sidebar-sub" style="display:none">
+    <button class="sidebar-sub-item" id="ssnav-muscu" onclick="showSport('muscu',this)">💪 Muscu</button>
+    <button class="sidebar-sub-item" id="ssnav-course" onclick="showSport('course',this)">🏃 Course</button>
+    <button class="sidebar-sub-item" id="ssnav-velo" onclick="showSport('velo',this)">🚴 Vélo</button>
+  </div>
   <button class="nav-item" id="nav-nutrition" onclick="showSection('nutrition')"><span class="nav-icon">🥗</span>Nutrition</button>
   <button class="nav-item" id="nav-apps" onclick="showSection('apps')"><span class="nav-icon">📱</span>Apps</button>
 </nav>
@@ -2082,6 +2094,7 @@ function showPage(id, btn){
   document.getElementById('subnav-sports').classList.remove('subnav-active');
   document.getElementById('subnav-nutrition').style.display='none';
   document.getElementById('subnav-nutrition').classList.remove('subnav-active');
+  const _ss=document.getElementById('sidebar-sports-sub'); if(_ss) _ss.style.display='none';
   currentSection='home';
   if(id==='home') renderHome();
 }
@@ -2091,13 +2104,18 @@ function showSection(section){
   document.getElementById('nav-'+section).classList.add('active');
   currentSection = section;
 
-  // Hide all subnavs
+  // Mobile subnavs
   document.getElementById('subnav-sports').style.display='none';
   document.getElementById('subnav-sports').classList.remove('subnav-active');
   document.getElementById('subnav-nutrition').style.display='none';
   document.getElementById('subnav-nutrition').classList.remove('subnav-active');
 
+  // Desktop sidebar sub-menu
+  const sidebarSub = document.getElementById('sidebar-sports-sub');
+  if(sidebarSub) sidebarSub.style.display = section==='sports' ? 'flex' : 'none';
+
   if(section==='sports'){
+    // Mobile subnav
     const sn=document.getElementById('subnav-sports'); sn.style.display='flex'; sn.style.justifyContent='center'; sn.classList.add('subnav-active');
     showSport(currentSport, document.getElementById('snav-'+currentSport));
   } else if(section==='nutrition'){
@@ -2113,6 +2131,10 @@ function showSport(sport, btn){
   _activatePage('page-'+sport);
   document.querySelectorAll('#subnav-sports .subnav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  // Sync sidebar sub-menu active state
+  document.querySelectorAll('.sidebar-sub-item').forEach(b=>b.classList.remove('active'));
+  const sidebarBtn = document.getElementById('ssnav-'+sport);
+  if(sidebarBtn) sidebarBtn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(sport==='course'){
     renderActivities('course');
@@ -2367,18 +2389,22 @@ function renderWeeklyChart(activities){
   // Save to global for click handler
   chartWeeks = weeks;
 
-  // ── Layout ──
-  // Zones (toutes en px du viewBox) :
-  //   0..LABEL_TOP  → espace pour label valeur au-dessus des barres
-  //   LABEL_TOP..BAR_BOT → zone des barres
-  //   BAR_BOT..H     → labels semaines
-  const W=272, H=180; // bar area; viewBox is wider to give Y labels room
-  const LABEL_TOP=18;   // hauteur réservée pour les labels de valeur
-  const BAR_BOT=H-28;   // bas des barres (au-dessus des labels semaine)
-  const BAR_H=BAR_BOT-LABEL_TOP; // hauteur disponible pour les barres
-  const GAP=3;
-  const barW=Math.floor((W-GAP*(NWEEKS-1))/NWEEKS);
-  const step=barW+GAP;
+  // ── Layout — responsive selon largeur du conteneur ──
+  const isWide = window.innerWidth >= 1000;
+  const VW = isWide ? 560 : 320;  // viewBox width
+  const H  = isWide ? 220 : 180;  // viewBox height
+  const Y_LABEL_W = isWide ? 44 : 48; // espace à droite pour labels Y
+  const W  = VW - Y_LABEL_W;      // largeur zone barres
+  const LABEL_TOP = isWide ? 22 : 18;
+  const BAR_BOT   = H - (isWide ? 34 : 28);
+  const BAR_H     = BAR_BOT - LABEL_TOP;
+  const GAP       = isWide ? 5 : 3;
+  const barW      = Math.floor((W - GAP*(NWEEKS-1)) / NWEEKS);
+  const step      = barW + GAP;
+  const FS_GRID   = isWide ? 10   : 7.5;   // font-size grille Y
+  const FS_VAL    = isWide ? 11.5 : 8.5;   // font-size label valeur
+  const FS_WEEK   = isWide ? 10.5 : 8;     // font-size label semaine
+  const DOT_R     = isWide ? 3    : 2;      // rayon point semaine courante
 
   const maxSec=Math.max(...weeks.map(w=>w.muscu+w.course+w.velo),1);
 
@@ -2389,11 +2415,11 @@ function renderWeeklyChart(activities){
     const y=LABEL_TOP+BAR_H*(1-i/nLines);
     const hVal=(maxSec/3600*i/nLines);
     const lbl=hVal>=1?hVal.toFixed(1)+'h':Math.round(hVal*60)+'m';
-    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W+4}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-    grid+=`<text x="318" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="7.5" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
+    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    grid+=`<text x="${VW-1}" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="${FS_GRID}" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
   }
   // ligne de base
-  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W+4}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
 
   // ── Barres ──
   let bars='';
@@ -2448,7 +2474,7 @@ function renderWeeklyChart(activities){
       const lbl=totalH>=1?totalH.toFixed(1)+'h':Math.round(total/60)+'m';
       const labelY=BAR_BOT-totalPx-5; // 5px au-dessus du sommet
       const clampedY=Math.max(labelY,LABEL_TOP-2); // ne pas sortir du viewBox
-      bars+=`<text x="${x+barW/2}" y="${clampedY}" text-anchor="middle" font-size="8.5" font-weight="700" font-family="system-ui" fill="${isCur?'#4d9eff':'rgba(255,255,255,0.5)'}">${lbl}</text>`;
+      bars+=`<text x="${x+barW/2}" y="${clampedY}" text-anchor="middle" font-size="${FS_VAL}" font-weight="700" font-family="system-ui" fill="${isCur?'#4d9eff':'rgba(255,255,255,0.5)'}">${lbl}</text>`;
     }
 
     // ── Label semaine ──
@@ -2456,11 +2482,11 @@ function renderWeeklyChart(activities){
     const lbl=isCur
       ? 'Sem.'
       : (mon.getDate())+'/'+(mon.getMonth()+1);
-    bars+=`<text x="${x+barW/2}" y="${H-8}" text-anchor="middle" font-size="8" font-family="system-ui" fill="${isCur?'#e8f0ff':'rgba(255,255,255,0.28)'}" font-weight="${isCur?700:400}">${lbl}</text>`;
+    bars+=`<text x="${x+barW/2}" y="${H-10}" text-anchor="middle" font-size="${FS_WEEK}" font-family="system-ui" fill="${isCur?'#e8f0ff':'rgba(255,255,255,0.28)'}" font-weight="${isCur?700:400}">${lbl}</text>`;
 
     // ── Indicateur "semaine courante" — petit point sous le label ──
     if(isCur){
-      bars+=`<circle cx="${x+barW/2}" cy="${H-2}" r="2" fill="#4d9eff"/>`;
+      bars+=`<circle cx="${x+barW/2}" cy="${H-3}" r="${DOT_R}" fill="#4d9eff"/>`;
     }
   });
 
@@ -2469,10 +2495,10 @@ function renderWeeklyChart(activities){
   weeks.forEach((w,i)=>{
     const x=i*step;
     const hasData=w.acts.length>0;
-    overlays+=`<rect data-week="${i}" x="${x}" y="0" width="${barW}" height="${H}" fill="transparent" style="cursor:${hasData?'pointer':'default'}" onclick="toggleWeekDetail(${i})"/>`;
+    overlays+=`<rect data-week="${i}" x="${x}" y="0" width="${barW}" height="${BAR_BOT+10}" fill="transparent" style="cursor:${hasData?'pointer':'default'}" onclick="toggleWeekDetail(${i})"/>`;
   });
 
-  el.innerHTML=`<svg id="weekly-svg" viewBox="0 0 320 ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">${grid}${bars}${overlays}</svg>`;
+  el.innerHTML=`<svg id="weekly-svg" viewBox="0 0 ${VW} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">${grid}${bars}${overlays}</svg>`;
 }
 
 
@@ -4403,8 +4429,6 @@ function renderMuscuLiftChart(acts){
 
   const labels = sorted.map(a=>{ const d=new Date(a.date); return d.getDate()+'/'+(d.getMonth()+1); });
   const COLORS = [CJ_ACCENT, CJ_GREEN, CJ_AMBER, CJ_RED, '#a855f7', '#f472b6'];
-  const DASHES = [[0,0],[5,4],[2,4],[8,3],[4,2],[6,3]];
-
   const datasets = seriesDefs.map(({key, label}, i)=>{
     const data = sorted.map(a=>{
       const exo = (a.exercises||[]).find(e=>e.name===key);
@@ -4413,8 +4437,7 @@ function renderMuscuLiftChart(acts){
       return weights.length ? Math.round(weights.reduce((s,v)=>s+v,0)/weights.length*10)/10 : null;
     });
     return { label, data, borderColor:COLORS[i%COLORS.length], backgroundColor:'transparent',
-      tension:0.3, pointRadius:4, borderWidth:2,
-      borderDash:DASHES[i%DASHES.length], spanGaps:true };
+      tension:0.3, pointRadius:4, borderWidth:2, spanGaps:true };
   });
 
   if(lg){
@@ -4832,6 +4855,16 @@ showMuscu = function(tab, btn){
   await renderHome();
   migrateActivityMetrics();
 })();
+
+// Re-render weekly chart on resize (responsive viewBox)
+let _resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(()=>{
+    if(typeof _lastChartActivities !== 'undefined' && _lastChartActivities)
+      renderWeeklyChart(_lastChartActivities);
+  }, 150);
+});
 </script>
 </body>
 </html>
