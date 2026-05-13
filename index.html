@@ -2194,6 +2194,15 @@ async function renderHome(){
   const all = await dbLoad(null);
   cachedHist = all.filter(a=>a.type==='muscu');
 
+  // Réinitialiser la sélection de semaine
+  activeWeekIdx = null;
+  const _rl = document.getElementById('recent-acts-label');
+  const _rb = document.getElementById('recent-acts-reset');
+  if(_rl) _rl.textContent = 'Dernières activités';
+  if(_rb) _rb.style.display = 'none';
+  const _wd = document.getElementById('week-detail');
+  if(_wd){ _wd.style.display='none'; _wd.innerHTML=''; }
+
   // Détruire les charts Chart.js pour forcer le re-rendu propre
   if(typeof _destroyChart === 'function'){
     _destroyChart('home-donut-canvas');
@@ -2211,7 +2220,7 @@ async function renderHome(){
   _homeFeelingActs = all;
   _homeFeelingFilter = 'all';
   document.querySelectorAll('#home-feeling-filters .subnav-item').forEach((b,i)=>b.classList.toggle('active',i===0));
-  _renderHomeFeelingChart();
+  if(typeof _renderHomeFeelingChart === 'function') _renderHomeFeelingChart();
 }
 
 function renderHomeStats(all){
@@ -3741,18 +3750,13 @@ async function migrateActivityMetrics(){
   } catch(e){ console.warn('migrate error', e); }
 }
 
-(async()=>{
-  // Init pages display — CSS handles display:none, we just set the active class
-  document.getElementById('page-home').classList.add('active');
-  // Sync profile buttons with stored profile
-  document.querySelectorAll('.profile-btn').forEach(b=>{
-    b.classList.toggle('active', parseInt(b.dataset.pid)===activeProfile);
-  });
-  await renderHome();
-  renderLogNav();
-  seedRecipesIfEmpty();
-  migrateActivityMetrics(); // background migration — no await needed
-})();
+// Init basique (sans renderHome, car Chart.js n'est pas encore chargé)
+document.getElementById('page-home').classList.add('active');
+document.querySelectorAll('.profile-btn').forEach(b=>{
+  b.classList.toggle('active', parseInt(b.dataset.pid)===activeProfile);
+});
+renderLogNav();
+seedRecipesIfEmpty();
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -3806,10 +3810,7 @@ function renderHomeDonut(activities){
   const data   = [totals.muscu, totals.course, totals.velo];
   const colors = [CJ_ACCENT, CJ_GREEN, CJ_AMBER];
 
-  _destroyChart('home-donut-canvas');
-  const canvas = document.getElementById('home-donut-canvas');
-  if(!canvas) return;
-  _donutChart = new Chart(canvas, {
+  _mkChart('home-donut-canvas', {
     type:'doughnut',
     data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:0 }] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
@@ -4428,6 +4429,12 @@ showMuscu = function(tab, btn){
     });
   }
 };
+
+// ════ INIT COMPLET (après Chart.js) ════
+(async()=>{
+  await renderHome();
+  migrateActivityMetrics();
+})();
 </script>
 </body>
 </html>
