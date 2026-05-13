@@ -128,11 +128,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .charts-grid .cal-grid-wrap{margin-bottom:0}
 
 /* Uniform chart height system */
-.chart-card{display:flex;flex-direction:column}
+.chart-card{display:flex;flex-direction:column;height:100%}
 .chart-inner{
   position:relative;
   width:100%;
-  height:260px;
+  min-height:260px;
+  flex:1;
   overflow:hidden;
 }
 .chart-inner canvas{
@@ -612,8 +613,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:16px;
-    align-items:start;
+    align-items:stretch;
   }
+  .charts-grid > div{display:flex;flex-direction:column}
+  .charts-grid > div > .cal-grid-wrap.chart-card{flex:1}
   /* Remove bottom-margin on cards inside grid (gap handles spacing) */
   .charts-grid .cal-grid-wrap{margin-bottom:0}
   /* No canvas height override — .chart-inner height is the single source of truth */
@@ -4268,20 +4271,20 @@ function renderHomeHeatmap(activities){
   const DOW_SHORT = ['L','M','M','J','V','S','D'];
 
   // Month label row
-  let h = '<div style="display:grid;grid-template-columns:16px repeat('+NWEEKS+',1fr);gap:0;margin-bottom:2px;">';
+  let h = '<div style="display:grid;grid-template-columns:clamp(16px,2em,28px) repeat('+NWEEKS+',1fr);gap:0;margin-bottom:3px;">';
   h += '<div></div>'; // spacer for DOW column
   monthLabels.forEach(({label})=>{
-    h += '<div style="font-size:8px;color:var(--text3);font-weight:700;padding-left:1px;white-space:nowrap;overflow:hidden;">'+label+'</div>';
+    h += '<div style="font-size:clamp(8px,0.75vw,12px);color:var(--text3);font-weight:700;padding-left:1px;white-space:nowrap;overflow:hidden;">'+label+'</div>';
   });
   h += '</div>';
 
   // Main grid: DOW label column + week columns
-  h += '<div style="display:grid;grid-template-columns:16px repeat('+NWEEKS+',1fr);grid-template-rows:repeat(7,1fr);gap:1px;">';
+  h += '<div style="display:grid;grid-template-columns:clamp(16px,2em,28px) repeat('+NWEEKS+',1fr);grid-template-rows:repeat(7,1fr);gap:2px;">';
 
   // Fill row by row
   for(let d=0;d<7;d++){
     // DOW label
-    h += '<div style="font-size:7px;color:var(--text3);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:3px;line-height:1;">'+DOW_SHORT[d]+'</div>';
+    h += '<div style="font-size:clamp(7px,0.7vw,11px);color:var(--text3);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;line-height:1;">'+DOW_SHORT[d]+'</div>';
     // Each week cell for this day
     for(let w=0;w<NWEEKS;w++){
       const day = weeks[w][d];
@@ -4312,7 +4315,7 @@ function renderHomeHeatmap(activities){
   // Legend
   h += '<div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">';
   [{label:'Muscu',c:CJ_ACCENT},{label:'Course',c:CJ_GREEN},{label:'Vélo',c:CJ_AMBER}].forEach(s=>{
-    h += '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:2px;background:'+s.c+';display:inline-block;opacity:.9"></span>'+s.label+'</div>';
+    h += '<div style="display:flex;align-items:center;gap:4px;font-size:clamp(10px,0.8vw,13px);color:var(--text2)"><span style="width:clamp(8px,0.7vw,11px);height:clamp(8px,0.7vw,11px);border-radius:2px;background:'+s.c+';display:inline-block;opacity:.9"></span>'+s.label+'</div>';
   });
   h += '</div>';
 
