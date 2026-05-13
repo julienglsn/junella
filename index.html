@@ -360,18 +360,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes toastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-8px)}}
 
-/* ════ DESKTOP (≥640px) — Clean centered layout ════ */
-@media (min-width:640px){
+/* ════ TABLET (≥640px) — Centred phone shell ════ */
+@media (min-width:640px) and (max-width:999px){
   :root{--safe-bottom:0px;--safe-top:0px}
   body{background:#03060e}
-
-  /* Centred shell */
   .page{max-width:520px;margin-left:auto;margin-right:auto}
-  .subnav{
-    left:50%;transform:translateX(-50%);
-    width:100%;max-width:520px;
-    border-radius:0;
-  }
+  .subnav{left:50%;transform:translateX(-50%);width:100%;max-width:520px;border-radius:0}
   .nav-bar{
     left:50%;transform:translateX(-50%);
     width:100%;max-width:520px;
@@ -379,10 +373,234 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     border-left:1px solid var(--border);
     border-right:1px solid var(--border);
   }
-
   #home-weekly-chart svg{max-width:480px;display:block;margin:0 auto}
   .ph h1{font-size:22px}
   .ph p{font-size:14px}
+}
+
+/* ════ DESKTOP (≥1000px) — Sidebar layout ════ */
+@media (min-width:1000px){
+  :root{--safe-bottom:0px;--safe-top:0px}
+
+  body{
+    background:#03060e;
+    padding-bottom:0;
+    display:flex;
+    min-height:100dvh;
+  }
+
+  /* ── Sidebar ── */
+  .nav-bar{
+    position:fixed;
+    top:0; left:0; bottom:0; right:auto;
+    width:220px;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    border-top:none;
+    border-right:1px solid var(--border);
+    border-bottom:none;
+    padding:0;
+    background:rgba(6,10,18,.98);
+    backdrop-filter:blur(28px);
+    -webkit-backdrop-filter:blur(28px);
+    overflow:hidden;
+    z-index:100;
+  }
+
+  /* Logo area inside sidebar */
+  .nav-bar::before{
+    content:'JUNELLA';
+    display:block;
+    font-family:var(--fd);
+    font-size:22px;
+    letter-spacing:.1em;
+    color:var(--accent);
+    padding:28px 24px 22px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+
+  .nav-item{
+    flex:none;
+    flex-direction:row;
+    align-items:center;
+    justify-content:flex-start;
+    gap:12px;
+    padding:14px 24px;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    border-radius:0;
+    width:100%;
+  }
+  .nav-item:last-child{border-bottom:none}
+  .nav-item.active{
+    color:var(--text);
+    background:var(--accent2);
+    border-left:3px solid var(--accent);
+    padding-left:21px;
+  }
+  .nav-icon{font-size:18px;flex-shrink:0}
+
+  /* ── Subnav → horizontal bar below top-bar ── */
+  .subnav{
+    position:fixed;
+    top:0;
+    left:220px;
+    right:0;
+    bottom:auto;
+    border-top:none;
+    border-bottom:1px solid var(--border);
+    border-left:none;
+    transform:none;
+    padding:10px 28px;
+    background:rgba(6,10,18,.97);
+    z-index:99;
+    height:52px;
+    align-items:center;
+  }
+
+  /* ── Pages area ── */
+  .page{
+    margin-left:220px;
+    max-width:none;
+    width:calc(100% - 220px);
+    min-height:100dvh;
+    /* when no subnav visible: no top padding needed */
+  }
+
+  /* Pages with subnav get top padding */
+  #page-muscu,
+  #page-course,
+  #page-velo{
+    padding-top:52px;
+  }
+
+  /* ── Page headers ── */
+  .ph{
+    padding:28px 40px 24px;
+    background:linear-gradient(135deg,rgba(77,158,255,.07) 0%,transparent 55%);
+  }
+  .ph .ey{font-size:48px}
+  .ph h1{font-size:30px}
+  .ph p{font-size:14px}
+
+  .hero{
+    padding:28px 40px 24px;
+  }
+  .hrey{font-size:48px}
+  .hrt{font-size:30px}
+  .hrs{font-size:14px}
+
+  /* ── Section spacing ── */
+  .sec{padding:20px 40px}
+  .stabs{padding:14px 40px 0}
+  .sc{padding:20px 40px}
+  .lform{padding:14px 40px}
+  .log-step-label{padding:14px 40px 8px}
+  .selbts{padding:14px 40px 0}
+  .import-bar{padding:14px 40px 0}
+
+  /* ── Home: 2-column dashboard ── */
+  #page-home .sec{
+    padding:20px 40px;
+  }
+
+  /* Hero home: side-by-side */
+  #page-home .hero{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+    align-items:start;
+    padding:32px 40px 28px;
+  }
+  #page-home .hero > div:first-child{
+    /* logo + profile row */
+    grid-column:1/-1;
+  }
+  #page-home .hero-divider{
+    grid-column:1/-1;
+    margin:6px 0;
+  }
+
+  /* Dashboard 2-col grid for home sections */
+  .desktop-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    padding:0 40px 20px;
+  }
+  .desktop-grid-full{
+    grid-column:1/-1;
+  }
+
+  /* Sports hub: bigger grid */
+  #page-sports-hub .sgrid{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+  #page-sports-hub .sgrid .sc2:last-child{
+    grid-column:auto;
+  }
+
+  /* Muscu programme: 2-col supersets */
+  #page-muscu .sc{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    align-items:start;
+  }
+  #page-muscu .sc.active{display:grid}
+  /* But histoire and logger stay single col */
+  #muscu-hist,#muscu-logger{grid-template-columns:1fr}
+
+  /* Charts get more height */
+  canvas{max-height:280px}
+
+  /* Modal: centered, not bottom sheet */
+  .modal-overlay{align-items:center}
+  .modal{
+    border-radius:20px;
+    max-width:540px;
+    max-height:88dvh;
+    padding:32px 32px calc(32px);
+  }
+
+  /* Subnav items bigger on desktop */
+  .subnav-item{padding:6px 18px;font-size:13px}
+
+  /* stabs bigger */
+  .stab{font-size:14px;padding:8px 22px}
+
+  /* Feed cards bigger */
+  .feed-title{font-size:14px}
+  .feed-metrics{font-size:12px}
+
+  /* Typography upgrades */
+  .slabel{font-size:11px}
+  .cl{font-size:15px}
+  .cr{font-size:14px}
+
+  #home-weekly-chart svg{max-width:100%;display:block;margin:0 auto}
+}
+
+/* Force subnav visible on desktop when section is active (overrides inline style) */
+@media (min-width:1000px){
+  /* The subnav is always rendered; JS hides it via inline style=display:none.
+     When subnav-active class is present we override that inline style. */
+  #subnav-sports.subnav-active{
+    display:flex !important;
+  }
+  #subnav-nutrition.subnav-active{
+    display:flex !important;
+  }
+  /* When not active on desktop, truly hide */
+  #subnav-sports:not(.subnav-active),
+  #subnav-nutrition:not(.subnav-active){
+    display:none !important;
+  }
 }
 </style>
 </head>
@@ -1763,7 +1981,9 @@ function showPage(id, btn){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   document.getElementById('subnav-sports').style.display='none';
+  document.getElementById('subnav-sports').classList.remove('subnav-active');
   document.getElementById('subnav-nutrition').style.display='none';
+  document.getElementById('subnav-nutrition').classList.remove('subnav-active');
   currentSection='home';
   if(id==='home') renderHome();
 }
@@ -1775,13 +1995,15 @@ function showSection(section){
 
   // Hide all subnavs
   document.getElementById('subnav-sports').style.display='none';
+  document.getElementById('subnav-sports').classList.remove('subnav-active');
   document.getElementById('subnav-nutrition').style.display='none';
+  document.getElementById('subnav-nutrition').classList.remove('subnav-active');
 
   if(section==='sports'){
-    const sn=document.getElementById('subnav-sports'); sn.style.display='flex'; sn.style.justifyContent='center';
+    const sn=document.getElementById('subnav-sports'); sn.style.display='flex'; sn.style.justifyContent='center'; sn.classList.add('subnav-active');
     showSport(currentSport, document.getElementById('snav-'+currentSport));
   } else if(section==='nutrition'){
-    document.getElementById('subnav-nutrition').style.display='flex';
+    const sn=document.getElementById('subnav-nutrition'); sn.style.display='flex'; sn.classList.add('subnav-active');
     showNutrition(currentNutri, document.getElementById('snav-recettes'));
   } else if(section==='apps'){
     _renderAppsPage();
