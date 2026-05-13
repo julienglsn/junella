@@ -545,19 +545,26 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
     grid-column:auto;
   }
 
-  /* Muscu programme: 2-col supersets */
-  #page-muscu .sc{
+  /* Muscu tabs: respect show/hide logic — only active panel visible */
+  #page-muscu .sc{display:none}
+  #page-muscu #muscu-prog.active{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:16px;
     align-items:start;
   }
-  #page-muscu .sc.active{display:grid}
-  /* But histoire and logger stay single col */
-  #muscu-hist,#muscu-logger{grid-template-columns:1fr}
+  #page-muscu #muscu-hist.active,
+  #page-muscu #muscu-logger.active,
+  #page-muscu #muscu-charts.active{
+    display:block;
+  }
 
-  /* Charts get more height */
-  canvas{max-height:280px}
+  /* Home: cap the two big charts to a reasonable width */
+  #home-weekly-chart{max-width:660px}
+  #home-heatmap-wrap{max-width:660px}
+
+  /* Canvas charts height cap */
+  canvas{max-height:260px}
 
   /* Modal: centered, not bottom sheet */
   .modal-overlay{align-items:center}
