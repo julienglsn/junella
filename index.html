@@ -2194,6 +2194,12 @@ async function renderHome(){
   const all = await dbLoad(null);
   cachedHist = all.filter(a=>a.type==='muscu');
 
+  // Détruire les charts Chart.js pour forcer le re-rendu propre
+  if(typeof _destroyChart === 'function'){
+    _destroyChart('home-donut-canvas');
+    _destroyChart('home-feeling-chart');
+  }
+
   renderWeeklyChart(all);
   if(typeof renderHomeDonut === 'function') renderHomeDonut(all);
   if(typeof renderHomeHeatmap === 'function') renderHomeHeatmap(all);
