@@ -904,6 +904,12 @@ function setProfile(id){
   localStorage.setItem('junella_profile_id', id);
   localStorage.removeItem('junella_acts');
   cachedHist = null;
+  // Si le programme actif n'est pas disponible pour ce profil, reset
+  const avail = (PROFILE_PROGRAMS[id] || []).filter(k => PROGRAMS[k]);
+  if(!avail.includes(curLogProg)){
+    curLogProg = avail[0] || 'sfb';
+    curLog = avail.length ? PROGRAMS[curLogProg].sessions[0] : 'a';
+  }
   // Mettre à jour tous les boutons profil
   document.querySelectorAll('.profile-btn').forEach(b=>{
     b.classList.toggle('active', parseInt(b.dataset.pid)===id);
@@ -1622,6 +1628,16 @@ const PROGRAMS = {
   // Add future programs here
 };
 
+// Programmes disponibles par profil (profile_id → liste de clés)
+const PROFILE_PROGRAMS = {
+  1: ['sfb'],  // Ju
+  2: [],       // Nella — aucun programme pour l'instant
+};
+
+function profilePrograms(){
+  return (PROFILE_PROGRAMS[activeProfile] || []).filter(k => PROGRAMS[k]);
+}
+
 const SESSIONS = {
   a:{ label:'Séance A — Jambes / Push', supersets:[
     { label:'Jambes', exercises:[
@@ -1896,7 +1912,52 @@ function showMuscu(tab, btn){
   btn.classList.add('active');
   if(tab==='hist') renderHist();
   if(tab==='log') renderLogNav();
-  // charts: nothing to do yet
+  if(tab==='prog') renderProgTab();
+}
+
+function renderProgTab(){
+  const avail = profilePrograms();
+  const selector = document.querySelector('#muscu-prog .prog-selector');
+  const sfbContent = document.getElementById('prog-content-sfb');
+  const noProgMsg  = document.getElementById('prog-no-prog-msg');
+
+  if(!selector) return;
+
+  if(!avail.length){
+    // Cacher le sélecteur et le contenu SFB, afficher message
+    selector.style.display = 'none';
+    if(sfbContent) sfbContent.style.display = 'none';
+    if(!noProgMsg){
+      const msg = document.createElement('div');
+      msg.id = 'prog-no-prog-msg';
+      msg.style.cssText = 'padding:40px 20px;text-align:center';
+      msg.innerHTML =
+        '<div style="font-size:38px;margin-bottom:12px">📋</div>'+
+        '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Aucun programme</div>'+
+        '<div style="font-size:13px;color:var(--text2);line-height:1.6">Tu n\'as pas encore de programme muscu.<br>Les séances libres sont toujours disponibles<br>depuis l\'onglet Logger.</div>';
+      selector.parentNode.insertBefore(msg, selector.nextSibling);
+    } else {
+      noProgMsg.style.display = 'block';
+    }
+  } else {
+    // Afficher le sélecteur, cacher le message
+    selector.style.display = '';
+    if(noProgMsg) noProgMsg.style.display = 'none';
+    // Afficher seulement les programmes disponibles pour ce profil
+    document.querySelectorAll('.prog-selector .prog-card:not(.prog-add)').forEach(card=>{
+      const progId = card.id?.replace('prog-','');
+      if(progId) card.style.display = avail.includes(progId) ? '' : 'none';
+    });
+    // Afficher le contenu du premier programme dispo
+    document.querySelectorAll('[id^="prog-content-"]').forEach(c=>c.style.display='none');
+    const firstEl = document.getElementById('prog-content-'+avail[0]);
+    if(firstEl) firstEl.style.display='block';
+    // Mettre à jour l'état actif des cards
+    document.querySelectorAll('.prog-selector .prog-card:not(.prog-add)').forEach(card=>{
+      const progId = card.id?.replace('prog-','');
+      card.classList.toggle('active', progId === avail[0]);
+    });
+  }
 }
 
 function showSession(id, btn){
@@ -2415,19 +2476,28 @@ function renderHomeSuggestions(all){
   // ══════════════════════════════════════
   let muscuTxt = '';
   const dsMus = daysSince(lastMuscu);
+  const hasProg = profilePrograms().length > 0;
 
   if(!lastMuscu){
-    muscuTxt = '💪 Programme Supersets Full Body — commence par la séance A';
+    muscuTxt = hasProg
+      ? '💪 Programme Supersets Full Body — commence par la séance A'
+      : '💪 Ajoute ta première séance muscu pour suivre ta progression';
   } else if(feelMuscu !== null && feelMuscu <= 2 && dsMus !== null && dsMus < 2){
     muscuTxt = '💪 Feeling difficile lors de la dernière séance — charge légère aujourd\'hui';
   } else if(muscuStreak >= 4){
     muscuTxt = '💪 '+muscuStreak+' semaines de suite sans manquer — streak solide 🔥';
   } else if(dsMus !== null && dsMus >= 4){
-    muscuTxt = '💪 '+dsMus+'j sans muscu — reprends avec la séance '+nextSessLabel.split('—')[0].trim();
-  } else if(nextKeyWeight){
+    muscuTxt = hasProg
+      ? '💪 '+dsMus+'j sans muscu — reprends avec la séance '+nextSessLabel.split('—')[0].trim()
+      : '💪 '+dsMus+'j sans muscu — c\'est le moment de reprendre';
+  } else if(nextKeyWeight && hasProg){
     muscuTxt = '💪 Séance '+nextSessLabel+' — '+keyExo[nextSess]+' à '+nextKeyWeight+'kg la dernière fois';
-  } else {
+  } else if(hasProg){
     muscuTxt = '💪 Prochaine : séance '+nextSessLabel;
+  } else {
+    muscuTxt = dsMus === 0
+      ? '💪 Séance loggée aujourd\'hui — bonne récupération'
+      : '💪 Dernière séance il y a '+dsMus+'j — continue sur ta lancée';
   }
 
   // ══════════════════════════════════════
@@ -2568,10 +2638,13 @@ function selLMMode(mode){
 function renderLogModal(){
   const progBtns = document.getElementById('lm-prog-btns');
   if(progBtns){
-    progBtns.innerHTML = Object.entries(PROGRAMS).map(([id,p])=>{
+    const avail = profilePrograms();
+    progBtns.innerHTML = avail.map(id=>{
+      const p = PROGRAMS[id];
       const act = id===curLogProg?' active':'';
       return '<button class="selbt'+act+'" onclick="selLMProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
     }).join('');
+    if(!avail.length) progBtns.innerHTML = '<div style="font-size:13px;color:var(--text3);font-style:italic;padding:10px 0">Aucun programme disponible</div>';
   }
   const sessStep = document.getElementById('lm-step-sess');
   const sessBtns = document.getElementById('lm-sess-btns');
@@ -2926,9 +2999,12 @@ function renderLogNav(){
   // Programme selector
   const progBtns = document.getElementById('log-prog-btns');
   if(progBtns){
-    progBtns.innerHTML = Object.entries(PROGRAMS).map(([id,p])=>{
+    const avail = profilePrograms();
+    progBtns.innerHTML = avail.map(id=>{
+      const p = PROGRAMS[id];
       return '<button class="selbt'+(id===curLogProg?' active':'')+'" onclick="selLogProg(&quot;'+id+'&quot;)">'+p.label+'</button>';
     }).join('');
+    if(!avail.length) progBtns.innerHTML = '<div style="font-size:13px;color:var(--text3);font-style:italic;padding:10px 0">Aucun programme — séance libre uniquement</div>';
   }
   // Session selector
   const sessStep  = document.getElementById('log-step-sess');
