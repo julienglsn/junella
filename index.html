@@ -508,7 +508,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ MUSCULATION ════ -->
 <div class="page" id="page-muscu">
   <div class="ph">
-    <div class="ey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="ey">JUNELLA</div>
+      <div style="display:flex;gap:6px;">
+        <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
+        <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+      </div>
+    </div>
     <div class="ph-divider"></div>
     <h1>MUSCULATION</h1>
     <p>Supersets · 3×/semaine · Push · Pull · Full body</p>
@@ -671,7 +677,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ COURSE ════ -->
 <div class="page" id="page-course">
   <div class="ph">
-    <div class="ey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="ey">JUNELLA</div>
+      <div style="display:flex;gap:6px;">
+        <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
+        <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+      </div>
+    </div>
     <div class="ph-divider"></div>
     <h1>COURSE À PIED</h1>
     <p>Coros Pace 4 · Zone 2 · Progression</p>
@@ -732,7 +744,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ VÉLO ════ -->
 <div class="page" id="page-velo">
   <div class="ph">
-    <div class="ey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="ey">JUNELLA</div>
+      <div style="display:flex;gap:6px;">
+        <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
+        <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+      </div>
+    </div>
     <div class="ph-divider"></div>
     <h1>VÉLO DE ROUTE</h1>
     <p>Wahoo Elemnt · Tickr 2 · Endurance</p>
@@ -886,10 +904,16 @@ function setProfile(id){
   localStorage.setItem('junella_profile_id', id);
   localStorage.removeItem('junella_acts');
   cachedHist = null;
-  renderHome();
+  // Mettre à jour tous les boutons profil
   document.querySelectorAll('.profile-btn').forEach(b=>{
     b.classList.toggle('active', parseInt(b.dataset.pid)===id);
   });
+  // Recharger la section courante
+  if(currentSection==='home'){
+    renderHome();
+  } else if(currentSection==='sports'){
+    showSport(currentSport, document.getElementById('snav-'+currentSport));
+  }
 }
 
 // Load activities by type (or all)
@@ -1756,15 +1780,28 @@ function showSport(sport, btn){
   window.scrollTo({top:0,behavior:'smooth'});
   if(sport==='course'){
     renderActivities('course');
-    dbLoad('course').then(acts=>{ renderCoursePaceChart(acts); renderCourseKmChart(acts); renderCourseScatterChart(acts); });
+    dbLoad('course').then(acts=>{
+      renderCoursePaceChart(acts);
+      renderCourseKmChart(acts);
+      renderCourseScatterChart(acts);
+      renderFeelingChart('course-feeling-chart', acts, 'course');
+    });
   }
   if(sport==='velo'){
     renderActivities('velo');
-    dbLoad('velo').then(acts=>{ renderVeloSpeedChart(acts); renderVeloKmChart(acts); renderVeloScatterChart(acts); });
+    dbLoad('velo').then(acts=>{
+      renderVeloSpeedChart(acts);
+      renderVeloKmChart(acts);
+      renderVeloScatterChart(acts);
+      renderFeelingChart('velo-feeling-chart', acts, 'velo');
+    });
   }
   if(sport==='muscu'){
     renderHist();
-    dbLoad('muscu').then(acts=>{ renderMuscuCharts(acts); });
+    dbLoad('muscu').then(acts=>{
+      renderMuscuCharts(acts);
+      if(typeof renderFeelingChart === 'function') renderFeelingChart('muscu-feeling-chart', acts, 'muscu');
+    });
   }
 }
 
