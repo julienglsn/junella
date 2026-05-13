@@ -735,28 +735,26 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 
       <!-- Forme au fil du temps -->
       <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-          <div class="slabel" style="margin-bottom:0">Forme au fil du temps</div>
-          <div style="display:flex;gap:6px;" id="home-feeling-filters">
-            <button class="subnav-item active" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('all',this)">Tout</button>
-            <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('muscu',this)">💪</button>
-            <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('course',this)">🏃</button>
-            <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('velo',this)">🚴</button>
-          </div>
-        </div>
+        <div class="slabel" style="margin-bottom:8px">Forme au fil du temps</div>
         <div class="cal-grid-wrap chart-card" style="padding:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+            <div style="font-size:11px;color:var(--text2);">Chaque point = une activité · 1 épuisé → 5 en feu</div>
+            <div style="display:flex;gap:6px;" id="home-feeling-filters">
+              <button class="subnav-item active" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('all',this)">Tout</button>
+              <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('muscu',this)">💪</button>
+              <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('course',this)">🏃</button>
+              <button class="subnav-item" style="padding:4px 10px;font-size:11px;" onclick="setHomeFeelingFilter('velo',this)">🚴</button>
+            </div>
+          </div>
           <div class="chart-inner"><canvas id="home-feeling-chart"></canvas></div>
-          <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une activité · 1 épuisé → 5 en feu</div>
         </div>
       </div>
 
       <!-- Calendrier · 3 mois -->
       <div>
         <div class="slabel" style="margin-bottom:8px">Calendrier · 3 mois</div>
-        <div class="cal-grid-wrap chart-card" style="padding:8px;" id="home-heatmap-wrap">
-          <div class="chart-inner" style="overflow:hidden;">
-            <div id="home-heatmap" style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;"></div>
-          </div>
+        <div class="cal-grid-wrap" style="padding:8px;" id="home-heatmap-wrap">
+          <div id="home-heatmap"></div>
         </div>
       </div>
 
@@ -931,27 +929,27 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div>
           <div class="slabel" style="margin-bottom:10px">Progression des charges</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div id="muscu-lift-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;font-size:11px;color:var(--text2);"></div>
             <div id="muscu-lift-wrap" class="chart-inner"><canvas id="muscu-lift-chart"></canvas></div>
+            <div id="muscu-lift-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11px;color:var(--text2);"></div>
           </div>
         </div>
 
         <div>
           <div class="slabel" style="margin-bottom:10px">Volume par groupe musculaire</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:10px;" id="muscu-vol-subtitle">Séries totales — 4 dernières semaines</div>
             <div class="chart-inner"><canvas id="muscu-vol-chart"></canvas></div>
+            <div style="font-size:11px;color:var(--text2);margin-top:8px;" id="muscu-vol-subtitle">Séries totales — 4 dernières semaines</div>
           </div>
         </div>
 
         <div>
           <div class="slabel" style="margin-bottom:10px">Intensité par séance</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+            <div class="chart-inner"><canvas id="muscu-intensity-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2);">
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4d9eff;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ffb34755;margin-right:4px;vertical-align:middle;"></span>Calories (kcal)</span>
             </div>
-            <div class="chart-inner"><canvas id="muscu-intensity-chart"></canvas></div>
           </div>
         </div>
 
@@ -1013,11 +1011,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div>
           <div class="slabel" style="margin-bottom:10px">Allure vs FC</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+            <div class="chart-inner"><canvas id="course-pace-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2);">
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#34d399;margin-right:4px;vertical-align:middle;"></span>Allure (min/km)</span>
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff5252;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
             </div>
-            <div class="chart-inner"><canvas id="course-pace-chart"></canvas></div>
           </div>
         </div>
 
@@ -1031,9 +1029,9 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div>
           <div class="slabel" style="margin-bottom:10px">Nuage allure / FC moy</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="course-scatter-legend"></div>
             <div class="chart-inner"><canvas id="course-scatter-chart"></canvas></div>
-            <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Allure min/km (y)</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text2);" id="course-scatter-legend"></div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Allure min/km (y)</div>
           </div>
         </div>
 
@@ -1086,12 +1084,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div>
           <div class="slabel" style="margin-bottom:10px">Vitesse vs FC</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text2);">
+            <div class="chart-inner"><canvas id="velo-speed-chart"></canvas></div>
+            <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap;">
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ffb347;margin-right:4px;vertical-align:middle;"></span>Vitesse (km/h)</span>
               <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff5252;margin-right:4px;vertical-align:middle;"></span>FC moy (bpm)</span>
               <span style="display:flex;align-items:center;gap:4px;color:var(--text3)">⛰ Taille point = dénivelé</span>
             </div>
-            <div class="chart-inner"><canvas id="velo-speed-chart"></canvas></div>
           </div>
         </div>
 
@@ -1105,9 +1103,9 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
         <div>
           <div class="slabel" style="margin-bottom:10px">Nuage vitesse / FC moy</div>
           <div class="cal-grid-wrap chart-card" style="padding:14px;">
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2);" id="velo-scatter-legend"></div>
             <div class="chart-inner"><canvas id="velo-scatter-chart"></canvas></div>
-            <div style="font-size:11px;color:var(--text2);margin-top:8px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Vitesse km/h (y)</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text2);" id="velo-scatter-legend"></div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:center;">Chaque point = une sortie. FC <strong>moy</strong> bpm (x) · Vitesse km/h (y)</div>
           </div>
         </div>
 
@@ -2175,6 +2173,7 @@ function _renderAppsPage(){
   const order = [];
   apps.forEach(a=>{ if(!sections[a.sec]){sections[a.sec]=[];order.push(a.sec);} sections[a.sec].push(a); });
 
+  let h = '';
   h += '<div class="sec">';
   order.forEach((sec,si)=>{
     h += '<div class="slabel"'+(si>0?' style="margin-top:18px"':'')+'>'+sec+'</div>';
