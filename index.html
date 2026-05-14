@@ -36,6 +36,72 @@
   --fd: 'Bebas Neue', sans-serif;
   --fb: 'DM Sans', sans-serif;
 }
+/* ════ LIGHT MODE ════ */
+html.light {
+  --bg:      #f0f4fc;
+  --bg2:     #ffffff;
+  --bg3:     #e8eef8;
+  --bg4:     #dde5f5;
+  --border:  rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.13);
+  --text:    #1a2540;
+  --text2:   #5a6a8a;
+  --text3:   #9aaac8;
+  --accent:  #2b7de9;
+  --accent2: rgba(43,125,233,0.10);
+  --accent3: rgba(43,125,233,0.06);
+  --red:     #e03535;
+  --amber:   #d48a00;
+  --green:   #1a9e70;
+}
+html.light body { background: var(--bg); color: var(--text); }
+html.light .nav-bar { background: rgba(240,244,252,.96); }
+html.light .subnav  { background: rgba(240,244,252,.96); }
+html.light .di      { color-scheme: light; background: var(--bg2); color: var(--text); }
+html.light .li      { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+html.light .ni      { background: var(--bg2); color: var(--text); }
+html.light .modal-input { background: var(--bg3); color: var(--text); }
+html.light .subnav-item.active { color: #fff; }
+html.light .stab.active        { color: #fff; }
+html.light .selbt.active       { color: #fff; }
+html.light .savebtn            { color: #fff; }
+html.light .app-btn-primary    { color: #fff; }
+html.light .modal { background: var(--bg2); }
+html.light .toast { background: #fff2f2; border-color: rgba(200,60,60,.3); }
+html.light .toast-msg { color: #b83030; }
+html.light .manifeste p { color: #8a9ab8; }
+html.light .manifeste .manifeste-sig { color: #6a7a98; }
+html.light .hstat-box { background: rgba(0,0,0,0.04); }
+html.light .sc2 { background: var(--bg2); }
+html.light .lsc { background: var(--bg2); }
+html.light .ssb { background: var(--bg2); }
+html.light .ssh { background: var(--bg3); }
+html.light .elb { background: var(--bg2); }
+html.light .elh { background: var(--bg3); }
+html.light .he  { background: var(--bg2); }
+html.light .hdt { background: var(--bg2); }
+html.light .hmcell { background: var(--bg2); }
+html.light .act-card { background: var(--bg2); }
+html.light .act-metric { background: var(--bg2); }
+html.light .sport-last-card { background: var(--bg2); }
+html.light .cardio-metric { background: var(--bg3); }
+html.light .prog-card { background: var(--bg2); }
+html.light .feed-card { background: var(--bg2); }
+html.light .cal-grid-wrap { background: var(--bg2); }
+html.light .imp-btn { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+html.light .sc-btn { background: var(--bg3); color: var(--text); }
+html.light .modal-cancel { color: var(--text2); }
+html.light .hero { background: linear-gradient(160deg,rgba(43,125,233,.05) 0%,transparent 60%); border-bottom-color: var(--border); }
+html.light .ph   { background: linear-gradient(160deg,rgba(43,125,233,.05) 0%,transparent 60%); }
+html.light .ph-divider { background: rgba(0,0,0,0.07); }
+html.light .hero-divider { background: rgba(0,0,0,0.07); }
+html.light .ba { background: rgba(220,60,60,.1); color: #c03030; }
+html.light .bb { background: rgba(43,125,233,.1); color: #1a5db8; }
+html.light .bc { background: rgba(26,158,112,.1); color: #137a56; }
+html.light .exo-pill { background: rgba(43,125,233,.06); border-color: rgba(43,125,233,.15); }
+html.light .sst { background: var(--accent2); border-color: rgba(43,125,233,.2); }
+
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;padding-bottom:calc(112px + var(--safe-bottom))}
@@ -679,9 +745,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="hero">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div class="hrey">JUNELLA</div>
-      <div style="display:flex;gap:6px;">
+      <div style="display:flex;gap:6px;align-items:center;">
         <button class="profile-btn subnav-item active" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
         <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+        <div id="theme-seg" style="display:flex;background:rgba(128,128,128,0.12);border-radius:9px;padding:2px;gap:1px;">
+          <button data-theme-light onclick="setTheme('light')" style="padding:4px 9px;border-radius:7px;border:none;font-size:13px;cursor:pointer;transition:all .18s;" title="Mode clair">☀️</button>
+          <button data-theme-dark  onclick="setTheme('dark')"  style="padding:4px 9px;border-radius:7px;border:none;font-size:13px;cursor:pointer;transition:all .18s;" title="Mode sombre">🌙</button>
+        </div>
       </div>
     </div>
     <div class="hero-divider"></div>
@@ -777,7 +847,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ SPORTS HUB ════ -->
 <div class="page" id="page-sports-hub">
   <div class="hero">
-    <div class="hrey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="hrey">JUNELLA</div>
+      <div id="theme-seg-sports" class="theme-seg-pill"></div>
+    </div>
     <div class="hero-divider"></div>
     <div class="hrt">SPORTS</div>
     <div class="hrs">Sélectionne une activité</div>
@@ -803,7 +876,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ NUTRITION HUB ════ -->
 <div class="page" id="page-nutrition-hub">
   <div class="hero">
-    <div class="hrey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="hrey">JUNELLA</div>
+      <div id="theme-seg-nutrition" class="theme-seg-pill"></div>
+    </div>
     <div class="hero-divider"></div>
     <div class="hrt">NUTRITION</div>
     <div class="hrs">Recettes · Macros · À venir</div>
@@ -815,9 +891,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="ph">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div class="ey">JUNELLA</div>
-      <div style="display:flex;gap:6px;">
+      <div style="display:flex;gap:6px;align-items:center;">
         <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
         <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+        <div id="theme-seg-muscu" class="theme-seg-pill"></div>
       </div>
     </div>
     <div class="ph-divider"></div>
@@ -990,9 +1067,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="ph">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div class="ey">JUNELLA</div>
-      <div style="display:flex;gap:6px;">
+      <div style="display:flex;gap:6px;align-items:center;">
         <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
         <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+        <div id="theme-seg-course" class="theme-seg-pill"></div>
       </div>
     </div>
     <div class="ph-divider"></div>
@@ -1063,9 +1141,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
   <div class="ph">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div class="ey">JUNELLA</div>
-      <div style="display:flex;gap:6px;">
+      <div style="display:flex;gap:6px;align-items:center;">
         <button class="profile-btn subnav-item" data-pid="1" onclick="setProfile(1)" style="padding:5px 14px;font-size:12px;">JU</button>
         <button class="profile-btn subnav-item" data-pid="2" onclick="setProfile(2)" style="padding:5px 14px;font-size:12px;">NELLA</button>
+        <div id="theme-seg-velo" class="theme-seg-pill"></div>
       </div>
     </div>
     <div class="ph-divider"></div>
@@ -1135,7 +1214,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 <!-- ════ RECETTES ════ -->
 <div class="page" id="page-recettes">
   <div class="ph">
-    <div class="ey">JUNELLA</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="ey">JUNELLA</div>
+      <div id="theme-seg-recettes" class="theme-seg-pill"></div>
+    </div>
     <div class="ph-divider"></div>
     <h1>MES RECETTES</h1>
     <p>RC · PD · D · RF</p>
@@ -2410,16 +2492,17 @@ function renderWeeklyChart(activities){
 
   // ── Grille horizontale ──
   const nLines=4;
+  const isLight = document.documentElement.classList.contains('light');
   let grid='';
   for(let i=1;i<=nLines;i++){
     const y=LABEL_TOP+BAR_H*(1-i/nLines);
     const hVal=(maxSec/3600*i/nLines);
     const lbl=hVal>=1?hVal.toFixed(1)+'h':Math.round(hVal*60)+'m';
-    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-    grid+=`<text x="${VW-1}" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="${FS_GRID}" fill="rgba(255,255,255,0.18)" font-family="system-ui">${lbl}</text>`;
+    grid+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="${isLight?'rgba(0,0,0,0.07)':'rgba(255,255,255,0.05)'}" stroke-width="1"/>`;
+    grid+=`<text x="${VW-1}" y="${(y-2).toFixed(1)}" text-anchor="end" font-size="${FS_GRID}" fill="${isLight?'rgba(0,0,0,0.35)':'rgba(255,255,255,0.18)'}" font-family="system-ui">${lbl}</text>`;
   }
   // ligne de base
-  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W}" y2="${BAR_BOT}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  grid+=`<line x1="0" y1="${BAR_BOT}" x2="${W}" y2="${BAR_BOT}" stroke="${isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.1)'}" stroke-width="1"/>`;
 
   // ── Barres ──
   let bars='';
@@ -2438,12 +2521,15 @@ function renderWeeklyChart(activities){
 
     // selection background
     if(isSelected){
-      bars+=`<rect x="${x-1}" y="${LABEL_TOP}" width="${barW+2}" height="${BAR_BOT-LABEL_TOP}" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>`;
+      const selFill = document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)';
+      const selStr  = document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)';
+      bars+=`<rect x="${x-1}" y="${LABEL_TOP}" width="${barW+2}" height="${BAR_BOT-LABEL_TOP}" rx="3" fill="${selFill}" stroke="${selStr}" stroke-width="1"/>`;
     }
 
     // placeholder semaine vide
     if(total===0){
-      bars+=`<rect x="${x}" y="${BAR_BOT-3}" width="${barW}" height="3" rx="1.5" fill="rgba(255,255,255,0.06)"/>`;
+      const emptyFill = document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+      bars+=`<rect x="${x}" y="${BAR_BOT-3}" width="${barW}" height="3" rx="1.5" fill="${emptyFill}"/>`;
     }
 
     // dessiner les segments empilés (vélo en bas, course au milieu, muscu en haut)
@@ -2474,7 +2560,7 @@ function renderWeeklyChart(activities){
       const lbl=totalH>=1?totalH.toFixed(1)+'h':Math.round(total/60)+'m';
       const labelY=BAR_BOT-totalPx-5; // 5px au-dessus du sommet
       const clampedY=Math.max(labelY,LABEL_TOP-2); // ne pas sortir du viewBox
-      bars+=`<text x="${x+barW/2}" y="${clampedY}" text-anchor="middle" font-size="${FS_VAL}" font-weight="700" font-family="system-ui" fill="${isCur?'#4d9eff':'rgba(255,255,255,0.5)'}">${lbl}</text>`;
+      bars+=`<text x="${x+barW/2}" y="${clampedY}" text-anchor="middle" font-size="${FS_VAL}" font-weight="700" font-family="system-ui" fill="${isCur?'var(--accent)':(document.documentElement.classList.contains('light')?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.5)')}">${lbl}</text>`;
     }
 
     // ── Label semaine ──
@@ -2482,7 +2568,7 @@ function renderWeeklyChart(activities){
     const lbl=isCur
       ? 'Sem.'
       : (mon.getDate())+'/'+(mon.getMonth()+1);
-    bars+=`<text x="${x+barW/2}" y="${H-10}" text-anchor="middle" font-size="${FS_WEEK}" font-family="system-ui" fill="${isCur?'#e8f0ff':'rgba(255,255,255,0.28)'}" font-weight="${isCur?700:400}">${lbl}</text>`;
+    bars+=`<text x="${x+barW/2}" y="${H-10}" text-anchor="middle" font-size="${FS_WEEK}" font-family="system-ui" fill="${isCur?(document.documentElement.classList.contains('light')?'#1a2540':'#e8f0ff'):(document.documentElement.classList.contains('light')?'rgba(0,0,0,0.3)':'rgba(255,255,255,0.28)')}" font-weight="${isCur?700:400}">${lbl}</text>`;
 
     // ── Indicateur "semaine courante" — petit point sous le label ──
     if(isCur){
@@ -4189,8 +4275,12 @@ const CJ_ACCENT = '#4d9eff';
 const CJ_GREEN  = '#34d399';
 const CJ_AMBER  = '#ffb347';
 const CJ_RED    = '#ff5252';
-const CJ_GRID   = 'rgba(255,255,255,0.06)';
-const CJ_TICK   = 'rgba(255,255,255,0.35)';
+const CJ_GRID   = ()=> document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.06)';
+const CJ_TICK   = ()=> document.documentElement.classList.contains('light') ? '#5a6a8a' : 'rgba(255,255,255,0.35)';
+const CJ_TT_BG  = ()=> document.documentElement.classList.contains('light') ? '#ffffff' : '#0d1420';
+const CJ_TT_TIT = ()=> document.documentElement.classList.contains('light') ? '#1a2540' : '#e8f0ff';
+const CJ_TT_BOD = ()=> document.documentElement.classList.contains('light') ? '#5a6a8a' : '#7a8eb0';
+const CJ_TT_BOR = ()=> document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
 
 const _chartInstances = {};
 function _destroyChart(id){
@@ -4206,12 +4296,12 @@ function _mkChart(id, config){
 
 const _baseScales = (yLabel, y2Label) => {
   const s = {
-    x: { grid:{ color:CJ_GRID }, ticks:{ color:CJ_TICK, font:{size:10}, maxRotation:45 } },
-    y: { grid:{ color:CJ_GRID }, ticks:{ color:CJ_TICK, font:{size:11} },
-         title: yLabel ? {display:true, text:yLabel, color:CJ_TICK, font:{size:10}} : {display:false} }
+    x: { grid:{ color:CJ_GRID()() }, ticks:{ color:CJ_TICK()(), font:{size:10}, maxRotation:45 } },
+    y: { grid:{ color:CJ_GRID()() }, ticks:{ color:CJ_TICK()(), font:{size:11} },
+         title: yLabel ? {display:true, text:yLabel, color:CJ_TICK()(), font:{size:10}} : {display:false} }
   };
-  if(y2Label) s.y2 = { position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}},
-    title:{display:true, text:y2Label, color:CJ_TICK, font:{size:10}} };
+  if(y2Label) s.y2 = { position:'right', grid:{display:false}, ticks:{color:CJ_TICK()(), font:{size:11}},
+    title:{display:true, text:y2Label, color:CJ_TICK()(), font:{size:10}} };
   return s;
 };
 
@@ -4317,7 +4407,7 @@ function renderHomeHeatmap(activities){
       const k = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
       const types = actByDay[k]||[];
       const isFut = day>today;
-      let bg = 'rgba(255,255,255,0.05)';
+      let bg = document.documentElement.classList.contains('light') ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
       let title = '';
       if(types.length && !isFut){
         title = k+' — '+types.join(', ');
@@ -4500,8 +4590,8 @@ function renderMuscuVolChart(acts){
     options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}}, title:{display:true, text:'Séries', color:CJ_TICK, font:{size:10}} },
-        y:{ grid:{color:'transparent'}, ticks:{color:CJ_TICK, font:{size:10}} }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:10}}, title:{display:true, text:'Séries', color:CJ_TICK(), font:{size:10}} },
+        y:{ grid:{color:'transparent'}, ticks:{color:CJ_TICK(), font:{size:10}} }
       } }
   });
 }
@@ -4522,9 +4612,9 @@ function renderMuscuIntensityChart(acts){
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
-        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:80 },
-        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'kcal', color:CJ_TICK, font:{size:10}} }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK(), font:{size:10}}, min:80 },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'kcal', color:CJ_TICK(), font:{size:10}} }
       }}
   });
 }
@@ -4554,10 +4644,10 @@ function renderCoursePaceChart(acts){
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
-        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
-            title:{display:true, text:"min/km", color:CJ_TICK, font:{size:10}}, reverse:true },
-        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:120, max:190 }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
+            title:{display:true, text:"min/km", color:CJ_TICK(), font:{size:10}}, reverse:true },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK(), font:{size:10}}, min:120, max:190 }
       }}
   });
 }
@@ -4583,8 +4673,8 @@ function renderCourseKmChart(acts){
     data:{ labels:keys, datasets:[{ data, backgroundColor:CJ_GREEN+'bb', borderRadius:4 }] },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
-      scales:{ x:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}},
-               y:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK, font:{size:10}}} } }
+      scales:{ x:{grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}},
+               y:{grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK(), font:{size:10}}} } }
   });
 }
 
@@ -4613,9 +4703,9 @@ function renderCourseScatterChart(acts){
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK, font:{size:10}}, min:120, max:185 },
-        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
-            title:{display:true, text:'Allure', color:CJ_TICK, font:{size:10}}, reverse:true, min:minP, max:maxP }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK(), font:{size:10}}, min:120, max:185 },
+        y:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}, callback:v=>{ const m=Math.floor(v); const s=Math.round((v-m)*60); return m+"'"+String(s).padStart(2,'0')+'"'; }},
+            title:{display:true, text:'Allure', color:CJ_TICK(), font:{size:10}}, reverse:true, min:minP, max:maxP }
       }}
   });
 }
@@ -4655,9 +4745,9 @@ function renderVeloSpeedChart(acts){
         }}}
       },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:10}, maxRotation:45} },
-        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km/h', color:CJ_TICK, font:{size:10}} },
-        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK, font:{size:10}}, min:100, max:185 }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:10}, maxRotation:45} },
+        y:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'km/h', color:CJ_TICK(), font:{size:10}} },
+        y2:{ position:'right', grid:{display:false}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'bpm', color:CJ_TICK(), font:{size:10}}, min:100, max:185 }
       }}
   });
 }
@@ -4683,8 +4773,8 @@ function renderVeloKmChart(acts){
     data:{ labels:keys, datasets:[{ data, backgroundColor:CJ_AMBER+'bb', borderRadius:4 }] },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
-      scales:{ x:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}},
-               y:{grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK, font:{size:10}}} } }
+      scales:{ x:{grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}},
+               y:{grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'km', color:CJ_TICK(), font:{size:10}}} } }
   });
 }
 
@@ -4708,8 +4798,8 @@ function renderVeloScatterChart(acts){
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false} },
       scales:{
-        x:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK, font:{size:10}}, min:100, max:185 },
-        y:{ grid:{color:CJ_GRID}, ticks:{color:CJ_TICK, font:{size:11}}, title:{display:true, text:'Vitesse (km/h)', color:CJ_TICK, font:{size:10}} }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'FC moy (bpm)', color:CJ_TICK(), font:{size:10}}, min:100, max:185 },
+        y:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(), font:{size:11}}, title:{display:true, text:'Vitesse (km/h)', color:CJ_TICK(), font:{size:10}} }
       }}
   });
 }
@@ -4753,11 +4843,11 @@ function renderFeelingChart(canvasId, acts, sport){
         tooltip:{ callbacks:{
           title: ctx=>{ const a=withFeeling[ctx[0].dataIndex]; const d=new Date(a.date); return (a.session_label||a.label||sport)+' · '+d.getDate()+'/'+(d.getMonth()+1); },
           label: ctx=>FL_LABELS[ctx.raw]+' ('+ctx.raw+'/5)'
-        }, backgroundColor:'#0d1420', titleColor:'#e8f0ff', bodyColor:'#7a8eb0', borderColor:'rgba(255,255,255,0.1)', borderWidth:1 }
+        }, backgroundColor:CJ_TT_BG(), titleColor:CJ_TT_TIT(), bodyColor:CJ_TT_BOD(), borderColor:CJ_TT_BOR(), borderWidth:1 }
       },
       scales:{
-        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#3a4a66',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
-        y:{ min:0.5, max:5.5, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7a8eb0',font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
+        y:{ min:0.5, max:5.5, grid:{color:CJ_GRID()}, ticks:{color:CJ_TT_BOD(),font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
       }
     }
   });
@@ -4792,7 +4882,7 @@ function _renderHomeFeelingChart(){
     type:'line',
     data:{ labels, datasets:[{
       data,
-      borderColor:'rgba(255,255,255,0.15)',
+      borderColor:document.documentElement.classList.contains('light')?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.15)',
       backgroundColor:'transparent',
       borderWidth:1.5, tension:0.35, fill:false,
       pointBackgroundColor: ptColor,
@@ -4805,11 +4895,11 @@ function _renderHomeFeelingChart(){
         tooltip:{ callbacks:{
           title: ctx=>{ const a=withFeeling[ctx[0].dataIndex]; const d=new Date(a.date); const sportLbl={muscu:'💪',course:'🏃',velo:'🚴'}[a.type]||''; return sportLbl+' '+(a.session_label||a.label||a.type)+' · '+d.getDate()+'/'+(d.getMonth()+1); },
           label: ctx=>FL_LABELS[ctx.raw]+' ('+ctx.raw+'/5)'
-        }, backgroundColor:'#0d1420', titleColor:'#e8f0ff', bodyColor:'#7a8eb0', borderColor:'rgba(255,255,255,0.1)', borderWidth:1 }
+        }, backgroundColor:CJ_TT_BG(), titleColor:CJ_TT_TIT(), bodyColor:CJ_TT_BOD(), borderColor:CJ_TT_BOR(), borderWidth:1 }
       },
       scales:{
-        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#3a4a66',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
-        y:{ min:0.5, max:5.5, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#7a8eb0',font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
+        x:{ grid:{color:CJ_GRID()}, ticks:{color:CJ_TICK(),font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10} },
+        y:{ min:0.5, max:5.5, grid:{color:CJ_GRID()}, ticks:{color:CJ_TT_BOD(),font:{size:10},stepSize:1,callback:v=>FL_LABELS[v]||''} }
       }
     }
   });
@@ -4865,6 +4955,64 @@ window.addEventListener('resize', ()=>{
       renderWeeklyChart(_lastChartActivities);
   }, 150);
 });
+
+// ════ THEME (light / dark) ════
+(function(){
+  const KEY = 'junella-theme';
+
+  const PILL_HTML = `<div style="display:flex;background:rgba(128,128,128,0.12);border-radius:9px;padding:2px;gap:1px;">
+    <button data-theme-light onclick="setTheme('light')" style="padding:4px 9px;border-radius:7px;border:none;font-size:13px;cursor:pointer;transition:all .18s;" title="Mode clair">☀️</button>
+    <button data-theme-dark  onclick="setTheme('dark')"  style="padding:4px 9px;border-radius:7px;border:none;font-size:13px;cursor:pointer;transition:all .18s;" title="Mode sombre">🌙</button>
+  </div>`;
+
+  function applyTheme(theme){
+    document.documentElement.classList.toggle('light', theme === 'light');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.content = theme === 'light' ? '#f0f4fc' : '#060a12';
+    const activeBg   = theme === 'light' ? '#ffffff' : '#1a2540';
+    const activeClr  = theme === 'light' ? '#1a2540' : '#e8f0ff';
+    const idleBg     = 'transparent';
+    const idleClr    = theme === 'light' ? '#9aaac8' : '#7a8eb0';
+    document.querySelectorAll('[data-theme-light]').forEach(b => {
+      b.style.background = theme === 'light' ? activeBg : idleBg;
+      b.style.color      = theme === 'light' ? activeClr : idleClr;
+    });
+    document.querySelectorAll('[data-theme-dark]').forEach(b => {
+      b.style.background = theme === 'dark' ? activeBg : idleBg;
+      b.style.color      = theme === 'dark' ? activeClr : idleClr;
+    });
+  }
+
+  function injectPills(){
+    document.querySelectorAll('.theme-seg-pill').forEach(el => {
+      el.innerHTML = PILL_HTML;
+    });
+    // also replace the home pill (already in DOM via static HTML — rebuild it the same way)
+    const homeSeg = document.getElementById('theme-seg');
+    if(homeSeg){
+      homeSeg.innerHTML = PILL_HTML;
+    }
+  }
+
+  window.setTheme = function(theme){
+    localStorage.setItem(KEY, theme);
+    applyTheme(theme);
+    // Re-render all active charts with new colors
+    if(typeof renderHome === 'function') renderHome();
+  };
+
+  function getPreferred(){
+    return localStorage.getItem(KEY) || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  }
+
+  injectPills();
+  applyTheme(getPreferred());
+
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if(!localStorage.getItem(KEY)) applyTheme(e.matches ? 'light' : 'dark');
+  });
+})();
+
 </script>
 </body>
 </html>
